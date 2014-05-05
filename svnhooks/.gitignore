@@ -1,0 +1,7 @@
+# generated files
+/target
+
+# Project files 
+.classpath
+.project
+/.settings
