@@ -1,4 +1,4 @@
-package se.findout.hansofthook.test;
+package se.findout.hansoft_hook.test;
 
 import java.net.InetSocketAddress;
 

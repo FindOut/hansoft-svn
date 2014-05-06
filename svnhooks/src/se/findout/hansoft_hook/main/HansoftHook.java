@@ -1,6 +1,7 @@
-package se.findout.hansofthook.main;
+package se.findout.hansoft_hook.main;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import javax.ws.rs.client.Client;
@@ -12,12 +13,19 @@ import javax.ws.rs.core.Response;
 
 
 public class HansoftHook {
-
+	/**
+	 * Usage: "java HansoftHook path taskno author"
+	 * 
+	 * Will add string to svn commit message.
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		HansoftHook hook = new HansoftHook();
 		hook.setRepoPath(args[0]);
 		hook.setTask(Integer.parseInt(args[1]));
-//		hook.setAuthor(args[2]);
+		hook.setAuthor(args[2]);
+		hook.setMessage(args[3]);
 		String append = hook.sendRequest("http://localhost:8000");
 		if(append == null) {
 			System.exit(1);			
@@ -31,13 +39,17 @@ public class HansoftHook {
 	}
 
 
-	//private String author;
+
+
+
+	private String author;
 	private int taskID;
 	private String RepoPath;
+	private String commitMSG;
 
-//	public void setAuthor(String name) {
-//		author = name;
-//	}
+	public void setAuthor(String name) {
+		author = name;
+	}
 
 	public void setTask(int number) {
 		taskID = number;
@@ -48,6 +60,10 @@ public class HansoftHook {
 		RepoPath = repoPath;
 	}
 
+	private void setMessage(String message) {
+		commitMSG = message;
+	}
+	
 	public String sendRequest(String integrationServer) {
 		Client client = ClientBuilder.newClient();
 		WebTarget target = client.target("http://localhost:8000").path("commit");
@@ -66,8 +82,14 @@ public class HansoftHook {
 	
 	private void appendToMessage(String append) throws IOException {
 		//  "svn propset -r <VersionNr> --revprop svn:log <"new log message"> <URL/to/repository/>"
-		// "svnadmin setlog </path/to/repo> <newlog.txt> -r <VersionNr>" 
+		// "svnadmin setlog </path/to/repo> <newlog.txt> -r <VersionNr>" 	
 		File appendFile = File.createTempFile("tmpmsg", "txt");
+		appendFile.deleteOnExit();
+		FileWriter writer = new FileWriter(appendFile, true);
+		writer.write(commitMSG);
+		writer.write("\n\n");
+		writer.write(append);
+		writer.close();
 		Runtime.getRuntime().exec("svnadmin setlog " + RepoPath + " " + appendFile.getAbsolutePath() + " -r " + taskID);
 	}
 

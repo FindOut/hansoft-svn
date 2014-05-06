@@ -1,4 +1,4 @@
-package se.findout.hansofthook.test;
+package se.findout.hansoft_hook.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -9,9 +9,8 @@ import java.net.HttpURLConnection;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.contrib.java.lang.system.ExpectedSystemExit;
 
-import se.findout.hansofthook.main.HansoftHook;
+import se.findout.hansoft_hook.main.HansoftHook;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -26,15 +25,6 @@ public class HansoftHookTest {
 		hook = new HansoftHook();
 	    //hook.setAuthor("bjorn");
 	    //hook.setTask(1);
-	}
-	
-	@Rule
-	public final ExpectedSystemExit exitRule = ExpectedSystemExit.none();
-	
-	@Test
-	public void testProgramFailDefault() {
-		exitRule.expectSystemExitWithStatus(1);
-		HansoftHook.main(new String[] {"testProject","1","bjorn"});
 	}
 	
 	@Rule
