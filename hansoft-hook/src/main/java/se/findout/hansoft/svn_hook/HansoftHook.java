@@ -1,4 +1,4 @@
-package se.findout.hansoft_hook.main;
+package se.findout.hansoft.svn_hook;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -70,7 +70,7 @@ public class HansoftHook {
 		
 		Invocation.Builder invocationBuilder =
 		        target.request(MediaType.TEXT_PLAIN_TYPE);
-		invocationBuilder.header("some-header", "true");
+		invocationBuilder.header("", "true");
 		Response response = invocationBuilder.get();
 		String append = null;
 		if(response.getStatus() == 200) {

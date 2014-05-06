@@ -1,4 +1,4 @@
-package se.findout.hansoft_hook.test;
+package se.findout.hansoft.svn_hook;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import se.findout.hansoft_hook.main.HansoftHook;
+import se.findout.hansoft.svn_hook.HansoftHook;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
