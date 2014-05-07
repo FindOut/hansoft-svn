@@ -66,7 +66,7 @@ public class HansoftHook {
 	
 	public String sendRequest(String integrationServer) {
 		Client client = ClientBuilder.newClient();
-		WebTarget target = client.target("http://localhost:8080").path("commit");
+		WebTarget target = client.target(integrationServer).path("commit");
 		
 		Invocation.Builder invocationBuilder =
 		        target.request(MediaType.TEXT_PLAIN_TYPE);

@@ -15,8 +15,7 @@ public class CommitHandler {
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getCommit() {
-		System.out.println("Sending commit response!");
-		return "Something";
+		return "\"append\": \"Hansoft-URL: hansoft://hansoftserver/Task/1\"";
 	}
 
 }
