@@ -28,7 +28,7 @@ public class HansoftHookTest {
 	}
 	
 	@Rule
-	public HttpServerInterceptor httpServer = new HttpServerInterceptor(8000);
+	public HttpServerInterceptor httpServer = new HttpServerInterceptor(8080);
 	
 	@Test
 	public void testSendRequestToIntegrationServer() throws Exception {

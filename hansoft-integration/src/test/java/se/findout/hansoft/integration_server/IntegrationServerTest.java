@@ -15,6 +15,7 @@ public class IntegrationServerTest {
 		HansoftHook hook = new HansoftHook();
 		String reply = hook.sendRequest("http://localhost:8000");
 		assertNotNull(reply);
+		server.shutdown();
 	}
 
 }
