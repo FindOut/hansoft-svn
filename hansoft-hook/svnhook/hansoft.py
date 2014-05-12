@@ -4,8 +4,10 @@
 
 import sys
 from ConfigParser import SafeConfigParser
+from ConfigParser import NoSectionError
 from httplib import HTTPConnection
 from urllib import urlencode
+import os
 
 OK_REPLY = 1
 
@@ -20,13 +22,12 @@ class Hansoft:
         self.connection = None
         # Setup from config
         config = SafeConfigParser({'url': 'http://localhost', 'port': '9005'})
+        config.add_section('IntegrationServer')
         if config_file is not None:
             config.read(config_file)
-        else:
-            print "using default"
-            config.add_section('IntegrationServer')
         self.url = config.get('IntegrationServer', 'url')
         self.port = config.getint('IntegrationServer', 'port', )
+        print self.url
 
     def setup_connection(self):
         self.connection = HTTPConnection(self.url, self.port)
