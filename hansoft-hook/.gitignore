@@ -1,3 +1,6 @@
 # generated files
-/target
-/.settings
+*.pyc
+
+# idea
+hansoft-hook.iml
+.idea/

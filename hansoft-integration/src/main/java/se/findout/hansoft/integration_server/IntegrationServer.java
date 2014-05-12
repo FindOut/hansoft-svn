@@ -7,6 +7,8 @@ import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
+import se.findout.hansoft.integration_server.adapter.HansoftAdapter;
+
 public class IntegrationServer {
 
     public static void main(String[] args) throws IOException {
@@ -26,5 +28,14 @@ public class IntegrationServer {
 
 	public void shutdown() {
 		server.shutdown();
+	}
+
+	public void setAdapter(HansoftAdapter adapter) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public boolean getCommits(String user) {
+		return true;
 	}
 }
