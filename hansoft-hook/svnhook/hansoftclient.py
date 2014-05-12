@@ -11,17 +11,16 @@ import os
 
 OK_REPLY = 1
 
-class Hansoft:
+class HansoftClient:
     FAIL_REPLY = -1
     OK_REPLY = 1
-
 
     # Init method, initializes program using configfile
     def __init__(self, config_file=None):
         #setup
         self.connection = None
         # Setup from config
-        config = SafeConfigParser({'url': 'http://localhost', 'port': '9005'})
+        config = SafeConfigParser({'url': 'localhost', 'port': '9005'})
         config.add_section('IntegrationServer')
         if config_file is not None:
             config.read(config_file)
@@ -52,7 +51,7 @@ def main():
     # optional configuration file path
     if len(sys.argv) > 5:
         conf_file = sys.argv[5]
-    hansoft = Hansoft(conf_file)
+    hansoft = HansoftClient(conf_file)
     hansoft.setup_connection()
     hansoft.handle_commit(sys.argv[1], sys.argv[2])
 

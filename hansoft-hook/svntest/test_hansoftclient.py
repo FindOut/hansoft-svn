@@ -5,19 +5,19 @@ from mock import Mock
 from socket import gaierror
 from urllib import urlencode
 
-from svnhook.hansoft import Hansoft
+from svnhook.hansoftclient import HansoftClient
 
-class TestHansoft:
+class TestHansoftClient:
     def setup_method(self, method):
-        self.h = Hansoft()
+        self.h = HansoftClient()
         self.h.setup_connection()
 
     def test_get_standard_url(self):
-        assert self.h.url == 'http://localhost'
+        assert self.h.url == 'localhost'
         assert self.h.port == 9005
 
     def test_custom_url(self):
-        h = Hansoft("./svntest/hansoft.cfg")
+        h = HansoftClient("./svntest/hansoft.cfg")
         assert h.url == 'http://otherhost'
         assert h.port == 22
 

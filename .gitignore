@@ -1,8 +1,3 @@
-# Generated eclipse files
-.classpath
-.project
-/.settings
-
 # Temporary files
 *~
 
@@ -26,3 +21,6 @@ hs_err_pid*
 .classpath
 .project
 /.settings
+*.iml
+.idea
+hansoft-hook/target
