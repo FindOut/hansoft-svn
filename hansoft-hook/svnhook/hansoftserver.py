@@ -13,6 +13,7 @@ class PostHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.end_headers()
 
+
 class HansoftServer:
 
     def __init__(self):

@@ -4,10 +4,8 @@
 
 import sys
 from ConfigParser import SafeConfigParser
-from ConfigParser import NoSectionError
 from httplib import HTTPConnection
 from urllib import urlencode
-import os
 
 OK_REPLY = 1
 
@@ -33,8 +31,6 @@ class HansoftClient:
 
     def handle_commit(self, path, revision):
         request_args = self.send_request('bjorn', 1)
-        #task_url = self.get_task_url()
-        #self.change_log(task_url)
 
     def send_request(self, user, revision):
         header = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
