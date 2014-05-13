@@ -3,11 +3,24 @@
 # Subversion Post-Commit hook for hansoft integration.
 
 import sys
+import subprocess
 from ConfigParser import SafeConfigParser
 from httplib import HTTPConnection
 from urllib import urlencode
+from subprocess import call
 
 OK_REPLY = 1
+
+
+# svnlook author -r 8 /home/svn/testproject/
+def external_get_author(path, revision):
+    print revision
+    args = ['svnlook', 'author', '-r'+revision, path]
+    p = subprocess.Popen(' '.join(args), stdout=subprocess.PIPE, shell=True)
+    (output, err) = p.communicate()
+    p.wait()
+    return output
+
 
 class HansoftClient:
     FAIL_REPLY = -1
@@ -30,11 +43,13 @@ class HansoftClient:
         self.connection = HTTPConnection(self.url, self.port)
 
     def handle_commit(self, path, revision):
-        request_args = self.send_request('bjorn', 1)
+        author = external_get_author(path, revision)
+        result = self.send_request(author, revision, path)
+        return result.status
 
-    def send_request(self, user, revision):
+    def send_request(self, user, revision, path):
         header = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
-        content = {'@author': user, '@revision': revision}
+        content = {'author': user, 'revision': revision, 'path': path}
         self.connection.request("POST", "/commit", urlencode(content), header)
         response = self.connection.getresponse()
         return response
@@ -49,13 +64,10 @@ def main():
         conf_file = sys.argv[5]
     hansoft = HansoftClient(conf_file)
     hansoft.setup_connection()
-    hansoft.handle_commit(sys.argv[1], sys.argv[2])
-
-    # Print debug message
-    #sys.stderr.write(','.join(sys.argv))
-
-    # Manually fail
-    #exit(1)
+    status = hansoft.handle_commit(sys.argv[2], sys.argv[3])
+    if status is not 200:
+        sys.stderr.write('Failed when trying to integrate with Hansoft\n')
+        exit(status)
 
 # Initialise main method
 if __name__ == '__main__':

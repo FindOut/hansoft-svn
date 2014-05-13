@@ -1,17 +1,62 @@
 from BaseHTTPServer import BaseHTTPRequestHandler
 from BaseHTTPServer import HTTPServer
+from cgi import FieldStorage
+import subprocess
+from subprocess import check_output
+from tempfile import NamedTemporaryFile
+from os import remove
+import os
 
+
+# svnlook propget /home/svn/testproject/ svn:log --revprop -r 7
+def external_get_message(path, revision):
+    args = ['svnlook', 'propget', path, 'svn:log', '--revprop', '-r'+revision]
+    p = subprocess.Popen(' '.join(args), stdout=subprocess.PIPE, shell=True)
+    (output, err) = p.communicate()
+    p.wait()
+    return output
+
+
+def create_temp_file(msg, url):
+
+    with NamedTemporaryFile(delete=False) as myfile:
+        myfile.write(msg)
+        myfile.write(url)
+
+    return myfile
+
+
+# "svnadmin", "setlog", --bypass-hooks /path/to/repo/ -r revNumber commitmsg.txt
+def external_change_log(path, revision, file_name):
+    args = ['svnadmin', 'setlog', '--bypass-hooks', path, '-r'+revision, file_name]
+    print args
+    subprocess.call(args)
+
+
+def delete_temp_file(file_name):
+    remove(file_name)
 
 class PostHandler(BaseHTTPRequestHandler):
-
-    def do_HEAD(self):
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
 
     def do_POST(self):
         self.send_response(200)
         self.end_headers()
+        # Parse the form data posted
+        form = FieldStorage(
+            fp=self.rfile,
+            headers=self.headers,
+            environ={'REQUEST_METHOD': 'POST',
+                     'CONTENT_TYPE': self.headers['Content-Type'],
+                     })
+
+        path = form['path'].value
+        rev = form['task'].value
+        url = form['url'].value
+
+        msg = external_get_message(path, rev)
+        tmp_file = create_temp_file(msg, url)
+        external_change_log(path, rev, tmp_file.name)
+        delete_temp_file(tmp_file.name)
 
 
 class HansoftServer:
