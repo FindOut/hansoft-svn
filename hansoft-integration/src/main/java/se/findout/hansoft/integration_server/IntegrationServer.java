@@ -23,11 +23,11 @@ public class IntegrationServer {
     
 	public void start() {
 		final ResourceConfig rc = new ResourceConfig().packages("se.findout.hansoft.integration_server.handlers");
-		server = GrizzlyHttpServerFactory.createHttpServer(URI.create("http://localhost:8080"), rc);
+		server = GrizzlyHttpServerFactory.createHttpServer(URI.create("http://localhost:9005"), rc);
 	}
 
 	public void shutdown() {
-		server.shutdown();
+        server.shutdown();
 	}
 
 	public void setAdapter(HansoftAdapter adapter) {

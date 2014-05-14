@@ -29,7 +29,6 @@ def create_temp_file(msg, url):
 # "svnadmin", "setlog", --bypass-hooks /path/to/repo/ -r revNumber commitmsg.txt
 def external_change_log(path, revision, file_name):
     args = ['svnadmin', 'setlog', '--bypass-hooks', path, '-r'+revision, file_name]
-    print args
     subprocess.call(args)
 
 
