@@ -1,23 +1,38 @@
 package se.findout.hansoft.integration_server;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.glassfish.jersey.client.ClientResponse;
+import de.akquinet.jbosscc.needle.annotation.ObjectUnderTest;
+import de.akquinet.jbosscc.needle.junit.NeedleRule;
+import de.akquinet.jbosscc.needle.mock.EasyMockProvider;
+import org.easymock.EasyMock;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import se.findout.hansoft.integration_server.adapter.HansoftAdapter;
 import se.findout.hansoft.integration_server.handlers.CommitHandler;
 import se.findout.hansoft.integration_server.model.Commit;
 
-import javax.ws.rs.core.Form;
+import javax.inject.Inject;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class IntegrationServerTest {
 
-	private static IntegrationServer server;
-    private Form items;
+    @Rule
+    public NeedleRule needleRule = new NeedleRule();
+
+    @ObjectUnderTest
+    private CommitHandler handler = new CommitHandler();
+
+    @Inject
+    private EasyMockProvider mockProvider;
+
+    @Inject
+    HansoftAdapter mockAdapter;
+
+    private static IntegrationServer server;
 
     @BeforeClass
 	public static void setupClass() {
@@ -29,15 +44,6 @@ public class IntegrationServerTest {
 	public static void tearDownClass() {
         server.shutdown();
 	}
-
-    @Before
-    public void setup() {
-        // 'author': 'bjorn', 'revision': 1, 'path': '/home/svn/testproject/'
-        items = new Form();
-        items.param("author", "bjorn");
-        items.param("revision", "1");
-        items.param("path", "/home/svn/testproject/");
-    }
 	
 	@Test
 	public void testServerReplyToCommit() throws JsonProcessingException {
@@ -48,17 +54,14 @@ public class IntegrationServerTest {
 	}
 	
 	@Test
-	public void testServerUpdateCommitsTable() {
-        CommitHandler handler = new CommitHandler();
-        String response = handler.postCommit(new Commit());
-		//HansoftAdapter adapter = Mockito.mock(HansoftAdapter.class);
-		//server.setAdapter(adapter);
-		//TestHook hook = new TestHook();
-		//hook.sendPost("http://localhost:9005", "commit", items);
-		//assertTrue(server.getCommits("bjorn"));
-		// recieve - notify - get reply - update sdk - return
-		//Mockito.verify(adapter).getUserID("bjorn");
-		//fail("Not implemented!");
+	public void testServerGetsHansoftID() {
+        EasyMock.expect(mockAdapter.getUserID("Lennart")).andReturn("Lennart The Man");
+        mockProvider.replayAll();
+        Commit c = new Commit();
+        c.setAuthor("Lennart");
+        String reply = handler.postCommit(c);
+        mockProvider.verifyAll();
+        assertEquals("OK", reply);
 	}
 
 }

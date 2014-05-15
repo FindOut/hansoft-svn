@@ -1,7 +1,9 @@
 package se.findout.hansoft.integration_server.handlers;
 
+import se.findout.hansoft.integration_server.adapter.HansoftAdapter;
 import se.findout.hansoft.integration_server.model.Commit;
 
+import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
@@ -9,18 +11,17 @@ import javax.ws.rs.core.MediaType;
 
 public class CommitHandler {
 
+    @Inject
+    HansoftAdapter adapter;
+
 	public CommitHandler() {
 	}
 
 	@POST
     @Consumes(MediaType.APPLICATION_JSON)
 	public String postCommit(Commit commit) {
-		System.out.println("Received commit from: " + commit.author);
+        adapter.getUserID(commit.getAuthor());
         return "OK";
 	}
 
-    @GET
-    public String getCommit() {
-        return "Hello World!";
-    }
 }

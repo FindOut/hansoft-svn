@@ -8,9 +8,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 // 'author': 'bjorn', 'revision': 1, 'path': '/home/svn/testproject/'
 public class Commit {
-    public String author;
-    public int revision;
-    public String path;
+    private String author;
+    private int revision;
+    private String path;
 
     public Commit() {
 
@@ -20,5 +20,13 @@ public class Commit {
         this.author = author;
         this.revision = revision;
         this.path = path;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
     }
 }

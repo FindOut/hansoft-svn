@@ -7,7 +7,9 @@ import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
+import se.findout.hansoft.integration_server.adapter.AdapterBinder;
 import se.findout.hansoft.integration_server.adapter.HansoftAdapter;
+import se.findout.hansoft.integration_server.model.Commit;
 
 public class IntegrationServer {
 
@@ -23,10 +25,12 @@ public class IntegrationServer {
     
 	public void start() {
 		final ResourceConfig rc = new ResourceConfig().packages("se.findout.hansoft.integration_server.handlers");
+        rc.register(new AdapterBinder());
 		server = GrizzlyHttpServerFactory.createHttpServer(URI.create("http://localhost:9005"), rc);
 	}
 
 	public void shutdown() {
+
         server.shutdown();
 	}
 
@@ -35,7 +39,7 @@ public class IntegrationServer {
 		
 	}
 
-	public boolean getCommits(String user) {
-		return true;
-	}
+    public boolean getCommits(String user) {
+        return true;
+    }
 }
