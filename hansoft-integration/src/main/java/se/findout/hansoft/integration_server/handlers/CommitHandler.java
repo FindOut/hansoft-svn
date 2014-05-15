@@ -12,11 +12,10 @@ public class CommitHandler {
 	public CommitHandler() {
 	}
 
-    // lets accept JSON!
 	@POST
     @Consumes(MediaType.APPLICATION_JSON)
 	public String postCommit(Commit commit) {
-		System.out.println("Received commit: " + commit.toString());
+		System.out.println("Received commit from: " + commit.author);
         return "OK";
 	}
 

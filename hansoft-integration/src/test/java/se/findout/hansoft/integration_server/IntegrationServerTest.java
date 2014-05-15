@@ -3,6 +3,7 @@ package se.findout.hansoft.integration_server;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.glassfish.jersey.client.ClientResponse;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -39,11 +40,11 @@ public class IntegrationServerTest {
     }
 	
 	@Test
-	public void testServerReplyToCommit() {
+	public void testServerReplyToCommit() throws JsonProcessingException {
         //
 		TestHook hook = new TestHook();
-		ClientResponse reply = hook.sendPost("http://localhost:9005", "commit", items);
-		assertEquals(200, reply.getStatus());
+		String reply = hook.sendPost("http://localhost:9005", "commit");
+		assertEquals("OK", reply);
 	}
 	
 	@Test

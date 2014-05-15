@@ -1,33 +1,29 @@
 package se.findout.hansoft.integration_server;
 
-import org.glassfish.jersey.client.ClientResponse;
-import se.findout.hansoft.integration_server.model.Commit;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import javax.ws.rs.client.*;
-import javax.ws.rs.core.Form;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+
+import se.findout.hansoft.integration_server.model.Commit;
 
 public class TestHook {
 
-	public ClientResponse sendPost(String host, String path, Form items) {
+	public String sendPost(String host, String path) throws JsonProcessingException {
+        ObjectMapper om = new ObjectMapper();
 		Client client = ClientBuilder.newClient();
-//        //client.getConfiguration().se
-//        client.configuration().enable(new JsonFeature());
 		WebTarget target = client.target(host);
-//		String input = "{'author': 'bjorn', 'revision': 1, 'path': '/home/svn/testproject/'}";
         Commit c = new Commit("bjorn", 1, "/a/path");
-//		Invocation.Builder invocationBuilder =
-//		        target.request(MediaType.APPLICATION_JSON);
-//		invocationBuilder.header("Content-type", MediaType.APPLICATION_JSON);
-//
-//        Entity e = Entity.json(c.toString());
-//        Response response = invocationBuilder.post(e);
 
-
-        ClientResponse response = target.path("/commit")
+        String output = om.writeValueAsString(c);
+        String response = target.path("/commit")
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(c.toString()),
-                        ClientResponse.class);
+                .post(Entity.json(output),
+                        String.class);
         return response;
 	}
 
