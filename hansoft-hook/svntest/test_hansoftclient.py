@@ -3,7 +3,7 @@ import pytest
 from mock import MagicMock
 from mock import Mock
 from socket import gaierror
-from urllib import urlencode
+import json
 
 from svnhook import hansoftclient
 
@@ -35,8 +35,8 @@ class TestHansoftClient:
         self.h.connection.request = MagicMock(return_value=None)
         self.h.connection.getresponse = MagicMock(return_value=mock)
         response = self.h.send_request('bjorn', 1, '/home/svn/testproject/')
-        params = urlencode({'author': 'bjorn', 'revision': 1, 'path': '/home/svn/testproject/'})
-        header = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
+        params = json.dumps({'author': 'bjorn', 'revision': 1, 'path': '/home/svn/testproject/'})
+        header = {"Content-type": "application/json", "Accept": "text/plain"}
         self.h.connection.request.assert_called_once_with("POST", "/commit", params, header)
         assert response == mock
 

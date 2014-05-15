@@ -1,22 +1,33 @@
 package se.findout.hansoft.integration_server;
 
+import org.glassfish.jersey.client.ClientResponse;
+import se.findout.hansoft.integration_server.model.Commit;
+
 import javax.ws.rs.client.*;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 public class TestHook {
 
-	public Response sendPost(String host, String path, Form items) {
+	public ClientResponse sendPost(String host, String path, Form items) {
 		Client client = ClientBuilder.newClient();
-		WebTarget target = client.target(host).path(path);
-		
-		Invocation.Builder invocationBuilder =
-		        target.request(MediaType.TEXT_PLAIN_TYPE);
-		invocationBuilder.header("Content-type", "application/x-www-form-urlencoded");
-        invocationBuilder.header("Accept", "text/plain");
-        Entity e = Entity.entity(items,MediaType.TEXT_PLAIN_TYPE);
-        Response response = invocationBuilder.post(e);
+//        //client.getConfiguration().se
+//        client.configuration().enable(new JsonFeature());
+		WebTarget target = client.target(host);
+//		String input = "{'author': 'bjorn', 'revision': 1, 'path': '/home/svn/testproject/'}";
+        Commit c = new Commit("bjorn", 1, "/a/path");
+//		Invocation.Builder invocationBuilder =
+//		        target.request(MediaType.APPLICATION_JSON);
+//		invocationBuilder.header("Content-type", MediaType.APPLICATION_JSON);
+//
+//        Entity e = Entity.json(c.toString());
+//        Response response = invocationBuilder.post(e);
+
+
+        ClientResponse response = target.path("/commit")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.json(c.toString()),
+                        ClientResponse.class);
         return response;
 	}
 

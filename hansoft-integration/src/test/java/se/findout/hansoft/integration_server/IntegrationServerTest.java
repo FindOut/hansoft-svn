@@ -3,13 +3,15 @@ package se.findout.hansoft.integration_server;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import org.glassfish.jersey.client.ClientResponse;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import se.findout.hansoft.integration_server.handlers.CommitHandler;
+import se.findout.hansoft.integration_server.model.Commit;
 
 import javax.ws.rs.core.Form;
-import javax.ws.rs.core.Response;
 
 public class IntegrationServerTest {
 
@@ -40,17 +42,19 @@ public class IntegrationServerTest {
 	public void testServerReplyToCommit() {
         //
 		TestHook hook = new TestHook();
-		Response reply = hook.sendPost("http://localhost:9005", "commit", items);
-		assertEquals(reply.getStatus(), 200);
+		ClientResponse reply = hook.sendPost("http://localhost:9005", "commit", items);
+		assertEquals(200, reply.getStatus());
 	}
 	
 	@Test
 	public void testServerUpdateCommitsTable() {
+        CommitHandler handler = new CommitHandler();
+        String response = handler.postCommit(new Commit());
 		//HansoftAdapter adapter = Mockito.mock(HansoftAdapter.class);
 		//server.setAdapter(adapter);
-		TestHook hook = new TestHook();
-		hook.sendPost("http://localhost:9005", "commit", items);
-		assertTrue(server.getCommits("bjorn"));
+		//TestHook hook = new TestHook();
+		//hook.sendPost("http://localhost:9005", "commit", items);
+		//assertTrue(server.getCommits("bjorn"));
 		// recieve - notify - get reply - update sdk - return
 		//Mockito.verify(adapter).getUserID("bjorn");
 		//fail("Not implemented!");

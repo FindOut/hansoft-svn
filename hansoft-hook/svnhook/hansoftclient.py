@@ -6,15 +6,13 @@ import sys
 import subprocess
 from ConfigParser import SafeConfigParser
 from httplib import HTTPConnection
-from urllib import urlencode
-from subprocess import call
+import json
 
 OK_REPLY = 1
 
 
 # svnlook author -r 8 /home/svn/testproject/
 def external_get_author(path, revision):
-    print revision
     args = ['svnlook', 'author', '-r'+revision, path]
     p = subprocess.Popen(' '.join(args), stdout=subprocess.PIPE, shell=True)
     (output, err) = p.communicate()
@@ -37,7 +35,6 @@ class HansoftClient:
             config.read(config_file)
         self.url = config.get('IntegrationServer', 'url')
         self.port = config.getint('IntegrationServer', 'port', )
-        print self.url
 
     def setup_connection(self):
         self.connection = HTTPConnection(self.url, self.port)
@@ -48,9 +45,9 @@ class HansoftClient:
         return result.status
 
     def send_request(self, user, revision, path):
-        header = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
+        header = {"Content-type": "application/json", "Accept": "text/plain"}
         content = {'author': user, 'revision': revision, 'path': path}
-        self.connection.request("POST", "/commit", urlencode(content), header)
+        self.connection.request("POST", "/commit", json.dumps(content), header)
         response = self.connection.getresponse()
         return response
 
