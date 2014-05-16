@@ -1,7 +1,5 @@
 package se.findout.hansoft.integration_server.model;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
  * Created by bjorn on 2014-05-14.
  */

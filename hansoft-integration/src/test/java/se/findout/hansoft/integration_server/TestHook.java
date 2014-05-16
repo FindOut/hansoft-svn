@@ -2,14 +2,13 @@ package se.findout.hansoft.integration_server;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import se.findout.hansoft.integration_server.model.Commit;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
-
-import se.findout.hansoft.integration_server.model.Commit;
 
 public class TestHook {
 

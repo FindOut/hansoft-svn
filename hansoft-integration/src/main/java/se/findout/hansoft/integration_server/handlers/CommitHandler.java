@@ -4,7 +4,9 @@ import se.findout.hansoft.integration_server.adapter.HansoftAdapter;
 import se.findout.hansoft.integration_server.model.Commit;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 
 @Path("/commit")
