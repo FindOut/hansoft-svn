@@ -10,9 +10,8 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import se.hansoft.hpmsdk.*;
 
-import java.util.ArrayList;
-
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.powermock.api.easymock.PowerMock.createMock;
 import static org.powermock.api.easymock.PowerMock.mockStatic;
 
@@ -32,9 +31,11 @@ public class HansoftAdapterTest {
         user.setUsername("SDK");
         user.setPassword("SDK");
         project = "Company Projects";
+
+
     }
 
-    public void mockSDK() throws HPMSdkException, HPMSdkJavaException {
+    public HansoftAdapter mockAdapter() throws HPMSdkException, HPMSdkJavaException {
         mockStatic(HPMSdkSession.class);
         sdkMock = PowerMock.createMock(HPMSdkSession.class);
         EasyMock.expect(HPMSdkSession.SessionOpen(
@@ -43,55 +44,51 @@ public class HansoftAdapterTest {
                 .andReturn(null);
 
         PowerMock.replay(HPMSdkSession.class);
+        HansoftAdapter adapter = new HansoftAdapter();
+        adapter.initialize(server, project, user);
+        return adapter;
     }
 
     @Test
     public void testInitAdapterDefault() throws HPMSdkException, HPMSdkJavaException {
-        mockSDK();
-        HansoftAdapter adapter = new HansoftAdapter();
-        adapter.initialize(server, project, user);
+        HansoftAdapter adapter = mockAdapter();
         PowerMock.verify(HPMSdkSession.class);
     }
 
     @Test
     public void testInitCustomHansoftURL() throws HPMSdkException, HPMSdkJavaException {
         server = new HansoftServer("http://hansoftserver.com", 50257);
-        mockSDK();
-        HansoftAdapter adapter = new HansoftAdapter();
-        adapter.initialize(server, project, user);
+        HansoftAdapter adapter = mockAdapter();
         PowerMock.verify(HPMSdkSession.class);
     }
 
     @Test
     public void testInitCustomProject() throws HPMSdkException, HPMSdkJavaException {
         project = "Another Project";
-        mockSDK();
-        HansoftAdapter adapter = new HansoftAdapter();
-        adapter.initialize(server, project, user);
+        HansoftAdapter adapter = mockAdapter();
         PowerMock.verify(HPMSdkSession.class);
     }
 
     @Test
     public void testInitCustomUser() throws HPMSdkException, HPMSdkJavaException {
         user.setPassword("A!Q_33f");
-        mockSDK();
-        HansoftAdapter adapter = new HansoftAdapter();
-        adapter.initialize(server, project, user);
+        HansoftAdapter adapter = mockAdapter();
         PowerMock.verify(HPMSdkSession.class);
     }
 
+
+
+
     @Test
     public void testUserDoesNotExist() throws HPMSdkException, HPMSdkJavaException {
-        mockSDK();
-        HansoftAdapter adapter = new HansoftAdapter();
-        adapter.initialize(server, project, user);
+        HansoftAdapter adapter = mockAdapter();
         int id = adapter.getUserID("bjorn");
         assertEquals(adapter.USER_DOES_NOT_EXIST, id);
     }
 
-//    @Test
+    //    @Test
 //    public void testUserExists() throws HPMSdkException, HPMSdkJavaException {
-//        mockSDK();
+//        mockAdapter();
 //        ArrayList<HPMUniqueID> users = new ArrayList<HPMUniqueID>();
 //        users.add(new HPMUniqueID(42));
 //        HPMResourceEnum testEnum = new HPMResourceEnum();
@@ -103,4 +100,13 @@ public class HansoftAdapterTest {
 //        int id = adapter.getUserID("bjorn");
 //        assertEquals(adapter.USER_DOES_NOT_EXIST, id);
 //    }
+
+    @Test
+    public void testGetUrlNoUser() throws HPMSdkException, HPMSdkJavaException {
+        HansoftAdapter adapter = mockAdapter();
+        int id = adapter.getUserID("bjorn");
+        String url = adapter.getUserURL(id);
+        assertNull(url);
+    }
+
 }

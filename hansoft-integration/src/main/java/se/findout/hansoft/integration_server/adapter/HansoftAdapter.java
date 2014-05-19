@@ -20,4 +20,8 @@ public class HansoftAdapter {
         sdk = HPMSdkSession.SessionOpen(s.getURL(), s.getPort(), project, user.getUsername(), user.getPassword(),
                 null, null, true, EHPMSdkDebugMode.Off, 0, "", "", null);
     }
+
+    public String getUserURL(int id) {
+        return null;
+    }
 }
