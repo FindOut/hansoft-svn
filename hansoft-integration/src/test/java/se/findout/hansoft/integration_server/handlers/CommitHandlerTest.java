@@ -8,6 +8,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import se.findout.hansoft.integration_server.adapter.HansoftAdapter;
 import se.findout.hansoft.integration_server.model.Commit;
+import se.hansoft.hpmsdk.HPMSdkException;
+import se.hansoft.hpmsdk.HPMSdkJavaException;
 
 import javax.inject.Inject;
 
@@ -27,8 +29,8 @@ public class CommitHandlerTest {
     HansoftAdapter mockAdapter;
 
     @Test
-    public void testServerGetsHansoftID() {
-        EasyMock.expect(mockAdapter.getUserID("Lennart")).andReturn("Lennart The Man");
+    public void testServerGetsHansoftID() throws HPMSdkException, HPMSdkJavaException {
+        EasyMock.expect(mockAdapter.getUserID("Lennart")).andReturn(-1);
         mockProvider.replayAll();
         Commit c = new Commit();
         c.setAuthor("Lennart");
