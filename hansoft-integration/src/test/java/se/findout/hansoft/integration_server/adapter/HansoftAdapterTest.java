@@ -14,6 +14,7 @@ import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 import static org.powermock.api.easymock.PowerMock.mockStatic;
 
 @RunWith(PowerMockRunner.class)
@@ -102,17 +103,17 @@ public class HansoftAdapterTest {
     public void testResourceEnumReturnsNull() throws HPMSdkException, HPMSdkJavaException {
         // Setup
         mockupSessionOpen();
-
         EasyMock.expect(sdkMock.ResourceEnum()).andReturn(null);
 
         // Run
         PowerMock.replay(sdkMock);
         HansoftAdapter adapter = openMockAdapter();
-        int id = adapter.getUserID("bjorn");
+        HPMUniqueID id = adapter.getUserID("bjorn");
 
         // Verify
+        EasyMock.verify(sdkMock);
         PowerMock.verify(HPMSdkSession.class);
-        assertEquals(adapter.USER_DOES_NOT_EXIST, id);
+        assertNull(id);
     }
 
     @Test
@@ -124,28 +125,46 @@ public class HansoftAdapterTest {
         // Run
         PowerMock.replay(sdkMock);
         HansoftAdapter adapter = openMockAdapter();
-        int id = adapter.getUserID("bjorn");
+        HPMUniqueID id = adapter.getUserID("bjorn");
 
         // Verify
+        EasyMock.verify(sdkMock);
         PowerMock.verify(HPMSdkSession.class);
-        assertEquals(42, id);
+        assertEquals(42, id.m_ID);
     }
 
     @Test
     public void testUserNotExists() throws HPMSdkException, HPMSdkJavaException {
         // Setup
         mockupSessionOpen();
-
         mockResourceEnum();
 
         // Run
         PowerMock.replay(sdkMock);
         HansoftAdapter adapter = openMockAdapter();
-        int id = adapter.getUserID("pelle");
+        HPMUniqueID id = adapter.getUserID("pelle");
 
         // Verify
+        EasyMock.verify(sdkMock);
         PowerMock.verify(HPMSdkSession.class);
-        assertEquals(-1, id);
+        assertNull(id);
     }
 
+    @Test public void testSignalCommit() throws HPMSdkException, HPMSdkJavaException {
+        // Setup
+        mockupSessionOpen();
+        HPMCustomSettingValue value = new HPMCustomSettingValue();
+        value.m_Value = "1";
+        sdkMock.ResourceSetCustomSettingsValue(EHPMCustomSettingsType.Custom, new HPMUniqueID(42), "svnIntegration", "svnCommit", value);
+        EasyMock.expectLastCall();
+
+        // Run
+        EasyMock.replay(sdkMock);
+        HansoftAdapter adapter = openMockAdapter();
+        adapter.signalCommitPerformed(new HPMUniqueID(42), "1");
+
+        // Verify
+        EasyMock.verify(sdkMock);
+        PowerMock.verify(HPMSdkSession.class);
+    }
 }

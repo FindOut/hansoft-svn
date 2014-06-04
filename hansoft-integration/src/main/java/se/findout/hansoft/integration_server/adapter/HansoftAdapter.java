@@ -7,7 +7,6 @@ import java.util.ArrayList;
 
 @Singleton
 public class HansoftAdapter {
-    public static int USER_DOES_NOT_EXIST = -1;
     private HPMSdkSession sdk;
 
     public void initialize(HansoftServer s, String project, Credentials user) throws HPMSdkException, HPMSdkJavaException {
@@ -15,21 +14,23 @@ public class HansoftAdapter {
                 null, null, true, EHPMSdkDebugMode.Off, 0, "", "", null);
     }
 
-    public int getUserID(String name) throws HPMSdkException, HPMSdkJavaException {
+    public HPMUniqueID getUserID(String name) throws HPMSdkException, HPMSdkJavaException {
         HPMResourceEnum users = sdk.ResourceEnum();
-        if(users != null) {
+        if (users != null) {
             for (HPMUniqueID userID : users.m_Resources) {
                 HPMResourceProperties userInfo = sdk.ResourceGetProperties(userID);
-                if(userInfo.m_Name.equals(name)) {
-                    return userID.m_ID;
+                if (userInfo.m_Name.equals(name)) {
+                    return userID;
                 }
 
             }
         }
-        return USER_DOES_NOT_EXIST;
+        return null;
     }
 
-    public String getUserURL(int id) {
-        return null;
+    public void signalCommitPerformed(HPMUniqueID userID, String data) throws HPMSdkException, HPMSdkJavaException {
+        HPMCustomSettingValue value = new HPMCustomSettingValue();
+        value.m_Value = data;
+        sdk.ResourceSetCustomSettingsValue(EHPMCustomSettingsType.Custom, userID, "svnIntegration", "svnCommit", value);
     }
 }

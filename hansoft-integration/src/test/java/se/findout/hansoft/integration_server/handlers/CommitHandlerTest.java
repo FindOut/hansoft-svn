@@ -30,7 +30,7 @@ public class CommitHandlerTest {
 
     @Test
     public void testServerGetsHansoftID() throws HPMSdkException, HPMSdkJavaException {
-        EasyMock.expect(mockAdapter.getUserID("Lennart")).andReturn(-1);
+        EasyMock.expect(mockAdapter.getUserID("Lennart")).andReturn(null);
         mockProvider.replayAll();
         Commit c = new Commit();
         c.setAuthor("Lennart");
