@@ -3,6 +3,7 @@ package se.findout.hansoft.integration_server.adapter;
 import se.hansoft.hpmsdk.*;
 
 import javax.inject.Singleton;
+import java.util.ArrayList;
 
 @Singleton
 public class HansoftAdapter {
@@ -17,7 +18,13 @@ public class HansoftAdapter {
     public int getUserID(String name) throws HPMSdkException, HPMSdkJavaException {
         HPMResourceEnum users = sdk.ResourceEnum();
         if(users != null) {
-            return users.m_Resources.get(0).m_ID;
+            for (HPMUniqueID userID : users.m_Resources) {
+                HPMResourceProperties userInfo = sdk.ResourceGetProperties(userID);
+                if(userInfo.m_Name.equals(name)) {
+                    return userID.m_ID;
+                }
+
+            }
         }
         return USER_DOES_NOT_EXIST;
     }

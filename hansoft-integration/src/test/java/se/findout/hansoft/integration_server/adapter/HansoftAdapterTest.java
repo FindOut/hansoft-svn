@@ -47,6 +47,18 @@ public class HansoftAdapterTest {
 
     }
 
+    private void mockResourceEnum() throws HPMSdkException, HPMSdkJavaException {
+        ArrayList<HPMUniqueID> users = new ArrayList<HPMUniqueID>();
+        users.add(new HPMUniqueID(42));
+        HPMResourceEnum testEnum = new HPMResourceEnum();
+        testEnum.m_Resources.addAll(users);
+        EasyMock.expect(sdkMock.ResourceEnum()).andReturn(testEnum);
+
+        HPMResourceProperties testprop = new HPMResourceProperties();
+        testprop.m_Name = "bjorn";
+        EasyMock.expect(sdkMock.ResourceGetProperties(new HPMUniqueID(42))).andReturn(testprop);
+    }
+
     private HansoftAdapter openMockAdapter() throws HPMSdkException, HPMSdkJavaException {
         PowerMock.replay(HPMSdkSession.class);
         HansoftAdapter adapter = new HansoftAdapter();
@@ -54,7 +66,7 @@ public class HansoftAdapterTest {
         return adapter;
     }
 
-    public HansoftAdapter mockAdapter() throws HPMSdkException, HPMSdkJavaException {
+    private HansoftAdapter mockAdapter() throws HPMSdkException, HPMSdkJavaException {
         mockupSessionOpen();
         return openMockAdapter();
     }
@@ -87,9 +99,10 @@ public class HansoftAdapterTest {
     }
 
     @Test
-    public void testUserDoesNotExist() throws HPMSdkException, HPMSdkJavaException {
+    public void testResourceEnumReturnsNull() throws HPMSdkException, HPMSdkJavaException {
         // Setup
         mockupSessionOpen();
+
         EasyMock.expect(sdkMock.ResourceEnum()).andReturn(null);
 
         // Run
@@ -106,11 +119,7 @@ public class HansoftAdapterTest {
     public void testUserExists1() throws HPMSdkException, HPMSdkJavaException {
         // Setup
         mockupSessionOpen();
-        ArrayList<HPMUniqueID> users = new ArrayList<HPMUniqueID>();
-        users.add(new HPMUniqueID(42));
-        HPMResourceEnum testEnum = new HPMResourceEnum();
-        testEnum.m_Resources.addAll(users);
-        EasyMock.expect(sdkMock.ResourceEnum()).andReturn(testEnum);
+        mockResourceEnum();
 
         // Run
         PowerMock.replay(sdkMock);
@@ -123,11 +132,20 @@ public class HansoftAdapterTest {
     }
 
     @Test
-    public void testGetUrlNoUser() throws HPMSdkException, HPMSdkJavaException {
-        HansoftAdapter adapter = mockAdapter();
-        int id = adapter.getUserID("bjorn");
-        String url = adapter.getUserURL(id);
-        assertNull(url);
+    public void testUserNotExists() throws HPMSdkException, HPMSdkJavaException {
+        // Setup
+        mockupSessionOpen();
+
+        mockResourceEnum();
+
+        // Run
+        PowerMock.replay(sdkMock);
+        HansoftAdapter adapter = openMockAdapter();
+        int id = adapter.getUserID("pelle");
+
+        // Verify
+        PowerMock.verify(HPMSdkSession.class);
+        assertEquals(-1, id);
     }
 
 }
