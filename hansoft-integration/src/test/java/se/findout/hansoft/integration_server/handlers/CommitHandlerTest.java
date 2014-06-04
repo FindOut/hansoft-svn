@@ -10,6 +10,7 @@ import se.findout.hansoft.integration_server.adapter.HansoftAdapter;
 import se.findout.hansoft.integration_server.model.Commit;
 import se.hansoft.hpmsdk.HPMSdkException;
 import se.hansoft.hpmsdk.HPMSdkJavaException;
+import se.hansoft.hpmsdk.HPMUniqueID;
 
 import javax.inject.Inject;
 
@@ -30,10 +31,16 @@ public class CommitHandlerTest {
 
     @Test
     public void testServerGetsHansoftID() throws HPMSdkException, HPMSdkJavaException {
-        EasyMock.expect(mockAdapter.getUserID("Lennart")).andReturn(null);
-        mockProvider.replayAll();
+        HPMUniqueID lennart = new HPMUniqueID(21);
         Commit c = new Commit();
         c.setAuthor("Lennart");
+        c.setRevision(1);
+
+        EasyMock.expect(mockAdapter.getUserID("Lennart")).andReturn(lennart);
+        mockAdapter.signalCommitPerformed(lennart, Integer.toString(c.getRevision()));
+        EasyMock.expectLastCall();
+        mockProvider.replayAll();
+
         String reply = handler.postCommit(c);
         mockProvider.verifyAll();
         assertEquals("OK", reply);
