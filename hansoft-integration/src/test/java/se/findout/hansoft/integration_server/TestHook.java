@@ -19,7 +19,7 @@ public class TestHook {
         Commit c = new Commit("bjorn", 1, "/a/path");
 
         String output = om.writeValueAsString(c);
-        String response = target.path("/commit")
+        String response = target.path(path)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(output),
                         String.class);

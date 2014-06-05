@@ -42,7 +42,7 @@ class HansoftClient:
     def handle_commit(self, path, revision):
         author = external_get_author(path, revision)
         result = self.send_request(author, revision, path)
-        return result.status
+        return result
 
     def send_request(self, user, revision, path):
         header = {"Content-type": "application/json", "Accept": "text/plain"}
@@ -61,10 +61,11 @@ def main():
         conf_file = sys.argv[5]
     hansoft = HansoftClient(conf_file)
     hansoft.setup_connection()
-    status = hansoft.handle_commit(sys.argv[2], sys.argv[3])
-    if status is not 200:
+    response = hansoft.handle_commit(sys.argv[2], sys.argv[3])
+    if response.status is not 200:
         sys.stderr.write('Failed when trying to integrate with Hansoft\n')
-        exit(status)
+        sys.stderr.write(response.reason)
+        exit(response.status)
 
 # Initialise main method
 if __name__ == '__main__':

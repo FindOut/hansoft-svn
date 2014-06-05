@@ -10,7 +10,12 @@ import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 @Path("/commit")
 
@@ -24,10 +29,14 @@ public class CommitHandler {
 
 	@POST
     @Consumes(MediaType.APPLICATION_JSON)
-	public String postCommit(Commit commit) throws HPMSdkException, HPMSdkJavaException {
-        HPMUniqueID id = adapter.getUserID(commit.getAuthor());
-        adapter.signalCommitPerformed(id, Integer.toString(commit.getRevision()));
+    //@Produces(MediaType.TEXT_PLAIN)
+	public String postCommit(Commit commit) throws HPMSdkException, HPMSdkJavaException, IOException {
+        //BufferedReader in = new BufferedReader(new InputStreamReader(commit));
+        //System.out.print(commit);
+        //HPMUniqueID id = adapter.getUserID(commit.getAuthor());
+        //adapter.signalCommitPerformed(id, Integer.toString(commit.getRevision()));
         return "OK";
 	}
+
 
 }
