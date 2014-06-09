@@ -9,9 +9,12 @@ import java.util.ArrayList;
 public class HansoftAdapter {
     private HPMSdkSession sdk;
 
-    public void initialize(HansoftServer s, String project, Credentials user) throws HPMSdkException, HPMSdkJavaException {
-        sdk = HPMSdkSession.SessionOpen(s.getURL(), s.getPort(), project, user.getUsername(), user.getPassword(),
-                null, null, true, EHPMSdkDebugMode.Off, 0, "", "", null);
+    public void initialize(HansoftServer s, String databaseName, Credentials user) throws HPMSdkException, HPMSdkJavaException {
+        if(sdk == null) {
+            // TODO Hardcoded sdk-location
+            sdk = HPMSdkSession.SessionOpen(s.getURL(), s.getPort(), databaseName, user.getUsername(), user.getPassword(),
+                    null, null, true, EHPMSdkDebugMode.Off, 0, "", "/home/bjorn/github/hansoft-svn/hansoft-integration/src/main/resources", null);
+        }
     }
 
     public HPMUniqueID getUserID(String name) throws HPMSdkException, HPMSdkJavaException {
@@ -32,5 +35,14 @@ public class HansoftAdapter {
         HPMCustomSettingValue value = new HPMCustomSettingValue();
         value.m_Value = data;
         sdk.ResourceSetCustomSettingsValue(EHPMCustomSettingsType.Custom, userID, "svnIntegration", "svnCommit", value);
+    }
+
+    public String getCommitSignal(HPMUniqueID userID) throws HPMSdkException, HPMSdkJavaException {
+        HPMCustomSettingValue data = sdk.ResourceGetCustomSettingsValue(EHPMCustomSettingsType.Custom, userID, "svnIntegration", "svnCommit");
+        return data.m_Value;
+    }
+
+    public String sayHello() {
+        return "Hello World";
     }
 }

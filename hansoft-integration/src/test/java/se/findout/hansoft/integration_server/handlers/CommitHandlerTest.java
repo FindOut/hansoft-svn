@@ -29,20 +29,20 @@ public class CommitHandlerTest {
     @Inject
     HansoftAdapter mockAdapter;
 
-//    @Test
-//    public void testServerGetsHansoftID() throws HPMSdkException, HPMSdkJavaException {
-//        HPMUniqueID lennart = new HPMUniqueID(21);
-//        Commit c = new Commit();
-//        c.setAuthor("Lennart");
-//        c.setRevision(1);
-//
-//        EasyMock.expect(mockAdapter.getUserID("Lennart")).andReturn(lennart);
-//        mockAdapter.signalCommitPerformed(lennart, Integer.toString(c.getRevision()));
-//        EasyMock.expectLastCall();
-//        mockProvider.replayAll();
-//
-//        String reply = handler.postCommit(c);
-//        mockProvider.verifyAll();
-//        assertEquals("OK", reply);
-//    }
+    @Test
+    public void testServerGetsHansoftID() throws HPMSdkException, HPMSdkJavaException {
+        HPMUniqueID lennart = new HPMUniqueID(21);
+        Commit c = new Commit();
+        c.setAuthor("Lennart");
+        c.setRevision(1);
+
+        EasyMock.expect(mockAdapter.getUserID("Lennart")).andReturn(lennart);
+        mockAdapter.signalCommitPerformed(lennart, Integer.toString(c.getRevision()));
+        EasyMock.expectLastCall();
+        mockProvider.replayAll();
+
+        String reply = handler.postCommit(c);
+        mockProvider.verifyAll();
+        assertEquals("OK", reply);
+    }
 }

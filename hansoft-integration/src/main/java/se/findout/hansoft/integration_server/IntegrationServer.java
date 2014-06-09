@@ -6,6 +6,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import se.findout.hansoft.integration_server.adapter.AdapterBinder;
 import se.findout.hansoft.integration_server.adapter.HansoftAdapter;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URI;
 
@@ -18,6 +19,9 @@ public class IntegrationServer {
     	System.in.read();
     	is.shutdown();
    }
+
+    @Inject
+    HansoftAdapter adapter;
 
 	private HttpServer server;
     

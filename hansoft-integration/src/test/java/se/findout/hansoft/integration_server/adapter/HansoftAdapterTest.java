@@ -43,7 +43,7 @@ public class HansoftAdapterTest {
         sdkMock = PowerMock.createMock(HPMSdkSession.class);
         EasyMock.expect(HPMSdkSession.SessionOpen(
                 server.getURL(), server.getPort(), project, user.getUsername(), user.getPassword(),
-                null, null, true, EHPMSdkDebugMode.Off, 0, "", "", null))
+                null, null, true, EHPMSdkDebugMode.Off, 0, "", "/home/bjorn/github/hansoft-svn/hansoft-integration/src/main/resources", null))
                 .andReturn(sdkMock);
 
     }
@@ -150,7 +150,8 @@ public class HansoftAdapterTest {
         assertNull(id);
     }
 
-    @Test public void testSignalCommit() throws HPMSdkException, HPMSdkJavaException {
+    @Test
+    public void testSignalCommit() throws HPMSdkException, HPMSdkJavaException {
         // Setup
         mockupSessionOpen();
         HPMCustomSettingValue value = new HPMCustomSettingValue();
@@ -166,5 +167,27 @@ public class HansoftAdapterTest {
         // Verify
         EasyMock.verify(sdkMock);
         PowerMock.verify(HPMSdkSession.class);
+    }
+
+    @Test
+    public void testRecieveCommitSignal() throws HPMSdkException, HPMSdkJavaException {
+        // Setup
+        mockupSessionOpen();
+        HPMCustomSettingValue value = new HPMCustomSettingValue();
+        value.m_Value = "1";
+        HPMCustomSettingValue testData = new HPMCustomSettingValue();
+        testData.m_Value = "TestData";
+        EasyMock.expect(sdkMock.ResourceGetCustomSettingsValue(EHPMCustomSettingsType.Custom,  new HPMUniqueID(42),
+                "svnIntegration", "svnCommit")).andReturn(testData);
+
+        // Run
+        EasyMock.replay(sdkMock);
+        HansoftAdapter adapter = openMockAdapter();
+        String result = adapter.getCommitSignal(new HPMUniqueID(42));
+
+        // Verify
+        EasyMock.verify(sdkMock);
+        PowerMock.verify(HPMSdkSession.class);
+        assertEquals("TestData", result);
     }
 }

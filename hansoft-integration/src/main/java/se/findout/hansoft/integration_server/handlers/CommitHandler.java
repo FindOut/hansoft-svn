@@ -1,6 +1,8 @@
 package se.findout.hansoft.integration_server.handlers;
 
+import se.findout.hansoft.integration_server.adapter.Credentials;
 import se.findout.hansoft.integration_server.adapter.HansoftAdapter;
+import se.findout.hansoft.integration_server.adapter.HansoftServer;
 import se.findout.hansoft.integration_server.model.Commit;
 import se.hansoft.hpmsdk.HPMSdkException;
 import se.hansoft.hpmsdk.HPMSdkJavaException;
@@ -29,12 +31,11 @@ public class CommitHandler {
 
 	@POST
     @Consumes(MediaType.APPLICATION_JSON)
-    //@Produces(MediaType.TEXT_PLAIN)
-	public String postCommit(Commit commit) throws HPMSdkException, HPMSdkJavaException, IOException {
-        //BufferedReader in = new BufferedReader(new InputStreamReader(commit));
-        //System.out.print(commit);
-        //HPMUniqueID id = adapter.getUserID(commit.getAuthor());
-        //adapter.signalCommitPerformed(id, Integer.toString(commit.getRevision()));
+	public String postCommit(Commit commit) throws HPMSdkException, HPMSdkJavaException {
+        adapter.initialize(new HansoftServer(),"Project", new Credentials());
+        HPMUniqueID id = adapter.getUserID(commit.getAuthor());
+        adapter.signalCommitPerformed(id, Integer.toString(commit.getRevision()));
+        System.out.println(adapter.sayHello());
         return "OK";
 	}
 
