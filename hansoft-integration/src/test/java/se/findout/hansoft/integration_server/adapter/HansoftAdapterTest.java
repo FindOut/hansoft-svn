@@ -3,6 +3,7 @@ package se.findout.hansoft.integration_server.adapter;
 
 import org.easymock.EasyMock;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.easymock.PowerMock;
@@ -14,7 +15,6 @@ import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 import static org.powermock.api.easymock.PowerMock.mockStatic;
 
 @RunWith(PowerMockRunner.class)
@@ -60,47 +60,47 @@ public class HansoftAdapterTest {
         EasyMock.expect(sdkMock.ResourceGetProperties(new HPMUniqueID(42))).andReturn(testprop);
     }
 
-    private HansoftAdapter openMockAdapter() throws HPMSdkException, HPMSdkJavaException {
+    private HansoftAdapter openMockAdapter() throws HansoftException {
         PowerMock.replay(HPMSdkSession.class);
         HansoftAdapter adapter = new HansoftAdapter();
         adapter.initialize(server, project, user);
         return adapter;
     }
 
-    private HansoftAdapter mockAdapter() throws HPMSdkException, HPMSdkJavaException {
+    private HansoftAdapter mockAdapter() throws HansoftException, HPMSdkException, HPMSdkJavaException {
         mockupSessionOpen();
         return openMockAdapter();
     }
 
     @Test
-    public void testInitAdapterDefault() throws HPMSdkException, HPMSdkJavaException {
+    public void testInitAdapterDefault() throws HansoftException, HPMSdkException, HPMSdkJavaException  {
         mockAdapter();
         PowerMock.verify(HPMSdkSession.class);
     }
 
     @Test
-    public void testInitCustomHansoftURL() throws HPMSdkException, HPMSdkJavaException {
+    public void testInitCustomHansoftURL() throws HansoftException, HPMSdkException, HPMSdkJavaException  {
         server = new HansoftServer("http://hansoftserver.com", 50257);
         mockAdapter();
         PowerMock.verify(HPMSdkSession.class);
     }
 
     @Test
-    public void testInitCustomProject() throws HPMSdkException, HPMSdkJavaException {
+    public void testInitCustomProject() throws HansoftException, HPMSdkException, HPMSdkJavaException  {
         project = "Another Project";
         mockAdapter();
         PowerMock.verify(HPMSdkSession.class);
     }
 
     @Test
-    public void testInitCustomUser() throws HPMSdkException, HPMSdkJavaException {
+    public void testInitCustomUser() throws HansoftException, HPMSdkException, HPMSdkJavaException  {
         user.setPassword("A!Q_33f");
         mockAdapter();
         PowerMock.verify(HPMSdkSession.class);
     }
 
     @Test
-    public void testResourceEnumReturnsNull() throws HPMSdkException, HPMSdkJavaException {
+    public void testResourceEnumReturnsNull() throws HansoftException, HPMSdkException, HPMSdkJavaException {
         // Setup
         mockupSessionOpen();
         EasyMock.expect(sdkMock.ResourceEnum()).andReturn(null);
@@ -108,16 +108,16 @@ public class HansoftAdapterTest {
         // Run
         PowerMock.replay(sdkMock);
         HansoftAdapter adapter = openMockAdapter();
-        HPMUniqueID id = adapter.getUserID("bjorn");
+        int id = adapter.getUserID("bjorn");
 
         // Verify
         EasyMock.verify(sdkMock);
         PowerMock.verify(HPMSdkSession.class);
-        assertNull(id);
+        assertEquals(-1, id);
     }
 
     @Test
-    public void testUserExists1() throws HPMSdkException, HPMSdkJavaException {
+    public void testUserExists1() throws HPMSdkException, HPMSdkJavaException, HansoftException {
         // Setup
         mockupSessionOpen();
         mockResourceEnum();
@@ -125,16 +125,16 @@ public class HansoftAdapterTest {
         // Run
         PowerMock.replay(sdkMock);
         HansoftAdapter adapter = openMockAdapter();
-        HPMUniqueID id = adapter.getUserID("bjorn");
+        int id = adapter.getUserID("bjorn");
 
         // Verify
         EasyMock.verify(sdkMock);
         PowerMock.verify(HPMSdkSession.class);
-        assertEquals(42, id.m_ID);
+        assertEquals(42, id);
     }
 
     @Test
-    public void testUserNotExists() throws HPMSdkException, HPMSdkJavaException {
+    public void testUserNotExists() throws HPMSdkException, HPMSdkJavaException, HansoftException {
         // Setup
         mockupSessionOpen();
         mockResourceEnum();
@@ -142,16 +142,16 @@ public class HansoftAdapterTest {
         // Run
         PowerMock.replay(sdkMock);
         HansoftAdapter adapter = openMockAdapter();
-        HPMUniqueID id = adapter.getUserID("pelle");
+        int id = adapter.getUserID("pelle");
 
         // Verify
         EasyMock.verify(sdkMock);
         PowerMock.verify(HPMSdkSession.class);
-        assertNull(id);
+        assertEquals(-1, id);
     }
 
     @Test
-    public void testSignalCommit() throws HPMSdkException, HPMSdkJavaException {
+    public void testSignalCommit() throws HPMSdkException, HPMSdkJavaException, HansoftException {
         // Setup
         mockupSessionOpen();
         HPMCustomSettingValue value = new HPMCustomSettingValue();
@@ -162,7 +162,7 @@ public class HansoftAdapterTest {
         // Run
         EasyMock.replay(sdkMock);
         HansoftAdapter adapter = openMockAdapter();
-        adapter.signalCommitPerformed(new HPMUniqueID(42), "1");
+        adapter.signalCommitPerformed(42, "1");
 
         // Verify
         EasyMock.verify(sdkMock);
@@ -170,7 +170,7 @@ public class HansoftAdapterTest {
     }
 
     @Test
-    public void testRecieveCommitSignal() throws HPMSdkException, HPMSdkJavaException {
+    public void testRecieveCommitSignal() throws HPMSdkException, HPMSdkJavaException, HansoftException {
         // Setup
         mockupSessionOpen();
         HPMCustomSettingValue value = new HPMCustomSettingValue();
@@ -183,7 +183,7 @@ public class HansoftAdapterTest {
         // Run
         EasyMock.replay(sdkMock);
         HansoftAdapter adapter = openMockAdapter();
-        String result = adapter.getCommitSignal(new HPMUniqueID(42));
+        String result = adapter.getCommitSignal(42);
 
         // Verify
         EasyMock.verify(sdkMock);

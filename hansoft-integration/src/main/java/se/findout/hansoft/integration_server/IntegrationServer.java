@@ -4,9 +4,7 @@ import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import se.findout.hansoft.integration_server.adapter.AdapterBinder;
-import se.findout.hansoft.integration_server.adapter.HansoftAdapter;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URI;
 
@@ -20,9 +18,6 @@ public class IntegrationServer {
     	is.shutdown();
    }
 
-    @Inject
-    HansoftAdapter adapter;
-
 	private HttpServer server;
     
 	public void start() {
@@ -34,11 +29,6 @@ public class IntegrationServer {
 	public void shutdown() {
 
         server.shutdown();
-	}
-
-	public void setAdapter(HansoftAdapter adapter) {
-		// TODO Auto-generated method stub
-		
 	}
 
     public boolean getCommits(String user) {

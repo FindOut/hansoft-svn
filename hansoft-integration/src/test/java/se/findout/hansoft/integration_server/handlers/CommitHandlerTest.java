@@ -7,10 +7,8 @@ import org.easymock.EasyMock;
 import org.junit.Rule;
 import org.junit.Test;
 import se.findout.hansoft.integration_server.adapter.HansoftAdapter;
+import se.findout.hansoft.integration_server.adapter.HansoftException;
 import se.findout.hansoft.integration_server.model.Commit;
-import se.hansoft.hpmsdk.HPMSdkException;
-import se.hansoft.hpmsdk.HPMSdkJavaException;
-import se.hansoft.hpmsdk.HPMUniqueID;
 
 import javax.inject.Inject;
 
@@ -30,8 +28,8 @@ public class CommitHandlerTest {
     HansoftAdapter mockAdapter;
 
     @Test
-    public void testServerGetsHansoftID() throws HPMSdkException, HPMSdkJavaException {
-        HPMUniqueID lennart = new HPMUniqueID(21);
+    public void testServerGetsHansoftID() throws HansoftException {
+        int lennart = 21;
         Commit c = new Commit();
         c.setAuthor("Lennart");
         c.setRevision(1);
