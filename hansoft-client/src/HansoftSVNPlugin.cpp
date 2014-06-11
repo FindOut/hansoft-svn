@@ -6,7 +6,6 @@
  */
 
 #include <iostream>
-#include <unistd.h>
 
 #include "HansoftSVNPlugin.h"
 
@@ -36,9 +35,6 @@ void HansoftSVNPlugin::initializeSDK() {
 		HPMString SdkError = _Error.GetAsString();
 		std::wstring Error(SdkError.begin(), SdkError.end());
 		std::wcout << hpm_str("SessionOpen failed with error:") << Error << hpm_str("\r\n");
-		char cwd[1024];
-		getcwd(cwd, sizeof(cwd));
-		std::cout << cwd << std::endl;
 		return;
 	}
 	std::cout << "Initialize complete!" << std::endl;
