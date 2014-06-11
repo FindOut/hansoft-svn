@@ -6,6 +6,7 @@
  */
 
 #include <iostream>
+#include <unistd.h>
 
 #include "HansoftSVNPlugin.h"
 
@@ -28,7 +29,18 @@ void HansoftSVNPlugin::On_ProcessError(EHPMError _Error)
 void HansoftSVNPlugin::initializeSDK() {
 	std::cout << "Initializing..." << std::endl;
 	HPMNeedSessionProcessCallbackInfo info;
-	HPMSdkSession *session = HPMSdkSession::SessionOpen(hpm_str("localhost"), 50256, hpm_str("Company Projects"), hpm_str("SDK"), hpm_str("SDK"), this, &info, true, EHPMSdkDebugMode_Off, NULL, 0, hpm_str("/home/bjorn/github/hansoft-svn/HansoftSDK_7_502/Linux2.6"), HPMSystemString(), NULL);
+	try {
+		HPMSdkSession *session = HPMSdkSession::SessionOpen(hpm_str("localhost"), 50256, hpm_str("Company Projects"), hpm_str("SDK"), hpm_str("SDK"), this, &info, true, EHPMSdkDebugMode_Off, NULL, 0, hpm_str(""), HPMSystemString(), NULL);
+	} catch (const HPMSdkException &_Error)
+	{
+		HPMString SdkError = _Error.GetAsString();
+		std::wstring Error(SdkError.begin(), SdkError.end());
+		std::wcout << hpm_str("SessionOpen failed with error:") << Error << hpm_str("\r\n");
+		char cwd[1024];
+		getcwd(cwd, sizeof(cwd));
+		std::cout << cwd << std::endl;
+		return;
+	}
 	std::cout << "Initialize complete!" << std::endl;
 
 }
