@@ -8,10 +8,13 @@
 #ifndef HANSOFTSVNPLUGIN_H_
 #define HANSOFTSVNPLUGIN_H_
 
-class HansoftSVNPlugin {
+#include "HPMSdkCpp.h"
+
+class HansoftSVNPlugin : public HPMSdk::HPMSdkCallbacks {
 public:
 	HansoftSVNPlugin();
 	virtual ~HansoftSVNPlugin();
+	virtual void On_ProcessError(HPMSdk::EHPMError _Error);
 
 	void initializeSDK();
 	void run();

@@ -7,8 +7,6 @@
 
 #include <iostream>
 
-#include "HPMSdkCpp.h"
-
 #include "HansoftSVNPlugin.h"
 
 using namespace HPMSdk;
@@ -22,9 +20,15 @@ HansoftSVNPlugin::~HansoftSVNPlugin() {
 	// TODO Auto-generated destructor stub
 }
 
+void HansoftSVNPlugin::On_ProcessError(EHPMError _Error)
+{
+	// Lets do nothing for now....
+}
+
 void HansoftSVNPlugin::initializeSDK() {
 	std::cout << "Initializing..." << std::endl;
-	HPMSdkSession session = HPMSdkSession::SessionOpen(hpm_str("localhost"), 50256, hpm_str("Company Projects"), hpm_str("SDK"), hpm_str("SDK"), this, &m_ProcessCallbackInfo, true, DebugMode, NULL, 0, hpm_str(""), HPMSystemString(), NULL);
+	HPMNeedSessionProcessCallbackInfo info;
+	HPMSdkSession *session = HPMSdkSession::SessionOpen(hpm_str("localhost"), 50256, hpm_str("Company Projects"), hpm_str("SDK"), hpm_str("SDK"), this, &info, true, EHPMSdkDebugMode_Off, NULL, 0, hpm_str("/home/bjorn/github/hansoft-svn/HansoftSDK_7_502/Linux2.6"), HPMSystemString(), NULL);
 	std::cout << "Initialize complete!" << std::endl;
 
 }
