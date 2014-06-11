@@ -29,9 +29,9 @@ public class CommitHandler {
         Credentials sdkUser = new Credentials();
         sdkUser.setUsername("SDK");
         sdkUser.setPassword("SDK");
-        
+
         adapter.initialize(server, "hansoft-data", sdkUser);
-        int id = adapter.getUserID("Björn Arnelid");
+        int id = adapter.getUserID(commit.getAuthor());
         adapter.signalCommitPerformed(id, Integer.toString(commit.getRevision()));
         return "OK";
 	}

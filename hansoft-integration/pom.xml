@@ -11,16 +11,16 @@
     <packaging>war</packaging>
     <properties>
         <powermock.version>1.5.4</powermock.version>
+        <java.library.path>/home/bjorn/github/hansoft-svn/HansoftSDK_7_502/Linux2.6/JavaSdkx64/lib</java.library.path>
     </properties>
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.7.1</version>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
                 <configuration>
-                    <parallel>classes</parallel>
-                    <threadCount>5</threadCount>
+                    <source>1.7</source>
+                    <target>1.7</target>
                 </configuration>
             </plugin>
         </plugins>

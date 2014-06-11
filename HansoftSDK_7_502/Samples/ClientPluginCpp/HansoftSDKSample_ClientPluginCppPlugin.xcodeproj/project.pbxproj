@@ -1,0 +1,236 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		57985F59171687C200F83B5A /* HansoftSDKSample_ClientPluginCppPlugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 57985F58171687C200F83B5A /* HansoftSDKSample_ClientPluginCppPlugin.cpp */; };
+		57985F5D1716880C00F83B5A /* HPMSdkCpp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 57985F5C1716880C00F83B5A /* HPMSdkCpp.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		57985F4A1716839100F83B5A /* libHansoftSDKSample_ClientPluginCppPlugin.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libHansoftSDKSample_ClientPluginCppPlugin.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		57985F58171687C200F83B5A /* HansoftSDKSample_ClientPluginCppPlugin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HansoftSDKSample_ClientPluginCppPlugin.cpp; sourceTree = SOURCE_ROOT; };
+		57985F5A171687FF00F83B5A /* HPMSdkCpp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HPMSdkCpp.h; path = ../../HPMSdkCpp.h; sourceTree = "<group>"; };
+		57985F5C1716880C00F83B5A /* HPMSdkCpp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HPMSdkCpp.cpp; path = ../../HPMSdkCpp.cpp; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		57985F471716839100F83B5A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		57985F411716839100F83B5A = {
+			isa = PBXGroup;
+			children = (
+				57985F571716870800F83B5A /* HansoftSDKSample_ClientPluginCppPlugin */,
+				57985F4B1716839100F83B5A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		57985F4B1716839100F83B5A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				57985F4A1716839100F83B5A /* libHansoftSDKSample_ClientPluginCppPlugin.dylib */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		57985F571716870800F83B5A /* HansoftSDKSample_ClientPluginCppPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				57985F5C1716880C00F83B5A /* HPMSdkCpp.cpp */,
+				57985F5A171687FF00F83B5A /* HPMSdkCpp.h */,
+				57985F58171687C200F83B5A /* HansoftSDKSample_ClientPluginCppPlugin.cpp */,
+			);
+			name = HansoftSDKSample_ClientPluginCppPlugin;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		57985F481716839100F83B5A /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		57985F491716839100F83B5A /* HansoftSDKSample_ClientPluginCppPlugin */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 57985F4E1716839100F83B5A /* Build configuration list for PBXNativeTarget "HansoftSDKSample_ClientPluginCppPlugin" */;
+			buildPhases = (
+				57985F461716839100F83B5A /* Sources */,
+				57985F471716839100F83B5A /* Frameworks */,
+				57985F481716839100F83B5A /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HansoftSDKSample_ClientPluginCppPlugin;
+			productName = HansoftSDKSample_ClientPluginCppPlugin;
+			productReference = 57985F4A1716839100F83B5A /* libHansoftSDKSample_ClientPluginCppPlugin.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		57985F421716839100F83B5A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+				ORGANIZATIONNAME = "Hansoft AB";
+			};
+			buildConfigurationList = 57985F451716839100F83B5A /* Build configuration list for PBXProject "HansoftSDKSample_ClientPluginCppPlugin" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 57985F411716839100F83B5A;
+			productRefGroup = 57985F4B1716839100F83B5A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				57985F491716839100F83B5A /* HansoftSDKSample_ClientPluginCppPlugin */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		57985F461716839100F83B5A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				57985F59171687C200F83B5A /* HansoftSDKSample_ClientPluginCppPlugin.cpp in Sources */,
+				57985F5D1716880C00F83B5A /* HPMSdkCpp.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		57985F4C1716839100F83B5A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = "";
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		57985F4D1716839100F83B5A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = "";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		57985F4F1716839100F83B5A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				DYLIB_COMPATIBILITY_VERSION = "";
+				DYLIB_CURRENT_VERSION = "";
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				MACH_O_TYPE = mh_bundle;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = "";
+			};
+			name = Debug;
+		};
+		57985F501716839100F83B5A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				DYLIB_COMPATIBILITY_VERSION = "";
+				DYLIB_CURRENT_VERSION = "";
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				MACH_O_TYPE = mh_bundle;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = "";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		57985F451716839100F83B5A /* Build configuration list for PBXProject "HansoftSDKSample_ClientPluginCppPlugin" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				57985F4C1716839100F83B5A /* Debug */,
+				57985F4D1716839100F83B5A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		57985F4E1716839100F83B5A /* Build configuration list for PBXNativeTarget "HansoftSDKSample_ClientPluginCppPlugin" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				57985F4F1716839100F83B5A /* Debug */,
+				57985F501716839100F83B5A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 57985F421716839100F83B5A /* Project object */;
+}

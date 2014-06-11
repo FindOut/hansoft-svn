@@ -1,0 +1,1 @@
+To load the Java samples in Eclipse, just choose the top directory in the SDK distribution as workspace folder. 

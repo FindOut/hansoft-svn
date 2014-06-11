@@ -13,7 +13,7 @@ public class HansoftAdapter {
             // TODO Hardcoded sdk-location
             try {
                 sdk = HPMSdkSession.SessionOpen(s.getURL(), s.getPort(), databaseName, user.getUsername(), user.getPassword(),
-                        null, null, true, EHPMSdkDebugMode.Off, 0, "", "/home/bjorn/github/hansoft-svn/hansoft-integration/src/main/resources", null);
+                        null, null, true, EHPMSdkDebugMode.Off, 0, "", "/home/bjorn/github/hansoft-svn/HansoftSDK_7_502/Linux2.6", null);
             } catch (HPMSdkException e) {
                 throw new HansoftException(e.ErrorAsStr());
             } catch (HPMSdkJavaException e) {

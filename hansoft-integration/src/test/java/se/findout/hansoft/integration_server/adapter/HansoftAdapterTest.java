@@ -43,7 +43,7 @@ public class HansoftAdapterTest {
         sdkMock = PowerMock.createMock(HPMSdkSession.class);
         EasyMock.expect(HPMSdkSession.SessionOpen(
                 server.getURL(), server.getPort(), project, user.getUsername(), user.getPassword(),
-                null, null, true, EHPMSdkDebugMode.Off, 0, "", "/home/bjorn/github/hansoft-svn/hansoft-integration/src/main/resources", null))
+                null, null, true, EHPMSdkDebugMode.Off, 0, "",  "/home/bjorn/github/hansoft-svn/HansoftSDK_7_502/Linux2.6", null))
                 .andReturn(sdkMock);
 
     }

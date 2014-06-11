@@ -20,7 +20,8 @@ hs_err_pid*
 # Project files 
 .classpath
 .project
-/.settings
+.settings
 *.iml
 .idea
 hansoft-hook/target
+.metadata
