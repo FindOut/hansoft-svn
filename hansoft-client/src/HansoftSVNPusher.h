@@ -10,10 +10,10 @@
 
 #include "HPMSdkCpp.h"
 
-class HansoftSVNPlugin : public HPMSdk::HPMSdkCallbacks {
+class HansoftSVNPusher : public HPMSdk::HPMSdkCallbacks {
 public:
-	HansoftSVNPlugin();
-	virtual ~HansoftSVNPlugin();
+	HansoftSVNPusher();
+	virtual ~HansoftSVNPusher();
 	virtual void On_ProcessError(HPMSdk::EHPMError _Error);
 
 	int initializeSDK();

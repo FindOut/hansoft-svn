@@ -7,22 +7,22 @@
 
 #include <iostream>
 
-#include "HansoftSVNPlugin.h"
+#include "HansoftSVNPusher.h"
 
 using namespace HPMSdk;
 
 using namespace std;
 
-HansoftSVNPlugin::HansoftSVNPlugin() {
+HansoftSVNPusher::HansoftSVNPusher() {
 	// TODO Auto-generated constructor stub
 
 }
 
-HansoftSVNPlugin::~HansoftSVNPlugin() {
+HansoftSVNPusher::~HansoftSVNPusher() {
 	// TODO Auto-generated destructor stub
 }
 
-void HansoftSVNPlugin::On_ProcessError(EHPMError _Error)
+void HansoftSVNPusher::On_ProcessError(EHPMError _Error)
 {
 	HPMString SdkError = HPMSdkSession::ErrorToStr(_Error);
 	wstring Error(SdkError.begin(), SdkError.end());
@@ -30,7 +30,7 @@ void HansoftSVNPlugin::On_ProcessError(EHPMError _Error)
 	wcout << "On_ProcessError: " << Error << "\r\n";
 }
 
-int HansoftSVNPlugin::initializeSDK() {
+int HansoftSVNPusher::initializeSDK() {
 	wcout << "Initializing..." << endl;
 
 	HPMNeedSessionProcessCallbackInfo info;
@@ -57,21 +57,21 @@ int HansoftSVNPlugin::initializeSDK() {
 	return 1;
 }
 
-void HansoftSVNPlugin::run() {
+void HansoftSVNPusher::run() {
 	wcout << "Starting plugin..." << endl;
 }
 
-void HansoftSVNPlugin::shutDown() {
+void HansoftSVNPusher::shutDown() {
 	wcout << "Shutting down connection" << endl;
 }
 
 int main() {
 	int status = 1;
-	HansoftSVNPlugin *plugin = new HansoftSVNPlugin();
-	status = plugin->initializeSDK();
-	plugin->run();
-	plugin->shutDown();
-	delete plugin;
+	HansoftSVNPusher *pusher = new HansoftSVNPusher();
+	status = pusher->initializeSDK();
+	pusher->run();
+	pusher->shutDown();
+	delete pusher;
 	return status;
 
 }
