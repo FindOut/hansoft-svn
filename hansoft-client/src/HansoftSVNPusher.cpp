@@ -7,6 +7,8 @@
 
 #include <iostream>
 
+#include "HPMSdkCpp.h"
+
 #include "HansoftSVNPusher.h"
 
 using namespace HPMSdk;
