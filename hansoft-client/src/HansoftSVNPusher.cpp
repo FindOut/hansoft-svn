@@ -48,16 +48,32 @@ void HansoftSVNPusher::initializeSDK() {
 		wcout << hpm_str("SessionOpen failed with error:") << _Error.what() << hpm_str("\r\n");
 		throw _Error;
 	}
+	session->VersionControlInit(hpm_str("./LocalFiles"));
 	wcout << "Initialize complete!" << endl;
 }
 
 void HansoftSVNPusher::push() {
 	wcout << "Pushing plugin to Hansoft..." << endl;
 
-	//HPMVersionControlAddFiles files;
+	HPMVersionControlAddFiles files;
+	HPMVersionControlLocalFilePair file;
+	// Local directory for plugin
+	file.m_LocalPath = hpm_str("/home/bjorn/github/hansoft-svn/HansoftSDK_7_502/Samples/ClientPluginCpp/Plugin.so");
+	// Remote Directory Path
+	file.m_FileSpec.m_Path = hpm_str("SDK/Plugins/se.findout.hansoftsvnplugin/Linux2.6/x64/Plugin.so");
+	files.m_FilesToAdd.push_back(file);
 
+	files.m_Comment = hpm_str("Client plugin updated by HansoftSVNPusher");
 
-	session->VersionControlInit(hpm_str("."));
+	HPMChangeCallbackData_VersionControlAddFilesResponse Response = session->VersionControlAddFilesBlock(files);
+	wcout << "Succeeded files: " << Response.m_Succeeded.size() << endl;
+	wcout << "Already exists: " << Response.m_AlreadyExists.size() << endl;
+	if (Response.m_Errors.size())
+	{
+		wcout << "Error adding version control file: '" << Response.m_Errors[0].m_File.c_str() << "' Error: '" << session->VersionControlErrorToStr(Response.m_Errors[0].m_Error).c_str() << "'\r\n";
+		throw "Program Failed during push!";
+	}
+
 	wcout << "PushComplete!" << endl;
 }
 
