@@ -16,8 +16,9 @@ public:
 	virtual ~HansoftSVNPlugin();
 	virtual void On_ProcessError(HPMSdk::EHPMError _Error);
 
-	void initializeSDK();
+	int initializeSDK();
 	void run();
+	void shutDown();
 };
 
 #endif /* HANSOFTSVNPLUGIN_H_ */
