@@ -14,7 +14,7 @@ using namespace HPMSdk;
 using namespace std;
 
 HansoftSVNPusher::HansoftSVNPusher() {
-	// TODO Auto-generated constructor stub
+	session = NULL;
 
 }
 
@@ -30,14 +30,12 @@ void HansoftSVNPusher::On_ProcessError(EHPMError _Error)
 	wcout << "On_ProcessError: " << Error << "\r\n";
 }
 
-int HansoftSVNPusher::initializeSDK() {
+void HansoftSVNPusher::initializeSDK() {
 	wcout << "Initializing..." << endl;
 
 	HPMNeedSessionProcessCallbackInfo info;
 	info.m_pContext = NULL;
 	info.m_pCallback = NULL;
-
-	HPMSdkSession *session = NULL;
 
 	try {
 		session = HPMSdkSession::SessionOpen(hpm_str("localhost"), 50256, hpm_str("hansoft-data"), hpm_str("SDK"), hpm_str("SDK"), this, &info, true, EHPMSdkDebugMode_Debug, NULL, 0, hpm_str(""), HPMSystemString(), NULL);
@@ -45,20 +43,22 @@ int HansoftSVNPusher::initializeSDK() {
 		HPMString SdkError = _Error.GetAsString();
 		wstring Error(SdkError.begin(), SdkError.end());
 		wcout << hpm_str("SessionOpen failed with error:") << Error << hpm_str("\r\n");
+		throw Error;
 	} catch (const HPMSdkCppException &_Error) {
 		wcout << hpm_str("SessionOpen failed with error:") << _Error.what() << hpm_str("\r\n");
+		throw _Error;
 	}
-
-	if(session) {
-		wcout << "Initialize complete!" << endl;
-		return 0;
-	}
-	wcout << "Initialize failed" << endl;
-	return 1;
+	wcout << "Initialize complete!" << endl;
 }
 
-void HansoftSVNPusher::run() {
-	wcout << "Starting plugin..." << endl;
+void HansoftSVNPusher::push() {
+	wcout << "Pushing plugin to Hansoft..." << endl;
+
+	//HPMVersionControlAddFiles files;
+
+
+	session->VersionControlInit(hpm_str("."));
+	wcout << "PushComplete!" << endl;
 }
 
 void HansoftSVNPusher::shutDown() {
@@ -68,8 +68,8 @@ void HansoftSVNPusher::shutDown() {
 int main() {
 	int status = 1;
 	HansoftSVNPusher *pusher = new HansoftSVNPusher();
-	status = pusher->initializeSDK();
-	pusher->run();
+	pusher->initializeSDK();
+	pusher->push();
 	pusher->shutDown();
 	delete pusher;
 	return status;
