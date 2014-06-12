@@ -8,8 +8,6 @@
 #ifndef HANSOFTSVNPLUGIN_H_
 #define HANSOFTSVNPLUGIN_H_
 
-//#include "HPMSdkCpp.h"
-
 class HansoftSVNPusher : public HPMSdk::HPMSdkCallbacks {
 public:
 	HansoftSVNPusher();

@@ -23,10 +23,14 @@ HansoftSVNPlugin::~HansoftSVNPlugin() {
 	// TODO Auto-generated destructor stub
 }
 
-void HansoftSVNPlugin::On_ProcessError(EHPMError _Error)
-{
-	HPMString SdkError = HPMSdkSession::ErrorToStr(_Error);
-	wstring Error(SdkError.begin(), SdkError.end());
+void HansoftSVNPlugin::On_ProcessError(EHPMError _Error) {
+	HPMString sdkError = HPMSdkSession::ErrorToStr(_Error);
+	wstring Error(sdkError.begin(), sdkError.end());
 
 	wcout << "On_ProcessError: " << Error << "\r\n";
+}
+
+void HansoftSVNPlugin::On_Callback(const HPMSdk::HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data) {
+	// This should be the channel for communicating with the clients.
+	// We should ask for a project and return data to the Integration server!
 }

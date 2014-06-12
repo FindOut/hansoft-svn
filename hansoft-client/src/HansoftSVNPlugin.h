@@ -14,6 +14,7 @@ public:
 	virtual ~HansoftSVNPlugin();
 
 	virtual void On_ProcessError(HPMSdk::EHPMError _Error);
+	virtual void On_Callback(const HPMSdk::HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data);
 };
 
 #endif /* HANSOFTSVNPLUGIN_H_ */

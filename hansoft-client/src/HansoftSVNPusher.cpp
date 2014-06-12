@@ -12,7 +12,6 @@
 #include "HansoftSVNPusher.h"
 
 using namespace HPMSdk;
-
 using namespace std;
 
 HansoftSVNPusher::HansoftSVNPusher() {
@@ -26,8 +25,8 @@ HansoftSVNPusher::~HansoftSVNPusher() {
 
 void HansoftSVNPusher::On_ProcessError(EHPMError _Error)
 {
-	HPMString SdkError = HPMSdkSession::ErrorToStr(_Error);
-	wstring Error(SdkError.begin(), SdkError.end());
+	HPMString sdkError = HPMSdkSession::ErrorToStr(_Error);
+	wstring Error(sdkError.begin(), sdkError.end());
 
 	wcout << "On_ProcessError: " << Error << "\r\n";
 }
@@ -41,14 +40,14 @@ void HansoftSVNPusher::initializeSDK() {
 
 	try {
 		session = HPMSdkSession::SessionOpen(hpm_str("localhost"), 50256, hpm_str("hansoft-data"), hpm_str("SDK"), hpm_str("SDK"), this, &info, true, EHPMSdkDebugMode_Debug, NULL, 0, hpm_str(""), HPMSystemString(), NULL);
-	} catch (const HPMSdkException &_Error) {
-		HPMString SdkError = _Error.GetAsString();
-		wstring Error(SdkError.begin(), SdkError.end());
+	} catch (const HPMSdkException &error) {
+		HPMString sdkError = error.GetAsString();
+		wstring Error(sdkError.begin(), sdkError.end());
 		wcout << hpm_str("SessionOpen failed with error:") << Error << hpm_str("\r\n");
 		throw Error;
-	} catch (const HPMSdkCppException &_Error) {
-		wcout << hpm_str("SessionOpen failed with error:") << _Error.what() << hpm_str("\r\n");
-		throw _Error;
+	} catch (const HPMSdkCppException &error) {
+		wcout << hpm_str("SessionOpen failed with error:") << error.what() << hpm_str("\r\n");
+		throw error;
 	}
 	session->VersionControlInit(hpm_str("./LocalFiles"));
 	wcout << "Initialize complete!" << endl;
@@ -67,12 +66,12 @@ void HansoftSVNPusher::push() {
 
 	files.m_Comment = hpm_str("Client plugin updated by HansoftSVNPusher");
 
-	HPMChangeCallbackData_VersionControlAddFilesResponse Response = session->VersionControlAddFilesBlock(files);
-	wcout << "Succeeded files: " << Response.m_Succeeded.size() << endl;
-	wcout << "Already exists: " << Response.m_AlreadyExists.size() << endl;
-	if (Response.m_Errors.size())
+	HPMChangeCallbackData_VersionControlAddFilesResponse response = session->VersionControlAddFilesBlock(files);
+	wcout << "Succeeded files: " << response.m_Succeeded.size() << endl;
+	wcout << "Already exists: " << response.m_AlreadyExists.size() << endl;
+	if (response.m_Errors.size())
 	{
-		wcout << "Error adding version control file: '" << Response.m_Errors[0].m_File.c_str() << "' Error: '" << session->VersionControlErrorToStr(Response.m_Errors[0].m_Error).c_str() << "'\r\n";
+		wcout << "Error adding version control file: '" << response.m_Errors[0].m_File.c_str() << "' Error: '" << session->VersionControlErrorToStr(response.m_Errors[0].m_Error).c_str() << "'\r\n";
 		throw "Program Failed during push!";
 	}
 
