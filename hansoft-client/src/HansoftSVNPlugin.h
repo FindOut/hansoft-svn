@@ -13,8 +13,13 @@ public:
 	HansoftSVNPlugin();
 	virtual ~HansoftSVNPlugin();
 
+	void initialize(const void *data);
+
 	virtual void On_ProcessError(HPMSdk::EHPMError _Error);
 	virtual void On_Callback(const HPMSdk::HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data);
+
 };
+
+HansoftSVNPlugin *plugin;
 
 #endif /* HANSOFTSVNPLUGIN_H_ */
