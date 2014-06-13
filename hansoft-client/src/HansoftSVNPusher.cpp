@@ -54,19 +54,32 @@ void HansoftSVNPusher::initializeSDK() {
 }
 
 void HansoftSVNPusher::push() {
+	wcout << "Cleaning up old push..." << endl;
+
+	HPMVersionControlDeleteFiles delBlock;
+	HPMVersionControlFileSpec spec;
+	spec.m_Path = hpm_str("SDK/Plugins/se.findout.hansoftsvnplugin");
+	delBlock.m_Files.push_back(spec);
+	delBlock.m_bDeleteLocally = false;
+	delBlock.m_bPermanent = true;
+	delBlock.m_Comment = hpm_str("Client plugin removed by HansoftSVNPusher");
+	HPMChangeCallbackData_VersionControlDeleteFilesResponse Response = session->VersionControlDeleteFilesBlock(delBlock);
+
+	wcout << "Server Clean!" << endl;
+
 	wcout << "Pushing plugin to Hansoft..." << endl;
 
-	HPMVersionControlAddFiles files;
+	HPMVersionControlAddFiles addBlock;
 	HPMVersionControlLocalFilePair file;
 	// Local directory for plugin
-	file.m_LocalPath = hpm_str("/home/bjorn/github/hansoft-svn/HansoftSDK_7_502/Samples/ClientPluginCpp/Plugin.so");
+	file.m_LocalPath = hpm_str("/home/bjorn/github/hansoft-svn/hansoft-client/plugin.so");
 	// Remote Directory Path
 	file.m_FileSpec.m_Path = hpm_str("SDK/Plugins/se.findout.hansoftsvnplugin/Linux2.6/x64/Plugin.so");
-	files.m_FilesToAdd.push_back(file);
+	addBlock.m_FilesToAdd.push_back(file);
 
-	files.m_Comment = hpm_str("Client plugin updated by HansoftSVNPusher");
+	addBlock.m_Comment = hpm_str("Client plugin updated by HansoftSVNPusher");
 
-	HPMChangeCallbackData_VersionControlAddFilesResponse response = session->VersionControlAddFilesBlock(files);
+	HPMChangeCallbackData_VersionControlAddFilesResponse response = session->VersionControlAddFilesBlock(addBlock);
 	wcout << "Succeeded files: " << response.m_Succeeded.size() << endl;
 	wcout << "Already exists: " << response.m_AlreadyExists.size() << endl;
 	if (response.m_Errors.size())
