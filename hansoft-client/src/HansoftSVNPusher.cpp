@@ -80,6 +80,7 @@ void HansoftSVNPusher::push() {
 
 void HansoftSVNPusher::shutDown() {
 	wcout << "Shutting down connection" << endl;
+	HPMSdkSession::SessionDestroy(session);
 }
 
 int main() {

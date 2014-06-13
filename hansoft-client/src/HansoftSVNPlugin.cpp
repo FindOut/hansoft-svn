@@ -17,8 +17,7 @@ using namespace HPMSdk;
 using namespace std;
 
 HansoftSVNPlugin::HansoftSVNPlugin() {
-	// TODO Auto-generated constructor stub
-
+	session = NULL;
 }
 
 HansoftSVNPlugin::~HansoftSVNPlugin() {
@@ -26,7 +25,16 @@ HansoftSVNPlugin::~HansoftSVNPlugin() {
 }
 
 void HansoftSVNPlugin::initialize(const void *data) {
-	HPMSdkSession *session = HPMSdkSession::SessionOpen(hpm_str(""), 0, hpm_str(""), hpm_str(""), hpm_str(""), this, NULL, true, EHPMSdkDebugMode_Off, data, 0, hpm_str(""), HPMSystemString(), NULL);
+	session = HPMSdkSession::SessionOpen(hpm_str(""), 0, hpm_str(""), hpm_str(""), hpm_str(""), this, NULL, true, EHPMSdkDebugMode_Off, data, 0, hpm_str(""), HPMSystemString(), NULL);
+	dialogTexts.m_ButtonLabel = session->LocalizationCreateUntranslatedStringFromString("Submit"); // HPMUntranslatedString//hpm_str("Submit");
+	dialogTexts.m_CancelLabel = session->LocalizationCreateUntranslatedStringFromString("Cancel");
+	dialogTexts.m_InfoText = session->LocalizationCreateUntranslatedStringFromString("Select items associated with your svn commit");
+	dialogTexts.m_Title = session->LocalizationCreateUntranslatedStringFromString("Svn Commit");
+
+}
+
+void HansoftSVNPlugin::shutdown() {
+	HPMSdkSession::SessionDestroy(session);
 }
 
 void HansoftSVNPlugin::On_ProcessError(EHPMError _Error) {
@@ -39,18 +47,18 @@ void HansoftSVNPlugin::On_ProcessError(EHPMError _Error) {
 void HansoftSVNPlugin::On_Callback(const HPMSdk::HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data) {
 	// This should be the channel for communicating with the clients.
 	// We should ask for a project and return data to the Integration server!
-	//GlobalDisplayCustomTaskStatusDialog dialog;
+	HPMProjectEnum projects = session->ProjectEnum();
+	session->GlobalDisplayCustomTaskStatusDialog(dialogTexts, false, projects);
 }
 
 // External functions to load and unload the plugin
 
-extern "C" mod_export void DHPMSdkCallingConvention HPMClientSDKCreate(const void *_pClientData)
-{
+extern "C" mod_export void DHPMSdkCallingConvention HPMClientSDKCreate(const void *_pClientData) {
 	plugin = new HansoftSVNPlugin();
 	plugin->initialize(_pClientData);
 }
 
-extern "C" mod_export void DHPMSdkCallingConvention HPMClientSDKDestroy()
-{
+extern "C" mod_export void DHPMSdkCallingConvention HPMClientSDKDestroy() {
+	plugin->shutdown();
 	delete plugin;
 }

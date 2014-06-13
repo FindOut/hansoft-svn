@@ -14,10 +14,13 @@ public:
 	virtual ~HansoftSVNPlugin();
 
 	void initialize(const void *data);
+	void shutdown();
 
 	virtual void On_ProcessError(HPMSdk::EHPMError _Error);
 	virtual void On_Callback(const HPMSdk::HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data);
-
+private:
+	HPMSdk::HPMSdkSession *session;
+	HPMSdk::HPMCustomTaskStatusDialogValues dialogTexts;
 };
 
 HansoftSVNPlugin *plugin;
