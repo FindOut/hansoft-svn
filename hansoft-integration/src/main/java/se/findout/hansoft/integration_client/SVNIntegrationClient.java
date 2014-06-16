@@ -22,7 +22,6 @@ public class SVNIntegrationClient {
         adapter.initialize(server, "hansoft-data", sdkUser);
         int id = adapter.getUserID("Björn Arnelid");
         adapter.signalCommitPerformed(id, "TestData");
-        String answer = adapter.getCommitSignal(id);
-        System.out.println(answer);
+
     }
 }

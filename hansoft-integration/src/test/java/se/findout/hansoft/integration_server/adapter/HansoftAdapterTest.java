@@ -154,9 +154,9 @@ public class HansoftAdapterTest {
     public void testSignalCommit() throws HPMSdkException, HPMSdkJavaException, HansoftException {
         // Setup
         mockupSessionOpen();
-        HPMCustomSettingValue value = new HPMCustomSettingValue();
-        value.m_Value = "1";
-        sdkMock.ResourceSetCustomSettingsValue(EHPMCustomSettingsType.Custom, new HPMUniqueID(42), "svnIntegration", "svnCommit", value);
+        HPMCommunicationChannelPacket packet = new HPMCommunicationChannelPacket();
+        packet.m_Bytes = new byte[1];
+        sdkMock.CommunicationChannelSendPacket("svnChannel", 42, packet);
         EasyMock.expectLastCall();
 
         // Run
@@ -167,27 +167,5 @@ public class HansoftAdapterTest {
         // Verify
         EasyMock.verify(sdkMock);
         PowerMock.verify(HPMSdkSession.class);
-    }
-
-    @Test
-    public void testRecieveCommitSignal() throws HPMSdkException, HPMSdkJavaException, HansoftException {
-        // Setup
-        mockupSessionOpen();
-        HPMCustomSettingValue value = new HPMCustomSettingValue();
-        value.m_Value = "1";
-        HPMCustomSettingValue testData = new HPMCustomSettingValue();
-        testData.m_Value = "TestData";
-        EasyMock.expect(sdkMock.ResourceGetCustomSettingsValue(EHPMCustomSettingsType.Custom,  new HPMUniqueID(42),
-                "svnIntegration", "svnCommit")).andReturn(testData);
-
-        // Run
-        EasyMock.replay(sdkMock);
-        HansoftAdapter adapter = openMockAdapter();
-        String result = adapter.getCommitSignal(42);
-
-        // Verify
-        EasyMock.verify(sdkMock);
-        PowerMock.verify(HPMSdkSession.class);
-        assertEquals("TestData", result);
     }
 }

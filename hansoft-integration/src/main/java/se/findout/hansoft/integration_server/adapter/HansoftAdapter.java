@@ -3,6 +3,7 @@ package se.findout.hansoft.integration_server.adapter;
 import se.hansoft.hpmsdk.*;
 
 import javax.inject.Singleton;
+import java.util.EnumSet;
 
 @Singleton
 public class HansoftAdapter {
@@ -13,7 +14,8 @@ public class HansoftAdapter {
             // TODO Hardcoded sdk-location
             try {
                 sdk = HPMSdkSession.SessionOpen(s.getURL(), s.getPort(), databaseName, user.getUsername(), user.getPassword(),
-                        null, null, true, EHPMSdkDebugMode.Off, 0, "", "/home/bjorn/github/hansoft-svn/HansoftSDK_7_502/Linux2.6", null);
+                        null, null, true, EHPMSdkDebugMode.Debug, 0, "", "/home/bjorn/github/hansoft-svn/HansoftSDK_7_502/Linux2.6", null);
+                sdk.CommunicationChannelRegister("svnChannel", EnumSet.of(EHPMChannelFlag.None), new HPMCommunicationChannelData(), "svn Integration Channel");
             } catch (HPMSdkException e) {
                 throw new HansoftException(e.ErrorAsStr());
             } catch (HPMSdkJavaException e) {
@@ -21,6 +23,8 @@ public class HansoftAdapter {
             }
         }
     }
+
+
 
     public int getUserID(String name) throws HansoftException {
         try {
@@ -44,30 +48,14 @@ public class HansoftAdapter {
     }
 
     public void signalCommitPerformed(int userID, String data) throws HansoftException {
-        HPMCustomSettingValue value = new HPMCustomSettingValue();
-        value.m_Value = data;
+        HPMCommunicationChannelPacket packet = new HPMCommunicationChannelPacket();
+        packet.m_Bytes = data.getBytes();
         try {
-            sdk.ResourceSetCustomSettingsValue(EHPMCustomSettingsType.Custom, new HPMUniqueID(userID), "svnIntegration", "svnCommit", value);
+            sdk.CommunicationChannelSendPacket("svnChannel", userID, packet);
         } catch (HPMSdkException e) {
             throw new HansoftException(e.ErrorAsStr());
         } catch (HPMSdkJavaException e) {
             throw new HansoftException(e.ErrorAsStr());
         }
-    }
-
-    public String getCommitSignal(int userID) throws HansoftException {
-        HPMCustomSettingValue data = null;
-        try {
-            data = sdk.ResourceGetCustomSettingsValue(EHPMCustomSettingsType.Custom, new HPMUniqueID(userID), "svnIntegration", "svnCommit");
-        } catch (HPMSdkException e) {
-            throw new HansoftException(e.ErrorAsStr());
-        } catch (HPMSdkJavaException e) {
-            throw new HansoftException(e.ErrorAsStr());
-        }
-        return data.m_Value;
-    }
-
-    public String sayHello() {
-        return "Hello World";
     }
 }

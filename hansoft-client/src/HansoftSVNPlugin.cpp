@@ -47,8 +47,19 @@ void HansoftSVNPlugin::On_ProcessError(EHPMError _Error) {
 void HansoftSVNPlugin::On_Callback(const HPMSdk::HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data) {
 	// This should be the channel for communicating with the clients.
 	// We should ask for a project and return data to the Integration server!
-	HPMProjectEnum projects = session->ProjectEnum();
-	session->GlobalDisplayCustomTaskStatusDialog(dialogTexts, false, projects);
+	wcout << "Packet received" << endl;
+	try {
+		HPMProjectEnum projects = session->ProjectEnum();
+		session->GlobalDisplayCustomTaskStatusDialog(dialogTexts, false, projects);
+	} catch (const HPMSdkException &error) {
+			HPMString sdkError = error.GetAsString();
+			wstring Error(sdkError.begin(), sdkError.end());
+			wcout << hpm_str("Receive data failed with error: ") << Error << hpm_str("\r\n");
+			throw Error;
+		} catch (const HPMSdkCppException &error) {
+			wcout << hpm_str("Receive data failed with error: ") << error.what() << hpm_str("\r\n");
+			throw error;
+		}
 }
 
 // External functions to load and unload the plugin

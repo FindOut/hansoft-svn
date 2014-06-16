@@ -25,6 +25,7 @@ public class CommitHandler {
 	@POST
     @Consumes(MediaType.APPLICATION_JSON)
 	public String postCommit(Commit commit) throws HansoftException {
+        //TODO Hard Coded credentials and server name
         HansoftServer server = new HansoftServer();
         Credentials sdkUser = new Credentials();
         sdkUser.setUsername("SDK");

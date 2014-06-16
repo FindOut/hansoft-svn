@@ -39,14 +39,15 @@ void HansoftSVNPusher::initializeSDK() {
 	info.m_pCallback = NULL;
 
 	try {
+		//TODO hard coded adress
 		session = HPMSdkSession::SessionOpen(hpm_str("localhost"), 50256, hpm_str("hansoft-data"), hpm_str("SDK"), hpm_str("SDK"), this, &info, true, EHPMSdkDebugMode_Debug, NULL, 0, hpm_str(""), HPMSystemString(), NULL);
 	} catch (const HPMSdkException &error) {
 		HPMString sdkError = error.GetAsString();
 		wstring Error(sdkError.begin(), sdkError.end());
-		wcout << hpm_str("SessionOpen failed with error:") << Error << hpm_str("\r\n");
+		wcout << hpm_str("SessionOpen failed with error: ") << Error << hpm_str("\r\n");
 		throw Error;
 	} catch (const HPMSdkCppException &error) {
-		wcout << hpm_str("SessionOpen failed with error:") << error.what() << hpm_str("\r\n");
+		wcout << hpm_str("SessionOpen failed with error: ") << error.what() << hpm_str("\r\n");
 		throw error;
 	}
 	session->VersionControlInit(hpm_str("./LocalFiles"));
@@ -72,7 +73,7 @@ void HansoftSVNPusher::push() {
 	HPMVersionControlAddFiles addBlock;
 	HPMVersionControlLocalFilePair file;
 	// Local directory for plugin
-	file.m_LocalPath = hpm_str("/home/bjorn/github/hansoft-svn/hansoft-client/plugin.so");
+	file.m_LocalPath = hpm_str("/home/bjorn/github/hansoft-svn/hansoft-client/bin/plugin.so");
 	// Remote Directory Path
 	file.m_FileSpec.m_Path = hpm_str("SDK/Plugins/se.findout.hansoftsvnplugin/Linux2.6/x64/Plugin.so");
 	addBlock.m_FilesToAdd.push_back(file);
