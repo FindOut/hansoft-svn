@@ -66,5 +66,10 @@
             <version>3.2</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.hansoft.sdk.lib</groupId>
+            <artifactId>hansoft-lib</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
 </project>
