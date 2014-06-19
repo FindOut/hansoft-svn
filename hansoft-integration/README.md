@@ -11,4 +11,10 @@ Hansoft development SDK
 maven will automatically downloead the other dependencies. refer to pom.xml for a complete list of dependencies downloaded.
 
 ###Installation
-TBD
+```shell
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:<hansoft/java/sdk/library>
+  cd hansoft/java/sdk/library
+  mvn install:install-file -Dfile=hpmsdk.jar -DgroupId=com.hansoft.sdk.lib -DartifactId=hansoft-lib -Dversion=1.0 -Dpackaging=jar
+  cd path/to/hansoft-integration
+  mvn install
+```
