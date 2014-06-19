@@ -214,7 +214,7 @@ public:
 					(
 					_Data.m_RightClickContext
 					, hpm_str(""), m_IntegrationIdentifier + hpm_str(".taskmenu.sampleclientplugin.root")
-					, m_pSession->LocalizationCreateUntranslatedStringFromString(hpm_str("The Item!"))
+					, m_pSession->LocalizationCreateUntranslatedStringFromString(hpm_str("Final!?!"))
 					, NULL
 					)
 					;
