@@ -43,7 +43,7 @@ public class HansoftAdapterTest {
         sdkMock = PowerMock.createMock(HPMSdkSession.class);
         EasyMock.expect(HPMSdkSession.SessionOpen(
                 server.getURL(), server.getPort(), project, user.getUsername(), user.getPassword(),
-                null, null, true, EHPMSdkDebugMode.Off, 0, "",  "/home/bjorn/github/hansoft-svn/HansoftSDK_7_502/Linux2.6", null))
+                null, null, true, EHPMSdkDebugMode.Debug, 0, "/home/bjorn/github/hansoft-svn/hansoft-integration",  "/home/bjorn/github/hansoft-svn/HansoftSDK_7_502/Linux2.6", null))
                 .andReturn(sdkMock);
 
     }
@@ -155,7 +155,7 @@ public class HansoftAdapterTest {
         // Setup
         mockupSessionOpen();
         HPMCommunicationChannelPacket packet = new HPMCommunicationChannelPacket();
-        packet.m_Bytes = new byte[1];
+        packet.m_Bytes = "1".getBytes();
         sdkMock.CommunicationChannelSendPacket("svnChannel", 42, packet);
         EasyMock.expectLastCall();
 
