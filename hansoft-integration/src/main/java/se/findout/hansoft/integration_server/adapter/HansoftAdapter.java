@@ -14,8 +14,8 @@ public class HansoftAdapter {
             // TODO Hardcoded sdk-location
             try {
                 sdk = HPMSdkSession.SessionOpen(s.getURL(), s.getPort(), databaseName, user.getUsername(), user.getPassword(),
-                        null, null, true, EHPMSdkDebugMode.Debug, 0, "", "/home/bjorn/github/hansoft-svn/HansoftSDK_7_502/Linux2.6", null);
-                sdk.CommunicationChannelRegister("svnChannel", EnumSet.of(EHPMChannelFlag.None), new HPMCommunicationChannelData(), "svn Integration Channel");
+                        null, null, true, EHPMSdkDebugMode.Debug, 0, "/home/bjorn/github/hansoft-svn/hansoft-integration", "/home/bjorn/github/hansoft-svn/HansoftSDK_7_502/Linux2.6", null);
+                //sdk.CommunicationChannelRegister("svnChannel", EnumSet.of(EHPMChannelFlag.None), new HPMCommunicationChannelData(), "svn Integration Channel");
             } catch (HPMSdkException e) {
                 throw new HansoftException(e.ErrorAsStr());
             } catch (HPMSdkJavaException e) {

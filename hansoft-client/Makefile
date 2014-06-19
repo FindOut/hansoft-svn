@@ -1,23 +1,26 @@
 CC	= g++
 CFLAGS	= -g
 LDFLAGS	= -pthread -ldl
-SDK_LOCATION = ../HansoftSDK_7_502
-HPMSDK_FILE = Linux2.6/HPMSdk.x64.so
 
-all: setup plugin.so publish_plugin
+all: Plugin.so HansoftSVNPusher
+	cp ../HansoftSDK_7_502/Linux2.6/HPMSdk.x64.so .
 
-plugin.so: HPMSdkCpp.o
-	$(CC)  -Wall -c -fPIC  -I $(SDK_LOCATION) -o bin/$@ src/HansoftSVNPlugin.cpp bin/$< $(LDFLAGS) -shared
+Plugin.so: HPMSdkCpp.o HansoftSVNPlugin.o
+	$(CC) -o $@ $^ -shared
 
-publish_plugin: HPMSdkCpp.o
-	$(CC) -Wall -I $(SDK_LOCATION) -o bin/$@ src/HansoftSVNPusher.cpp bin/$< $(LDFLAGS)
+HansoftSVNPusher: HPMSdkCpp.o HansoftSVNPusher.o
+	$(CC) -o $@ $^ $(LDFLAGS)
 
-setup:
-	mkdir bin
-	cp $(SDK_LOCATION)/$(HPMSDK_FILE) bin/
+HPMSdkCpp.o: ../HansoftSDK_7_502/HPMSdkCpp.cpp
+	$(CC) $(CFLAGS) -c -fPIC -o $@ $<
 
-HPMSdkCpp.o: $(SDK_LOCATION)/HPMSdkCpp.cpp
-	$(CC) $(CFLAGS) -c -fPIC -o bin/$@ $<
+HansoftSVNPlugin.o: src/HansoftSVNPlugin.cpp
+	$(CC) $(CFLAGS) -c -fPIC -o $@ $<
+
+HansoftSVNPusher.o: src/HansoftSVNPusher.cpp
+	$(CC) $(CFLAGS) -c -o $@ $<
 	
 clean:
-	rm -rf bin
+	rm -f HansoftSVNPusher
+	rm -f *.so
+	rm -f *.o
