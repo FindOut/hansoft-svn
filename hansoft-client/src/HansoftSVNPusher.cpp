@@ -31,7 +31,7 @@
 #endif
 #include <iostream>
 
-#include "../../HansoftSDK_7_502/HPMSdkCpp.h"
+#include <HPMSdkCpp.h>
 
 using namespace std;
 using namespace HPMSdk;

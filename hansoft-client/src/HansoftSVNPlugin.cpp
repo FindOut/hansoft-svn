@@ -1,5 +1,5 @@
 
-#include "../../HansoftSDK_7_502/HPMSdkCpp.h"
+#include <HPMSdkCpp.h>
 
 #ifdef _MSC_VER
 #include <tchar.h>
