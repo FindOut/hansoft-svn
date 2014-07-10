@@ -86,4 +86,9 @@ clean:
 	rm -f HansoftSVNPusher
 	rm -f *.so
 	rm -f *.o
-	rm $(SDKLIB)
+	rm -f $(SDKLIB)
+	rm -rf FileCache
+	rm -rf LocalFiles
+	rm -rf VersionControl
+	rm -rf VersionsSDK
+	rm -f WriteRightsCheck
