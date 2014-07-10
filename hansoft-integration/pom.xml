@@ -1,17 +1,18 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>se.findout.hansoft</groupId>
-        <artifactId>hansoft-svn</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
-    </parent>
+    <groupId>se.findout.hansoft</groupId>
     <artifactId>hansoft-integration</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
     <name>Hansoft Integration server</name>
     <description>Integration server between hansoft and subversion</description>
     <packaging>war</packaging>
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
         <powermock.version>1.5.4</powermock.version>
+        <!--
         <java.library.path>/home/bjorn/github/hansoft-svn/HansoftSDK_7_502/Linux2.6/JavaSdkx64/lib</java.library.path>
+        <java.library.path>/Users/fredrik/dev/SDKs/Hansoft/HansoftSDK_7_502/OSX10.7/JavaSdkx64/lib/</java.library.path>
+        -->
     </properties>
     <build>
         <plugins>
@@ -21,11 +22,103 @@
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
+                    <argLine>-Djava.library.path="/Users/fredrik/dev/SDKs/Hansoft/HansoftSDK_7_502/OSX10.7/JavaSdkx64/lib"</argLine>
                 </configuration>
             </plugin>
-        </plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                   <webXml>WEB-INF/web.xml</webXml>
+                </configuration>
+            </plugin>
+<!-- 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <forkMode>once</forkMode>
+                    <workingDirectory>target</workingDirectory>
+                    <argLine>-Djava.library.path=${basedir}/src/main/resources/lib</argLine>
+                </configuration>
+            </plugin>
+ -->            
+<!--
+             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                  <systemProperties>
+                    <property>
+                        <name>java.library.path</name>
+                        <value>${project.build.directory}/lib</value>
+                    </property>
+                  </systemProperties>
+                </configuration>
+            </plugin>
+ -->
+         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>osx</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <build.type>osx</build.type>
+            </properties>
+        </profile>
+        <profile>
+            <id>win32</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <build.type>win32</build.type>
+            </properties>
+        </profile>
+        <profile>
+            <id>win64</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <build.type>win64</build.type>
+            </properties>
+        </profile>
+        <profile>
+            <id>linux32</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <build.type>linux32</build.type>
+            </properties>
+        </profile>
+        <profile>
+            <id>linux64</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <build.type>linux64</build.type>
+            </properties>
+        </profile>
+    </profiles>
     <dependencies>
+        <dependency>
+            <groupId>com.hansoft.sdk.lib</groupId>
+            <artifactId>hansoft-lib</artifactId>
+            <version>7.5.0.2</version>
+            <classifier>osx</classifier>
+        </dependency>
+        <dependency>
+            <groupId>com.hansoft.sdk.lib</groupId>
+            <artifactId>hansoft-lib-native</artifactId>
+            <version>7.5.0.2</version>
+            <classifier>${build.type}</classifier>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -65,11 +158,6 @@
             <artifactId>easymock</artifactId>
             <version>3.2</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.hansoft.sdk.lib</groupId>
-            <artifactId>hansoft-lib</artifactId>
-            <version>1.0</version>
         </dependency>
     </dependencies>
 </project>
