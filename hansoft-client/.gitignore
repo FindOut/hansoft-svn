@@ -1,4 +1,10 @@
 /Default
 /Debug
-.cproject
+#.cproject
 
+# ignore misc runtime artifacts polluting the workspace:
+VersionControl
+VersionsSDK
+WriteRightsCheck
+FileCache
+LocalFiles

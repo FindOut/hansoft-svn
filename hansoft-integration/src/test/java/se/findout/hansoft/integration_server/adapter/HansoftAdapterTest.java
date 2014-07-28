@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.powermock.api.easymock.PowerMock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
 import se.hansoft.hpmsdk.*;
 
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ public class HansoftAdapterTest {
         user = new Credentials();
         user.setUsername("SDK");
         user.setPassword("SDK");
-        project = "Company Projects";
+        project = "TestDB";
 
 
     }
@@ -41,9 +42,32 @@ public class HansoftAdapterTest {
     private void mockupSessionOpen() throws HPMSdkException, HPMSdkJavaException {
         mockStatic(HPMSdkSession.class);
         sdkMock = PowerMock.createMock(HPMSdkSession.class);
-        EasyMock.expect(HPMSdkSession.SessionOpen(
-                server.getURL(), server.getPort(), project, user.getUsername(), user.getPassword(),
-                null, null, true, EHPMSdkDebugMode.Debug, 0, "/home/bjorn/github/hansoft-svn/hansoft-integration",  "/home/bjorn/github/hansoft-svn/HansoftSDK_7_502/Linux2.6", null))
+        //String hansoftSDKpath = "/home/bjorn/github/hansoft-svn/HansoftSDK_7_502/Linux2.6";
+        String hansoftSDKpath = "/Users/fredrik/dev/SDKs/Hansoft/HansoftSDK_7_502/OSX10.7";
+        String hansoftWorkingDir = "/Users/fredrik/git/hansoft-svn/hansoft-integration";
+        HPMSdkSession sessionOpen = HPMSdkSession.SessionOpen(
+                server.getURL(), 
+                server.getPort(), 
+                project, 
+                user.getUsername(), 
+                user.getPassword(),
+                null, 
+                null, 
+                true, 
+                EHPMSdkDebugMode.Debug, 
+                0, 
+                hansoftWorkingDir,  
+                hansoftSDKpath, 
+                null);
+        //null, 
+        //null, 
+        //true, 
+        //EHPMSdkDebugMode.Debug, 
+        //0, 
+        //"/home/bjorn/github/hansoft-svn/hansoft-integration",  
+        //"/home/bjorn/github/hansoft-svn/HansoftSDK_7_502/Linux2.6", 
+        //null))
+        EasyMock.expect(sessionOpen)
                 .andReturn(sdkMock);
 
     }

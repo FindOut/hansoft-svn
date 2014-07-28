@@ -19,12 +19,17 @@ public class SVNIntegrationClient {
         HansoftAdapter adapter = new HansoftAdapter();
         HansoftServer server = new HansoftServer();
         Credentials sdkUser = new Credentials();
-        sdkUser.setUsername("SDK");
-        sdkUser.setPassword("SDK");
-        adapter.initialize(server, "hansoft-data", sdkUser);
+        String sdkUsername = System.getenv("HANSOFT_SDK_USERNAME");
+        String sdkPassword = System.getenv("HANSOFT_SDK_PASSWORD");
+        String sdkDatabase = System.getenv("HANSOFT_DATABASE");
+        String testUserName = System.getenv("TEST_USERNAME");
+        sdkUser.setUsername(sdkUsername);
+        sdkUser.setPassword(sdkPassword);
+        adapter.initialize(server, sdkDatabase, sdkUser);
+        System.out.print("Press any key to continue:");
         System.in.read();
 
-        int id = adapter.getUserID("Björn Arnelid");
+        int id = adapter.getUserID(testUserName);
         adapter.signalCommitPerformed(id, "TestData");
 
     }

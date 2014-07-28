@@ -1,9 +1,15 @@
 package se.findout.hansoft.integration_server.adapter;
 
-import se.hansoft.hpmsdk.*;
-
 import javax.inject.Singleton;
-import java.util.EnumSet;
+
+import se.hansoft.hpmsdk.EHPMSdkDebugMode;
+import se.hansoft.hpmsdk.HPMCommunicationChannelPacket;
+import se.hansoft.hpmsdk.HPMResourceEnum;
+import se.hansoft.hpmsdk.HPMResourceProperties;
+import se.hansoft.hpmsdk.HPMSdkException;
+import se.hansoft.hpmsdk.HPMSdkJavaException;
+import se.hansoft.hpmsdk.HPMSdkSession;
+import se.hansoft.hpmsdk.HPMUniqueID;
 
 @Singleton
 public class HansoftAdapter {
@@ -11,10 +17,12 @@ public class HansoftAdapter {
 
     public void initialize(HansoftServer s, String databaseName, Credentials user) throws HansoftException {
         if(sdk == null) {
-            // TODO Hardcoded sdk-location
             try {
+                String hansoftWorkingDir = System.getenv("HANSOFT_WORKING_DIR");
+                String hansoftLibPath = System.getenv("HANSOFT_SDK_PATH");
                 sdk = HPMSdkSession.SessionOpen(s.getURL(), s.getPort(), databaseName, user.getUsername(), user.getPassword(),
-                        null, null, true, EHPMSdkDebugMode.Debug, 0, "/home/bjorn/github/hansoft-svn/hansoft-integration", "/home/bjorn/github/hansoft-svn/HansoftSDK_7_502/Linux2.6", null);
+                        null, null, true, EHPMSdkDebugMode.Debug, 0, hansoftWorkingDir, hansoftLibPath, null);
+                        //null, null, true, EHPMSdkDebugMode.Debug, 0, "/home/bjorn/github/hansoft-svn/hansoft-integration", "/home/bjorn/github/hansoft-svn/HansoftSDK_7_502/Linux2.6", null);
                 //sdk.CommunicationChannelRegister("svnChannel", EnumSet.of(EHPMChannelFlag.None), new HPMCommunicationChannelData(), "svn Integration Channel");
             } catch (HPMSdkException e) {
                 throw new HansoftException(e.ErrorAsStr());

@@ -18,9 +18,9 @@ hs_err_pid*
 
 
 # Project files 
-.classpath
-.project
-.settings
+#.classpath
+#.project
+#.settings
 *.iml
 .idea
 hansoft-hook/target
