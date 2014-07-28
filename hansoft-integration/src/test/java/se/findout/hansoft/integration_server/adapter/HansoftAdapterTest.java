@@ -43,8 +43,8 @@ public class HansoftAdapterTest {
         mockStatic(HPMSdkSession.class);
         sdkMock = PowerMock.createMock(HPMSdkSession.class);
         //String hansoftSDKpath = "/home/bjorn/github/hansoft-svn/HansoftSDK_7_502/Linux2.6";
-        String hansoftSDKpath = "/Users/fredrik/dev/SDKs/Hansoft/HansoftSDK_7_502/OSX10.7";
-        String hansoftWorkingDir = "/Users/fredrik/git/hansoft-svn/hansoft-integration";
+        String hansoftSDKpath = System.getenv("HANSOFT_WORKING_DIR"); //"/Users/fredrik/dev/SDKs/Hansoft/HansoftSDK_7_502/OSX10.7";
+        String hansoftWorkingDir = System.getenv("HANSOFT_SDK_PATH"); //"/Users/fredrik/git/hansoft-svn/hansoft-integration";
         HPMSdkSession sessionOpen = HPMSdkSession.SessionOpen(
                 server.getURL(), 
                 server.getPort(), 

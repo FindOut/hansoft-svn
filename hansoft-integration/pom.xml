@@ -111,7 +111,7 @@
             <groupId>com.hansoft.sdk.lib</groupId>
             <artifactId>hansoft-lib</artifactId>
             <version>7.5.0.2</version>
-            <classifier>osx</classifier>
+            <classifier>${build.type}</classifier>
         </dependency>
         <dependency>
             <groupId>com.hansoft.sdk.lib</groupId>
