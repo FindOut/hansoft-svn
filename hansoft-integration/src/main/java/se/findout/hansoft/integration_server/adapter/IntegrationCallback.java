@@ -1,11 +1,17 @@
 package se.findout.hansoft.integration_server.adapter;
 
+import java.util.HashMap;
+
 import se.hansoft.hpmsdk.EHPMError;
 import se.hansoft.hpmsdk.HPMChangeCallbackData_CommunicationChannelPacketReceived;
 import se.hansoft.hpmsdk.HPMSdkCallbacks;
 
 public class IntegrationCallback extends HPMSdkCallbacks{
-	private long sessionID = 0;
+	private HashMap<String, Long> sessions;
+	
+	public IntegrationCallback() {
+		sessions = new HashMap<String, Long>();
+	}
 	
 	@Override
 	public void On_ProcessError(EHPMError error) {
@@ -14,10 +20,23 @@ public class IntegrationCallback extends HPMSdkCallbacks{
 	
 	@Override
 	public void On_CommunicationChannelPacketReceived(HPMChangeCallbackData_CommunicationChannelPacketReceived packet) {
-		sessionID = packet.m_FromSessionID;
+		long sessionID = packet.m_FromSessionID;
+		String name = "";
+		for(int i=0; i < packet.m_Packet.m_Bytes.length; ++i) {
+			if(packet.m_Packet.m_Bytes[i] == 0) {
+				name = new String(packet.m_Packet.m_Bytes, 0 , i);
+				break;
+			}
+		}
+		sessions.put(name, sessionID);
 	}
 	
-	public long getSessionID() {
-		return sessionID;
+	public long getSessionID(String user) {
+		try {
+			return sessions.get(user);
+		} catch (NullPointerException e) {
+			System.err.println("User " + user + " not found!\n");
+			return 0;
+		}
 	}
 }

@@ -110,7 +110,12 @@ private:
 		if (Owner == 0) {
 			return;
 		}
-		m_pSession->CommunicationChannelSendPacket("svnChannel", Owner, HPMCommunicationChannelPacket());
+		HPMUniqueID me = m_pSession->ResourceGetLoggedIn();
+		HPMCommunicationChannelPacket packet;
+		const HPMUInt8 *data = (const HPMUInt8 *) m_pSession->ResourceGetNameFromResource(me).c_str();
+		copy(data, data +  m_pSession->ResourceGetNameFromResource(me).length() * sizeof(wchar_t), back_inserter(packet.m_Bytes));
+
+		m_pSession->CommunicationChannelSendPacket("svnChannel", Owner, packet);
 	}
 
 	void displayDialog() {

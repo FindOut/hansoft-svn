@@ -32,7 +32,7 @@ public class SVNIntegrationClient {
         System.out.print("Press any key to continue:\n");
         System.in.read();
 
-        long id = adapter.getSessionID();
+        long id = adapter.getSessionID(testUserName);
         System.out.println("session id " + id);
         adapter.signalCommitPerformed(id, "TestData");
         System.out.println("Packet sent!");

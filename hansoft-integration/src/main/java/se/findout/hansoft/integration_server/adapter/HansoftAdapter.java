@@ -35,8 +35,8 @@ public class HansoftAdapter {
         }
     }
 
-    public long getSessionID() {
-    	return callback.getSessionID();
+    public long getSessionID(String name) {
+    	return callback.getSessionID(name);
     }
 
     public int getUserID(String name) throws HansoftException {
@@ -60,12 +60,12 @@ public class HansoftAdapter {
         return -1;
     }
 
-    public void signalCommitPerformed(long userID, String data) throws HansoftException {
+    public void signalCommitPerformed(long sessionID, String data) throws HansoftException {
         HPMCommunicationChannelPacket packet = new HPMCommunicationChannelPacket();
         packet.m_Bytes = data.getBytes();
         packet.m_Flags = EHPMPacketFlag.toEnumSet(0);
         try {
-            sdk.CommunicationChannelSendPacket("svnChannel", userID, packet);
+            sdk.CommunicationChannelSendPacket("svnChannel", sessionID, packet);
         } catch (HPMSdkException e) {
             throw new HansoftException(e.ErrorAsStr());
         } catch (HPMSdkJavaException e) {
