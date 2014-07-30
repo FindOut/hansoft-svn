@@ -72,14 +72,55 @@ public:
 #else
 		cout << "The client has finished syncing and the Client SDK plugin sample is working.\n";
 #endif
+		RegisterWithIntegration();
 
+	}
+
+	virtual void On_Callback(const HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data) {
+		displayDialog();
+	}
+
+	virtual void On_ProcessError(EHPMError _Error) {
+	}
+
+private:
+
+	HPMUInt64 GetIntegrationSessionID() {
+		HPMCommunicationChannelEnum Channels = m_pSession->CommunicationChannelEnum("svnChannel");
+
+		HPMDatabaseGUIDs GUIDs = m_pSession->GlobalGetDatabaseGUIDs();
+		HPMUInt32 nSessions = 0;
+		HPMUInt64 Ret = 0;
+		for (vector<HPMCommunicationChannelProperties>::iterator Iter = Channels.m_Channels.begin(), End = Channels.m_Channels.end(); Iter != End; ++Iter) {
+			// We need to check the database GUID to make sure that this channel isn't from a share
+			if (Iter->m_DatabaseGUID == GUIDs.m_GUID) {
+				++nSessions;
+				Ret = Iter->m_OwnerSessionID;
+			}
+		}
+		if (nSessions > 1) {
+			cerr << hpm_str("More than one integration channel session ID found.");
+		}
+
+		return Ret;
+	}
+
+	void RegisterWithIntegration() {
+		HPMUInt64 Owner = GetIntegrationSessionID();
+		if (Owner == 0) {
+			return;
+		}
+		m_pSession->CommunicationChannelSendPacket("svnChannel", Owner, HPMCommunicationChannelPacket());
+	}
+
+	void displayDialog() {
 		try
 		{
 			HPMCustomTaskStatusDialogValues values;
 			values.m_ButtonLabel = m_pSession->LocalizationCreateUntranslatedStringFromString(hpm_str("OK"));
 			values.m_CancelLabel = m_pSession->LocalizationCreateUntranslatedStringFromString(hpm_str("Cancel"));
 			values.m_InfoText = m_pSession->LocalizationCreateUntranslatedStringFromString(hpm_str("This is an info text"));
-			m_pSession->GlobalDisplayCustomTaskStatusDialog(values, false, m_pSession->ProjectEnum());
+			m_pSession->GlobalDisplayCustomTaskStatusDialog(values, true, m_pSession->ProjectEnum());
 		}
 		catch (const HPMSdk::HPMSdkException &_Exception)
 		{
@@ -91,11 +132,6 @@ public:
 		}
 	}
 
-	virtual void On_ProcessError(EHPMError _Error)
-	{
-	}
-
-private:
 	HPMSdkSession *m_pSession;
 };
 

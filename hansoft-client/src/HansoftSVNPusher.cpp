@@ -132,7 +132,7 @@ public:
 
 		try
 		{
-			m_pSession = HPMSdkSession::SessionOpen(hpm_str("localhost"), 50256, hpm_str("Company projects"), hpm_str("SDK"), hpm_str("SDK"), this, NULL, true, DebugMode, NULL, 0, hpm_str(""), HPMSystemString(), NULL); //&m_ProcessCallbackInfo
+			m_pSession = HPMSdkSession::SessionOpen(hpm_str("localhost"), 50256, hpm_str("Company projects"), hpm_str("BjornBot"), hpm_str("SDK"), this, NULL, true, DebugMode, NULL, 0, hpm_str(""), HPMSystemString(), NULL); //&m_ProcessCallbackInfo
 		}
 		catch (const HPMSdkException &_Error)
 		{
