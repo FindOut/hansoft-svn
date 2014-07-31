@@ -18,10 +18,11 @@ import se.hansoft.hpmsdk.HPMUniqueID;
 public class HansoftAdapter {
     private HPMSdkSession sdk;
     private IntegrationCallback callback;
-
+    
     public void initialize(HansoftServer s, String databaseName, Credentials user) throws HansoftException {
         if(sdk == null) {
             try {
+            	System.out.println("Initializing!");
             	callback = new IntegrationCallback();
                 String hansoftWorkingDir = System.getenv("HANSOFT_WORKING_DIR");
                 String hansoftLibPath = System.getenv("HANSOFT_SDK_PATH");
