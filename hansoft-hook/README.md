@@ -22,7 +22,7 @@ python-mock
 Create a shell/bat file in the repository/hooks folder called post-commit.  
 Call the hansoft-hook client from within the script file like this: 
 ```shell
-  python /path/to/client/hansoftclient.py $1 $2 $3 $4 /path/to/configuration/file.conf
+  python /path/to/client/hansoftclient.py $0 $1 $2 /path/to/configuration/file.conf
 ```  
 
 The server is started as a normal python program. The server is terminated by keyboard interrupt (ctrl + c).
