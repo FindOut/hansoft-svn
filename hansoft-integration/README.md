@@ -3,6 +3,15 @@ The integration server can either run on the same machine as the Hansoft server,
 
 In order to use the Integration server an SDK user needs to be created. This is done from within Hansoft.
 
+The integration server needs the following environment variables set in order to run:  
+HANSOFT_DATABASE = Name of Hansoft database  
+HANSOFT_SDK_USERNAME = Username of SDK user  
+HANSOFT_SDK_PASSWORD = Password to SDK user  
+HANSOFT_SDK_PATH = Root dir to hansoft sdk for your platform  
+HANSOFT_WORKING_DIR = Root dir to integrationserver  
+
+The integrationserver should be startet at the same time as the Hansoft server, only clients that login after the integration is started will be able to recieve commit signals. 
+
 ###Dependencies
 java (Tested with java7)  
 maven 2.x  
