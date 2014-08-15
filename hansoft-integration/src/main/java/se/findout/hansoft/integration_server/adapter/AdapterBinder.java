@@ -27,6 +27,6 @@ public class AdapterBinder extends AbstractBinder {
 			e.printStackTrace();
 		}
     	bind(HansoftAdapter.class).in(Singleton.class);
-    	bind(new HansoftAdapter()).to(HansoftAdapter.class);
+    	bind(adapter).to(HansoftAdapter.class);
     }
 }
