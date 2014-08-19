@@ -100,6 +100,7 @@ public:
 		cout << "The client has finished syncing and the Client SVN plugin is working.\n";
 #endif
 		RegisterWithIntegration();
+		popup = m_pSession->GlobalRegisterForCustomTaskStatusNotifications("SDK/Plugins/se.findout.hansoft.svn.clientplugincpp", new HPMUserContext());
 
 	}
 
@@ -108,53 +109,23 @@ public:
 	}
 
 	virtual void On_Callback(const HPMChangeCallbackData_CustomTaskStatusNotification &_Data) {
-/*
-     HPMDynamicCustomSettingsContext const * m_pDynamicContext;
-     HPMUserContext m_UserContext;
-     HPMInt32 m_Notification;
-     HPMUInt32 m_nSelectedTasks; -->>    std::vector<HPMUniqueID> m_SelectedTasks;
-     HPMUniqueID const * m_pSelectedTasks;
----
-        m_pSession->CommunicationChannelSendPacket(
-                channelIdentifier,
-                EHPMChannelFlag_None,
-                HPMCommunicationChannelData(),
-                hpm_str("SVN Sample response"));
-
-        HPMCommunicationChannelPacket packet;
-        const HPMUInt8 *data = (const HPMUInt8 *) m_pSession->ResourceGetNameFromResource(me).c_str();
-        copy(data, data +  m_pSession->ResourceGetNameFromResource(me).length() * sizeof(wchar_t), back_inserter(packet.m_Bytes));
-
-        m_pSession->CommunicationChannelSendPacket("svnChannel", Owner, packet);
-
-*/
-        // send response
-        HPMString channelIdentifier = hpm_str("svnChannel");
-        HPMCommunicationChannelPacket packet;
-//        for (std::vector<HPMSdk::HPMUniqueID>::iterator it =
-//                selectedTasks.begin(); it != selectedTasks.end(); ++it) {
-// TODO - copy the selected tasks onto the packet.m_Bytes vector
-// TODO - a "selectedTask" is represented by an HPMUniqueID
-// TODO - thus is needs multiple (2?) m_Bytes slots? How copy?
-//        }
-        HPMCommunicationChannelPacket p;
-        const HPMUInt8 *pData = (const HPMUInt8 *) 42;
-        std::copy(pData, pData + 1 * sizeof(wchar_t), std::back_inserter(p.m_Bytes));
-
-        _debuglog << "Responding to session: " << _sessionId << endl;
-        _debuglog << "Data: " << *pData << endl;
-        _debuglog.flush();
-        if (_sessionId != NOSESSION) {
-            m_pSession->CommunicationChannelSendPacket(
-                    channelIdentifier,
-                    _sessionId,  /* 0 for channel owner - or: _Data.m_FromSessionID */
-                    p);
-            _sessionId = NOSESSION; // clear
-        }
-
+		if(_Data.m_Notification == EHPMCustomTaskStatusNotification_DialogEndedOk) {
+			_debuglog << "Dialog closed!" << std::endl;
+			_debuglog.flush();
+			HPMString channel = hpm_str("svnChannel");
+			HPMCommunicationChannelPacket packet;
+			HPMString text = hpm_str("HelloWorld");
+			const HPMUInt8 *data = (const HPMUInt8 *) text.c_str();
+			copy(data, data + text.length() * sizeof(wchar_t), back_inserter(packet.m_Bytes));
+			m_pSession->CommunicationChannelSendPacket(channel, _sessionId, packet);
+			_debuglog << "Packet sent!" << std::endl;
+			_debuglog.flush();
+		}
 	}
 
 	virtual void On_ProcessError(EHPMError _Error) {
+		_debuglog << _Error << std::endl;
+		_debuglog.flush();
 	}
 
 private:
@@ -211,17 +182,23 @@ private:
 		}
 		catch (const HPMSdk::HPMSdkException &_Exception)
 		{
+			_debuglog << _Exception.GetAsString() << _sessionId << std::endl;
+			_debuglog.flush();
 			if (_Exception.GetError() == EHPMError_ConnectionLost)
 				return;
 		}
-		catch (const HPMSdk::HPMSdkCppException &)
+		catch (const HPMSdk::HPMSdkCppException & _Exception)
 		{
+			_debuglog << _Exception.what() << _sessionId << std::endl;
+			_debuglog.flush();
 		}
 	}
 
 	HPMSdkSession *m_pSession;
     HPMUInt64 _sessionId;
+
     ofstream _debuglog;
+    HPMNotificationSubscription popup;
 };
 
 HansoftSVNPlugin *g_pClientPlugin;
