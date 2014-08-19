@@ -20,7 +20,6 @@
 using namespace std;
 using namespace HPMSdk;
 
-const HPMUInt64 NOSESSION = 99999;
 
 class HansoftSVNPlugin : public HPMSdkCallbacks
 {
@@ -30,7 +29,6 @@ public:
 	HansoftSVNPlugin(const void *_pClientData)
 	{
 		m_pSession = NULL;
-		_sessionId = NOSESSION;
 
 		_debuglog.open("/tmp/hssvnplugin.log"); //TODO - close...
 		_debuglog << "Starting log" << endl;
@@ -107,8 +105,11 @@ public:
 	}
 
 	virtual void On_Callback(const HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data) {
-		//TODO Everyone sees this dialog!
-		displayDialog(_Data);
+		if(_Data.m_ToSessionID == m_pSession->ResourceGetLoggedIn()) {
+			displayDialog(_Data);
+			std::string str(_Data.m_Packet.m_Bytes.begin(),_Data.m_Packet.m_Bytes.end());
+			commit = hpm_str(str);
+		}
 	}
 
 	virtual void On_Callback(const HPMChangeCallbackData_CustomTaskStatusNotification &_Data) {
@@ -119,11 +120,10 @@ public:
 			HPMCommunicationChannelPacket packet;
 			_Data.m_SelectedTasks;
 			HPMString text = "@Commit:";
+			text.append(commit);
+			text.append("@Items:");
 			for(std::vector<HPMUniqueID>::size_type i = 0; i != _Data.m_SelectedTasks.size(); i++) {
-			    std::ostringstream ss;
-			    ss << _Data.m_SelectedTasks.at(i);
-			    std::cout << ss.rdbuf() << std::endl;
-				text.append(ss.str() + ",");
+				text.append(convertToString(_Data.m_SelectedTasks.at(i)) + ",");
 			}
 			_debuglog << text << std::endl;
 			_debuglog.flush();
@@ -141,6 +141,13 @@ public:
 	}
 
 private:
+
+	std::string convertToString(int from) {
+	    std::ostringstream ss;
+	    ss << from;
+	    return ss.str();
+	}
+
 
 	HPMUInt64 GetIntegrationSessionID() {
 		HPMCommunicationChannelEnum Channels = m_pSession->CommunicationChannelEnum("svnChannel");
@@ -213,6 +220,7 @@ private:
 
     ofstream _debuglog;
     HPMNotificationSubscription popup;
+    HPMString commit;
 };
 
 HansoftSVNPlugin *g_pClientPlugin;
