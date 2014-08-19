@@ -7,18 +7,18 @@
 <listEntry value="1"/>
 </listAttribute>
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-<mapEntry key="DYLD_LIBRARY_PATH" value="EDIT-TO-USER-LOCATION/HansoftSDK_7_502/OSX10.7"/>
-<mapEntry key="HANSOFT_DATABASE" value="TestDB"/>
+<mapEntry key="DYLD_LIBRARY_PATH" value="/home/bjorn/github/hansoft-svn/HansoftSDK_7_502/Linux2.6/"/>
+<mapEntry key="HANSOFT_DATABASE" value="Company projects"/>
 <mapEntry key="HANSOFT_SDK_PASSWORD" value="SDK"/>
-<mapEntry key="HANSOFT_SDK_PATH" value="EDIT-TO-USER-LOCATION/HansoftSDK_7_502/OSX10.7"/>
-<mapEntry key="HANSOFT_SDK_USERNAME" value="SDK"/>
+<mapEntry key="HANSOFT_SDK_PATH" value="/home/bjorn/github/hansoft-svn/HansoftSDK_7_502/Linux2.6/"/>
+<mapEntry key="HANSOFT_SDK_USERNAME" value="BjornBot"/>
 <mapEntry key="HANSOFT_WORKING_DIR" value="${project_loc}"/>
-<mapEntry key="TEST_USERNAME" value="fredrik"/>
+<mapEntry key="TEST_USERNAME" value="Björn Arnelid"/>
 </mapAttribute>
 <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_START_ON_FIRST_THREAD" value="true"/>
 <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="se.findout.hansoft.integration_client.SVNIntegrationClient"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="hansoft-integration"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djava.library.path=/Users/fredrik/dev/SDKs/Hansoft/HansoftSDK_7_502/OSX10.7/JavaSdkx64/lib/"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djava.library.path=/home/bjorn/github/hansoft-svn/HansoftSDK_7_502/Linux2.6/JavaSdkx64/lib"/>
 </launchConfiguration>

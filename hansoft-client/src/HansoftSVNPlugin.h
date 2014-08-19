@@ -22,6 +22,7 @@ public:
 
 	//HPMSdk::HPMSdkSession *session;
 private:
+	void displayDialog();
 	HPMSdk::HPMSdkSession *session;
 	HPMSdk::HPMCustomTaskStatusDialogValues dialogTexts;
 	HPMSdk::HPMNotificationSubscription subscription;

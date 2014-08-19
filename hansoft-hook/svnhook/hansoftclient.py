@@ -65,6 +65,8 @@ def main():
     if response.status is not 200:
         sys.stderr.write('Failed when trying to integrate with Hansoft\n')
         sys.stderr.write(response.reason)
+        sys.stderr.write('\nurl: %s\n' % hansoft.url)
+        sys.stderr.write('port: %s\n' % hansoft.port)
         exit(response.status)
 
 # Initialise main method

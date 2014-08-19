@@ -7,6 +7,7 @@
 #include <windows.h>
 #endif
 #include <iostream>
+#include <fstream>
 
 #ifdef _MSC_VER
 #define mod_export __declspec(dllexport)
@@ -17,17 +18,39 @@
 using namespace std;
 using namespace HPMSdk;
 
+const HPMUInt64 NOSESSION = 99999;
+
 class HansoftSVNPlugin : public HPMSdkCallbacks
 {
 public:
 
+
 	HansoftSVNPlugin(const void *_pClientData)
 	{
 		m_pSession = NULL;
+		_sessionId = NOSESSION;
+
+		_debuglog.open("/tmp/hssvnplugin.log"); //TODO - close...
+		_debuglog << "Starting log" << endl;
+		_debuglog.flush();
 
 		try
 		{
-			m_pSession = HPMSdkSession::SessionOpen(hpm_str(""), 0, hpm_str(""), hpm_str(""), hpm_str(""), this, NULL, true, EHPMSdkDebugMode_Off, _pClientData, 0, hpm_str(""), HPMSystemString(), NULL);
+			m_pSession = HPMSdkSession::SessionOpen(
+			        hpm_str(""),
+			        0,
+			        hpm_str(""),
+			        hpm_str(""),
+			        hpm_str(""),
+			        this,
+			        NULL,
+			        true,
+			        EHPMSdkDebugMode_Off,
+			        _pClientData,
+			        0,
+			        hpm_str(""),
+			        HPMSystemString(),
+			        NULL);
 		}
 		catch (HPMSdkException &_Exception)
 		{
@@ -35,22 +58,22 @@ public:
 
 #ifdef _MSC_VER
 			wstringstream Stream;
-			Stream << hpm_str("Error initializing client SDK plugin sample:\r\n\r\n");
+			Stream << hpm_str("Error initializing client SVN plugin:\r\n\r\n");
 			Stream << ErrorStr;
-			MessageBox(NULL, Stream.str().c_str(), hpm_str("Client SDK plugin sample Error"), MB_OK|MB_ICONERROR);
+			MessageBox(NULL, Stream.str().c_str(), hpm_str("Client SVN plugin Error"), MB_OK|MB_ICONERROR);
 #else
-			cerr << hpm_str("Error initializing client SDK plugin sample: ") << ErrorStr << "\n";
+			cerr << hpm_str("Error initializing client SVN plugin: ") << ErrorStr << "\n";
 #endif
 		}
 		catch (HPMSdkCppException &_Exception)
 		{
 #ifdef _MSC_VER
 			wstringstream Stream;
-			Stream << hpm_str("Error initializing client SDK plugin sample:\r\n\r\n");
+			Stream << hpm_str("Error initializing client SVN plugin:\r\n\r\n");
 			Stream << _Exception.what();
-			MessageBox(NULL, Stream.str().c_str(), hpm_str("Client SDK plugin sample Error"), MB_OK|MB_ICONERROR);
+			MessageBox(NULL, Stream.str().c_str(), hpm_str("Client SVN plugin Error"), MB_OK|MB_ICONERROR);
 #else
-			cerr << hpm_str("Error initializing client SDK plugin sample: ") << _Exception.what() << "\n";
+			cerr << hpm_str("Error initializing client SVN plugin: ") << _Exception.what() << "\n";
 #endif
 		}
 	}
@@ -68,18 +91,123 @@ public:
 	{
 
 #ifdef _MSC_VER
-		MessageBox(NULL, hpm_str("The client has finished syncing and the Client SDK plugin sample is working."), hpm_str("Client SDK plugin sample"), MB_OK|MB_ICONINFORMATION);
+		MessageBox(
+		        NULL,
+		        hpm_str("The client has finished syncing and the Client SVN plugin is working."),
+		        hpm_str("Client SVN plugin"),
+		        MB_OK|MB_ICONINFORMATION);
 #else
-		cout << "The client has finished syncing and the Client SDK plugin sample is working.\n";
+		cout << "The client has finished syncing and the Client SVN plugin is working.\n";
 #endif
+		RegisterWithIntegration();
 
+	}
+
+	virtual void On_Callback(const HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data) {
+		displayDialog(_Data);
+	}
+
+	virtual void On_Callback(const HPMChangeCallbackData_CustomTaskStatusNotification &_Data) {
+/*
+     HPMDynamicCustomSettingsContext const * m_pDynamicContext;
+     HPMUserContext m_UserContext;
+     HPMInt32 m_Notification;
+     HPMUInt32 m_nSelectedTasks; -->>    std::vector<HPMUniqueID> m_SelectedTasks;
+     HPMUniqueID const * m_pSelectedTasks;
+---
+        m_pSession->CommunicationChannelSendPacket(
+                channelIdentifier,
+                EHPMChannelFlag_None,
+                HPMCommunicationChannelData(),
+                hpm_str("SVN Sample response"));
+
+        HPMCommunicationChannelPacket packet;
+        const HPMUInt8 *data = (const HPMUInt8 *) m_pSession->ResourceGetNameFromResource(me).c_str();
+        copy(data, data +  m_pSession->ResourceGetNameFromResource(me).length() * sizeof(wchar_t), back_inserter(packet.m_Bytes));
+
+        m_pSession->CommunicationChannelSendPacket("svnChannel", Owner, packet);
+
+*/
+        // send response
+        HPMString channelIdentifier = hpm_str("svnChannel");
+        HPMCommunicationChannelPacket packet;
+//        for (std::vector<HPMSdk::HPMUniqueID>::iterator it =
+//                selectedTasks.begin(); it != selectedTasks.end(); ++it) {
+// TODO - copy the selected tasks onto the packet.m_Bytes vector
+// TODO - a "selectedTask" is represented by an HPMUniqueID
+// TODO - thus is needs multiple (2?) m_Bytes slots? How copy?
+//        }
+        HPMCommunicationChannelPacket p;
+        const HPMUInt8 *pData = (const HPMUInt8 *) 42;
+        std::copy(pData, pData + 1 * sizeof(wchar_t), std::back_inserter(p.m_Bytes));
+
+        _debuglog << "Responding to session: " << _sessionId << endl;
+        _debuglog << "Data: " << *pData << endl;
+        _debuglog.flush();
+        if (_sessionId != NOSESSION) {
+            m_pSession->CommunicationChannelSendPacket(
+                    channelIdentifier,
+                    _sessionId,  /* 0 for channel owner - or: _Data.m_FromSessionID */
+                    p);
+            _sessionId = NOSESSION; // clear
+        }
+
+	}
+
+	virtual void On_ProcessError(EHPMError _Error) {
+	}
+
+private:
+
+	HPMUInt64 GetIntegrationSessionID() {
+		HPMCommunicationChannelEnum Channels = m_pSession->CommunicationChannelEnum("svnChannel");
+
+		HPMDatabaseGUIDs GUIDs = m_pSession->GlobalGetDatabaseGUIDs();
+		HPMUInt32 nSessions = 0;
+		HPMUInt64 Ret = 0;
+		for (vector<HPMCommunicationChannelProperties>::iterator Iter = Channels.m_Channels.begin(), End = Channels.m_Channels.end(); Iter != End; ++Iter) {
+			// We need to check the database GUID to make sure that this channel isn't from a share
+			if (Iter->m_DatabaseGUID == GUIDs.m_GUID) {
+				++nSessions;
+				Ret = Iter->m_OwnerSessionID;
+			}
+		}
+		if (nSessions > 1) {
+			cerr << hpm_str("More than one integration channel session ID found.");
+		}
+
+		return Ret;
+	}
+
+	void RegisterWithIntegration() {
+		HPMUInt64 Owner = GetIntegrationSessionID();
+		if (Owner == 0) {
+			return;
+		}
+		HPMUniqueID me = m_pSession->ResourceGetLoggedIn();
+		HPMCommunicationChannelPacket packet;
+		const HPMUInt8 *data = (const HPMUInt8 *) m_pSession->ResourceGetNameFromResource(me).c_str();
+		copy(data, data +  m_pSession->ResourceGetNameFromResource(me).length() * sizeof(wchar_t), back_inserter(packet.m_Bytes));
+
+		m_pSession->CommunicationChannelSendPacket("svnChannel", Owner, packet);
+	}
+
+	void displayDialog(const HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data) {
 		try
 		{
 			HPMCustomTaskStatusDialogValues values;
+			values.m_Title = m_pSession->LocalizationCreateUntranslatedStringFromString(hpm_str("SVN commit"));
 			values.m_ButtonLabel = m_pSession->LocalizationCreateUntranslatedStringFromString(hpm_str("OK"));
 			values.m_CancelLabel = m_pSession->LocalizationCreateUntranslatedStringFromString(hpm_str("Cancel"));
-			values.m_InfoText = m_pSession->LocalizationCreateUntranslatedStringFromString(hpm_str("This is an info text"));
-			m_pSession->GlobalDisplayCustomTaskStatusDialog(values, false, m_pSession->ProjectEnum());
+			values.m_InfoText = m_pSession->LocalizationCreateUntranslatedStringFromString(hpm_str("Select items to associate with your SVN commit"));
+			m_pSession->GlobalDisplayCustomTaskStatusDialog(
+			        values,                   // dialog values
+			        true,                     // add TODO tasks
+			        m_pSession->ProjectEnum() // list of allowed projects
+                );
+			_sessionId = _Data.m_FromSessionID;
+			_debuglog << "Called from session: " << _sessionId << std::endl;
+			_debuglog.flush();
 		}
 		catch (const HPMSdk::HPMSdkException &_Exception)
 		{
@@ -91,12 +219,9 @@ public:
 		}
 	}
 
-	virtual void On_ProcessError(EHPMError _Error)
-	{
-	}
-
-private:
 	HPMSdkSession *m_pSession;
+    HPMUInt64 _sessionId;
+    ofstream _debuglog;
 };
 
 HansoftSVNPlugin *g_pClientPlugin;

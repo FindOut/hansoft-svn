@@ -132,7 +132,21 @@ public:
 
 		try
 		{
-			m_pSession = HPMSdkSession::SessionOpen(hpm_str("localhost"), 50256, hpm_str("Company projects"), hpm_str("SDK"), hpm_str("SDK"), this, NULL, true, DebugMode, NULL, 0, hpm_str(""), HPMSystemString(), NULL); //&m_ProcessCallbackInfo
+			m_pSession = HPMSdkSession::SessionOpen(
+			        hpm_str("localhost"),
+			        50256,
+			        hpm_str("Company projects"),
+			        hpm_str("SDK"),
+			        hpm_str("SDK"),
+			        this,
+			        NULL,
+			        true,
+			        DebugMode,
+			        NULL,
+			        0,
+			        hpm_str(""),
+			        HPMSystemString(),
+			        NULL); //&m_ProcessCallbackInfo
 		}
 		catch (const HPMSdkException &_Error)
 		{
@@ -172,7 +186,7 @@ public:
 		ToDelete.m_Files.push_back(Spec);
 		ToDelete.m_bDeleteLocally = false;
 		ToDelete.m_bPermanent = true;
-		ToDelete.m_Comment = hpm_str("Client plugin sample automatic deletion");
+		ToDelete.m_Comment = hpm_str("Client SVN plugin automatic deletion");
 		HPMChangeCallbackData_VersionControlDeleteFilesResponse Response = m_pSession->VersionControlDeleteFilesBlock(ToDelete);
 		if (Response.m_Errors.size())
 		{
@@ -188,7 +202,7 @@ public:
 		File.m_LocalPath = _FileLocal;
 		File.m_FileSpec.m_Path = _File;
 		ToAdd.m_FilesToAdd.push_back(File);
-		ToAdd.m_Comment = hpm_str("Client plugin sample automatic add");
+		ToAdd.m_Comment = hpm_str("Client SVN plugin automatic add");
 		ToAdd.m_bDeleteSourceFiles = false;
 
 		HPMChangeCallbackData_VersionControlAddFilesResponse Response = m_pSession->VersionControlAddFilesBlock(ToAdd);
@@ -201,17 +215,16 @@ public:
 	void UpdateServer()
 	{
 		// Delete old files
-		DeleteVersionControlFile(hpm_str("SDK/Plugins/se.hansoft.sdksample.clientplugincpp"));
+		DeleteVersionControlFile(hpm_str("SDK/Plugins/se.findout.hansoft.svn.clientplugincpp"));
 
 		// Add plugins. You need a Win32 x86 and x64, OS X 10.7 x64 and 10.5 x86 and x64 and Linux x64 and x86 versions built when you run the program. Both are required. If you create your own application make sure to use a directory for a reverse domain name that you own. Remove ifdefs and comments in real deployer
-
 #ifdef _MSC_VER
-		AddVersionControlFile(hpm_str("SDK/Plugins/se.hansoft.sdksample.clientplugincpp/Win32/x86/Plugin.dll"), GetProgramDirectory() + hpm_str("/Plugin/x86/HansoftSDKSample_ClientPluginCppPlugin.dll"));
-		AddVersionControlFile(hpm_str("SDK/Plugins/se.hansoft.sdksample.clientplugincpp/Win32/x64/Plugin.dll"), GetProgramDirectory() + hpm_str("/Plugin/x64/HansoftSDKSample_ClientPluginCppPlugin.dll"));
+		AddVersionControlFile(hpm_str("SDK/Plugins/se.findout.hansoft.svn.clientplugincpp/Win32/x86/Plugin.dll"), GetProgramDirectory() + hpm_str("/Plugin/x86/HansoftSDKSample_ClientPluginCppPlugin.dll"));
+		AddVersionControlFile(hpm_str("SDK/Plugins/se.findout.hansoft.svn.clientplugincpp/Win32/x64/Plugin.dll"), GetProgramDirectory() + hpm_str("/Plugin/x64/HansoftSDKSample_ClientPluginCppPlugin.dll"));
 #elif defined(__APPLE__)
-		AddVersionControlFile(hpm_str("SDK/Plugins/se.hansoft.sdksample.clientplugincpp/OSX10.7/x64/Plugin.dylib"), GetProgramDirectory() + hpm_str("/libHansoftSDKSample_ClientPluginCppPlugin.dylib"));
+		AddVersionControlFile(hpm_str("SDK/Plugins/se.findout.hansoft.svn.clientplugincpp/OSX10.7/x64/Plugin.dylib"), GetProgramDirectory() + hpm_str("/Plugin.dylib"));
 #elif defined(__linux__)
-		AddVersionControlFile(hpm_str("SDK/Plugins/se.hansoft.sdksample.clientplugincpp/Linux2.6/x64/Plugin.so"), GetProgramDirectory() + hpm_str("/Plugin.so"));
+		AddVersionControlFile(hpm_str("SDK/Plugins/se.findout.hansoft.svn.clientplugincpp/Linux2.6/x64/Plugin.so"), GetProgramDirectory() + hpm_str("/Plugin.so"));
 #else
 #error "Unknown platform"
 #endif

@@ -26,11 +26,15 @@ public class SVNIntegrationClient {
         sdkUser.setUsername(sdkUsername);
         sdkUser.setPassword(sdkPassword);
         adapter.initialize(server, sdkDatabase, sdkUser);
-        System.out.print("Press any key to continue:");
+        
+        // We need to register a channel for communication....
+        adapter.registerChannel();
+        System.out.print("Press any key to continue:\n");
         System.in.read();
 
-        int id = adapter.getUserID(testUserName);
+        long id = adapter.getSessionID(testUserName);
+        System.out.println("session id " + id);
         adapter.signalCommitPerformed(id, "TestData");
-
+        System.out.println("Packet sent!");
     }
 }

@@ -2,7 +2,10 @@ package se.findout.hansoft.integration_server.adapter;
 
 import javax.inject.Singleton;
 
+import se.hansoft.hpmsdk.EHPMChannelFlag;
+import se.hansoft.hpmsdk.EHPMPacketFlag;
 import se.hansoft.hpmsdk.EHPMSdkDebugMode;
+import se.hansoft.hpmsdk.HPMCommunicationChannelData;
 import se.hansoft.hpmsdk.HPMCommunicationChannelPacket;
 import se.hansoft.hpmsdk.HPMResourceEnum;
 import se.hansoft.hpmsdk.HPMResourceProperties;
@@ -14,16 +17,29 @@ import se.hansoft.hpmsdk.HPMUniqueID;
 @Singleton
 public class HansoftAdapter {
     private HPMSdkSession sdk;
-
+    private IntegrationCallback callback;
+    
     public void initialize(HansoftServer s, String databaseName, Credentials user) throws HansoftException {
         if(sdk == null) {
             try {
+            	System.out.println("Initializing!");
+            	callback = new IntegrationCallback();
                 String hansoftWorkingDir = System.getenv("HANSOFT_WORKING_DIR");
                 String hansoftLibPath = System.getenv("HANSOFT_SDK_PATH");
-                sdk = HPMSdkSession.SessionOpen(s.getURL(), s.getPort(), databaseName, user.getUsername(), user.getPassword(),
-                        null, null, true, EHPMSdkDebugMode.Debug, 0, hansoftWorkingDir, hansoftLibPath, null);
-                        //null, null, true, EHPMSdkDebugMode.Debug, 0, "/home/bjorn/github/hansoft-svn/hansoft-integration", "/home/bjorn/github/hansoft-svn/HansoftSDK_7_502/Linux2.6", null);
-                //sdk.CommunicationChannelRegister("svnChannel", EnumSet.of(EHPMChannelFlag.None), new HPMCommunicationChannelData(), "svn Integration Channel");
+                sdk = HPMSdkSession.SessionOpen(
+                        s.getURL(), 
+                        s.getPort(), 
+                        databaseName, 
+                        user.getUsername(), 
+                        user.getPassword(),
+                        callback, 
+                        null, 
+                        true, 
+                        EHPMSdkDebugMode.Debug, 
+                        0, 
+                        hansoftWorkingDir, 
+                        hansoftLibPath, 
+                        null);
             } catch (HPMSdkException e) {
                 throw new HansoftException(e.ErrorAsStr());
             } catch (HPMSdkJavaException e) {
@@ -32,7 +48,9 @@ public class HansoftAdapter {
         }
     }
 
-
+    public long getSessionID(String name) {
+    	return callback.getSessionID(name);
+    }
 
     public int getUserID(String name) throws HansoftException {
         try {
@@ -55,15 +73,29 @@ public class HansoftAdapter {
         return -1;
     }
 
-    public void signalCommitPerformed(int userID, String data) throws HansoftException {
+    public void signalCommitPerformed(long sessionID, String data) throws HansoftException {
         HPMCommunicationChannelPacket packet = new HPMCommunicationChannelPacket();
         packet.m_Bytes = data.getBytes();
+        packet.m_Flags = EHPMPacketFlag.toEnumSet(0);
         try {
-            sdk.CommunicationChannelSendPacket("svnChannel", userID, packet);
+            sdk.CommunicationChannelSendPacket("svnChannel", sessionID, packet);
         } catch (HPMSdkException e) {
             throw new HansoftException(e.ErrorAsStr());
         } catch (HPMSdkJavaException e) {
             throw new HansoftException(e.ErrorAsStr());
         }
     }
+
+
+
+	public void registerChannel() throws HansoftException {
+		try {
+			sdk.CommunicationChannelRegister("svnChannel", EHPMChannelFlag.toEnumSet(0), new HPMCommunicationChannelData(), "Test channel");
+	       } catch (HPMSdkException e) {
+	            throw new HansoftException(e.ErrorAsStr());
+	        } catch (HPMSdkJavaException e) {
+	            throw new HansoftException(e.ErrorAsStr());
+	        }
+		
+	}
 }
