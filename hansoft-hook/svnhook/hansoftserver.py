@@ -49,7 +49,7 @@ class PostHandler(BaseHTTPRequestHandler):
                      })
 
         path = form['path'].value
-        rev = form['task'].value
+        rev = form['rev'].value
         url = form['url'].value
 
         msg = external_get_message(path, rev)

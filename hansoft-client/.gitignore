@@ -1,6 +1,11 @@
 /Default
 /Debug
 #.cproject
+*.o
+*.so
+*.dll
+*.dylib
+HansoftSVNPusher
 
 # ignore misc runtime artifacts polluting the workspace:
 VersionControl
