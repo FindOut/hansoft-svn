@@ -116,7 +116,6 @@ public:
 			_debuglog.flush();
 			HPMString channel = hpm_str("svnChannel");
 			HPMCommunicationChannelPacket packet;
-			_Data.m_SelectedTasks;
 			HPMString text = "@Commit:";
 			text.append(commit);
 			text.append("@Items:");
