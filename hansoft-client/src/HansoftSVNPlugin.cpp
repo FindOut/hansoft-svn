@@ -105,13 +105,9 @@ public:
 	}
 
 	virtual void On_Callback(const HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data) {
-		_debuglog << _Data.m_ToSessionID << " , "<< m_pSession->ResourceGetLoggedIn() << std::endl;
-		_debuglog.flush();
-		if(_Data.m_ToSessionID == m_pSession->ResourceGetLoggedIn()) {
 			displayDialog(_Data);
 			std::string str(_Data.m_Packet.m_Bytes.begin(),_Data.m_Packet.m_Bytes.end());
 			commit = hpm_str(str);
-		}
 	}
 
 	virtual void On_Callback(const HPMChangeCallbackData_CustomTaskStatusNotification &_Data) {
