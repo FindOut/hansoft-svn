@@ -8,6 +8,8 @@
 #endif
 #include <iostream>
 #include <fstream>
+#include <string>
+#include <sstream>
 
 #ifdef _MSC_VER
 #define mod_export __declspec(dllexport)
@@ -105,6 +107,7 @@ public:
 	}
 
 	virtual void On_Callback(const HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data) {
+		//TODO Everyone sees this dialog!
 		displayDialog(_Data);
 	}
 
@@ -114,7 +117,16 @@ public:
 			_debuglog.flush();
 			HPMString channel = hpm_str("svnChannel");
 			HPMCommunicationChannelPacket packet;
-			HPMString text = hpm_str("HelloWorld");
+			_Data.m_SelectedTasks;
+			HPMString text = "@Commit:";
+			for(std::vector<HPMUniqueID>::size_type i = 0; i != _Data.m_SelectedTasks.size(); i++) {
+			    std::ostringstream ss;
+			    ss << _Data.m_SelectedTasks.at(i);
+			    std::cout << ss.rdbuf() << std::endl;
+				text.append(ss.str() + ",");
+			}
+			_debuglog << text << std::endl;
+			_debuglog.flush();
 			const HPMUInt8 *data = (const HPMUInt8 *) text.c_str();
 			copy(data, data + text.length() * sizeof(wchar_t), back_inserter(packet.m_Bytes));
 			m_pSession->CommunicationChannelSendPacket(channel, _sessionId, packet);
@@ -157,8 +169,10 @@ private:
 		}
 		HPMUniqueID me = m_pSession->ResourceGetLoggedIn();
 		HPMCommunicationChannelPacket packet;
-		const HPMUInt8 *data = (const HPMUInt8 *) m_pSession->ResourceGetNameFromResource(me).c_str();
-		copy(data, data +  m_pSession->ResourceGetNameFromResource(me).length() * sizeof(wchar_t), back_inserter(packet.m_Bytes));
+		HPMString name = "@Register:";
+		name.append(m_pSession->ResourceGetNameFromResource(me));
+		const HPMUInt8 *data = (const HPMUInt8 *) name.c_str();
+		copy(data, data +  name.length() * sizeof(wchar_t), back_inserter(packet.m_Bytes));
 
 		m_pSession->CommunicationChannelSendPacket("svnChannel", Owner, packet);
 	}
