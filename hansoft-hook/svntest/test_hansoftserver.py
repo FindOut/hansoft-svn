@@ -21,7 +21,7 @@ class TestHansoftServer:
 
     def test_receive_reply(self):
         connection = HTTPConnection('localhost', 9006)
-        content = {'@task': 1, '@url': 'http://testurl'}
+        content = {'@rev': 1, '@url': 'http://testurl'}
         connection.request("POST", "/post", urlencode(content), {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"})
         reply = connection.getresponse()
         assert reply.status == 200
@@ -34,7 +34,7 @@ class TestHansoftServer:
         hansoftserver.external_change_log = MagicMock(return_value=0)
         hansoftserver.delete_temp_file = MagicMock()
         connection = HTTPConnection('localhost', 9006)
-        content = {'task': 1, 'url': 'http://hansoft.url', 'path': '/home/svn/testproject/'}
+        content = {'rev': 1, 'url': 'http://hansoft.url', 'path': '/home/svn/testproject/'}
         connection.request("POST", "/post", urlencode(content), {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"})
         reply = connection.getresponse()
         assert reply.status == 200
