@@ -2,3 +2,7 @@
 /target
 /.settings
 /bin
+DBCache/
+FileCache/
+VersionsSDK/
+WriteRightsCheck
