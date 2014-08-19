@@ -57,7 +57,7 @@ SDKLIB = HPMSdk.$(_BITARCH).$(_SDKEXT)
 
 INC = -I$(SDKROOT)
 
-all: Testing Plugin.so HansoftSVNPusher
+all: Testing Plugin.$(_SDKEXT) HansoftSVNPusher
 	cp $(SDKROOT)/$(SDKPLATFORM)/$(SDKLIB) .
 	
 Testing:	
@@ -67,7 +67,7 @@ Testing:
 	@echo SDKLIB:   $(SDKLIB)
 	@echo UNAME_P:  $(UNAME_M)
 
-Plugin.so: HPMSdkCpp.o HansoftSVNPlugin.o
+Plugin.$(_SDKEXT): HPMSdkCpp.o HansoftSVNPlugin.o
 	$(CC) $(INC) -o $@ $^ -shared
 
 HansoftSVNPusher: HPMSdkCpp.o HansoftSVNPusher.o
@@ -84,7 +84,7 @@ HansoftSVNPusher.o: src/HansoftSVNPusher.cpp
 	
 clean:
 	rm -f HansoftSVNPusher
-	rm -f *.so
+	rm -f *.so *.dylib *.dll
 	rm -f *.o
 	rm -f $(SDKLIB)
 	rm -rf FileCache
@@ -92,3 +92,8 @@ clean:
 	rm -rf VersionControl
 	rm -rf VersionsSDK
 	rm -f WriteRightsCheck
+	
+testvars:	
+	echo HOME: $(HOME)
+	echo USER: $(USER)
+	
