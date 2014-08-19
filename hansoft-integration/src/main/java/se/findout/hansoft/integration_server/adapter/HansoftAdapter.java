@@ -40,6 +40,7 @@ public class HansoftAdapter {
                         hansoftWorkingDir, 
                         hansoftLibPath, 
                         null);
+                callback.setSdk(sdk);
             } catch (HPMSdkException e) {
                 throw new HansoftException(e.ErrorAsStr());
             } catch (HPMSdkJavaException e) {

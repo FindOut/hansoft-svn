@@ -6,21 +6,34 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 
 import org.glassfish.grizzly.http.util.HttpStatus;
 
 import se.hansoft.hpmsdk.EHPMError;
+import se.hansoft.hpmsdk.EHPMTaskSetStatusFlag;
+import se.hansoft.hpmsdk.EHPMTaskStatus;
 import se.hansoft.hpmsdk.HPMChangeCallbackData_CommunicationChannelPacketReceived;
 import se.hansoft.hpmsdk.HPMSdkCallbacks;
+import se.hansoft.hpmsdk.HPMSdkException;
+import se.hansoft.hpmsdk.HPMSdkJavaException;
+import se.hansoft.hpmsdk.HPMSdkSession;
+import se.hansoft.hpmsdk.HPMTaskComment;
+import se.hansoft.hpmsdk.HPMUniqueID;
 
 public class IntegrationCallback extends HPMSdkCallbacks{
 	private HashMap<String, Long> sessions;
+    private HPMSdkSession sdk;
 	
 	public IntegrationCallback() {
 		sessions = new HashMap<String, Long>();
 	}
+
+    public void setSdk(HPMSdkSession sdk) {
+        this.sdk = sdk;
+    }
 	
 	@Override
 	public void On_ProcessError(EHPMError error) {
@@ -30,39 +43,63 @@ public class IntegrationCallback extends HPMSdkCallbacks{
 	@Override
 	public void On_CommunicationChannelPacketReceived(HPMChangeCallbackData_CommunicationChannelPacketReceived packet) {
 		long sessionID = packet.m_FromSessionID;
-		String name = "";
+		String data = "";
 		for(int i=0; i < packet.m_Packet.m_Bytes.length; ++i) {
 			if(packet.m_Packet.m_Bytes[i] == 0) {
-				name = new String(packet.m_Packet.m_Bytes, 0 , i);
+				data = new String(packet.m_Packet.m_Bytes, 0 , i);
 				break;
 			}
 		}
 		// handle user name or selected task response
-		if (name.startsWith("TASKS:")) {
+		if (data.startsWith("HelloWorld")) {
 		    // SVN commit ID
 		    // Hansoft selected tasks
-		    String commitId = "81";
-		    String selectedTasks = "1, 2";
-		    handleSelectedTasks(commitId, selectedTasks);
+		    String svnRevision = "81";
+		    String selectedItems = "1, 2";
+		    handleSelectedTasks(svnRevision, selectedItems);
 		} else {
-		    sessions.put(name, sessionID);
+		    sessions.put(data, sessionID);
 		}
 	}
 	
 	/**
 	 * Adds URL annotation for the selectedTasks to the commit
-	 * @param commitId
-	 * @param selectedTasks
+	 * @param svnRevision
+	 * @param selectedItems
 	 */
-	private void handleSelectedTasks(String commitId, String selectedTasks) {
+	private void handleSelectedTasks(String svnRevision, String selectedItems) {
         // POST to (python) http server to update SVN commit with URL(s)
-	    updateSVNcommit(commitId, selectedTasks);
+	    updateSVNcommit(svnRevision, selectedItems);
 	    // Update Hansoft items to mark as completed and add SVN commit info
-	    updateHansoftItems(commitId, selectedTasks);
+	    updateHansoftItems(svnRevision, selectedItems);
     }
 
-    private void updateHansoftItems(String commitId, String selectedTasks) {
-        // TODO Auto-generated method stub
+    private void updateHansoftItems(String svnRevision, String selectedItems) {
+        List<String> items = Arrays.asList(selectedItems.split(","));
+        for (String item : items) {
+            HPMUniqueID id = new HPMUniqueID(Integer.parseInt(item.trim()));
+            try {
+                EnumSet<EHPMTaskSetStatusFlag> noStatusFlags = 
+                        EnumSet.noneOf(EHPMTaskSetStatusFlag.class);
+                sdk.TaskSetStatus(
+                        id,
+                        EHPMTaskStatus.Completed,
+                        false, //GotoWorkFlowStatus boolean: False
+                        noStatusFlags  //SetStatusFlags: 0
+                        );
+                HPMTaskComment taskComment = new HPMTaskComment();
+                taskComment.m_MessageText = "SVN Revision: " + svnRevision;
+                sdk.TaskSetComment(
+                        id, 
+                        0, //TODO - PostID
+                        taskComment);
+            } catch (HPMSdkException | HPMSdkJavaException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                HPMSdkException he = (HPMSdkException) e;
+                System.out.println(he.ErrorAsStr());
+            }
+        } 
         
     }
 
