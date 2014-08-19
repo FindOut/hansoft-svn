@@ -22,19 +22,23 @@
 							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.1636184810" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
 							<tool id="org.eclipse.cdt.build.core.settings.holder.1941544466" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
 								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.1243613280" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/home/bjorn/github/hansoft-svn/HansoftSDK_7_502"/>
+									<listOptionValue builtIn="false" value="&quot;${HANSOFT_SDK_ROOT}/${HANSOFT_SDK_VERSION}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/"/>
 								</option>
 								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1593562614" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
 							</tool>
 							<tool id="org.eclipse.cdt.build.core.settings.holder.24791326" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
 								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.615463708" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/home/bjorn/github/hansoft-svn/HansoftSDK_7_502"/>
+									<listOptionValue builtIn="false" value="&quot;${HANSOFT_SDK_ROOT}/${HANSOFT_SDK_VERSION}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/c++/4.2.1"/>
+									<listOptionValue builtIn="false" value="/usr/include/"/>
 								</option>
 								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.105103448" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
 							</tool>
 							<tool id="org.eclipse.cdt.build.core.settings.holder.1742303248" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
 								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.677682125" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/home/bjorn/github/hansoft-svn/HansoftSDK_7_502"/>
+									<listOptionValue builtIn="false" value="&quot;${HANSOFT_SDK_ROOT}/${HANSOFT_SDK_VERSION}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/"/>
 								</option>
 								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1609886494" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
 							</tool>
@@ -65,6 +69,7 @@
 		<buildTargets>
 			<target name="all" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>make</buildCommand>
+				<buildArguments/>
 				<buildTarget>all</buildTarget>
 				<stopOnError>true</stopOnError>
 				<useDefaultCommand>true</useDefaultCommand>
@@ -72,6 +77,7 @@
 			</target>
 			<target name="clean" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>make</buildCommand>
+				<buildArguments/>
 				<buildTarget>clean</buildTarget>
 				<stopOnError>true</stopOnError>
 				<useDefaultCommand>true</useDefaultCommand>
@@ -79,8 +85,15 @@
 			</target>
 			<target name="clean all" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>make</buildCommand>
-				<buildArguments/>
 				<buildTarget>clean all</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+			<target name="testvars" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments/>
+				<buildTarget>testvars</buildTarget>
 				<stopOnError>true</stopOnError>
 				<useDefaultCommand>true</useDefaultCommand>
 				<runAllBuilders>true</runAllBuilders>
