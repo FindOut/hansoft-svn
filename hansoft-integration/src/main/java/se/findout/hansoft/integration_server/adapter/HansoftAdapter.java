@@ -26,8 +26,20 @@ public class HansoftAdapter {
             	callback = new IntegrationCallback();
                 String hansoftWorkingDir = System.getenv("HANSOFT_WORKING_DIR");
                 String hansoftLibPath = System.getenv("HANSOFT_SDK_PATH");
-                sdk = HPMSdkSession.SessionOpen(s.getURL(), s.getPort(), databaseName, user.getUsername(), user.getPassword(),
-                        callback, null, true, EHPMSdkDebugMode.Debug, 0, hansoftWorkingDir, hansoftLibPath, null);
+                sdk = HPMSdkSession.SessionOpen(
+                        s.getURL(), 
+                        s.getPort(), 
+                        databaseName, 
+                        user.getUsername(), 
+                        user.getPassword(),
+                        callback, 
+                        null, 
+                        true, 
+                        EHPMSdkDebugMode.Debug, 
+                        0, 
+                        hansoftWorkingDir, 
+                        hansoftLibPath, 
+                        null);
             } catch (HPMSdkException e) {
                 throw new HansoftException(e.ErrorAsStr());
             } catch (HPMSdkJavaException e) {
