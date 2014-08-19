@@ -26,6 +26,10 @@ import se.hansoft.hpmsdk.HPMUniqueID;
 public class IntegrationCallback extends HPMSdkCallbacks{
 	private HashMap<String, Long> sessions;
     private HPMSdkSession sdk;
+
+    private static final String REGISTER_TOKEN = "@Register:";
+    private static final String COMMIT_TOKEN = "@Commit:";
+    private static final String ITEMS_TOKEN = "@Items:";
 	
 	public IntegrationCallback() {
 		sessions = new HashMap<String, Long>();
@@ -50,19 +54,32 @@ public class IntegrationCallback extends HPMSdkCallbacks{
 				break;
 			}
 		}
-		// handle user name or selected task response
-		if (data.startsWith("HelloWorld")) {
-		    // SVN commit ID
-		    // Hansoft selected tasks
-		    String svnRevision = "81";
-		    String selectedItems = "1, 2";
+		// handle user name or selected items response
+		if (data.startsWith(COMMIT_TOKEN)) {
+		    String svnRevision = getRevision(data, COMMIT_TOKEN);
+		    String selectedItems = getItems(data, ITEMS_TOKEN);
 		    handleSelectedTasks(svnRevision, selectedItems);
-		} else {
-		    sessions.put(data, sessionID);
+		} else if (data.startsWith(REGISTER_TOKEN)){
+		    String user = data.substring(REGISTER_TOKEN.length());
+		    sessions.put(user, sessionID);
 		}
 	}
 	
-	/**
+	private String getItems(String data, String itemsToken) {
+        // "@Commit:87@Items:1,2,3"
+        String items = data.substring(data.indexOf(ITEMS_TOKEN)
+                + ITEMS_TOKEN.length());
+        return items;
+    }
+
+    private String getRevision(String data, String commitToken) {
+        // "@Commit:87@Items:1,2,3"
+        int itemPos = data.indexOf(ITEMS_TOKEN);
+        String revision = data.substring(COMMIT_TOKEN.length(), itemPos);
+        return revision;
+    }
+
+    /**
 	 * Adds URL annotation for the selectedTasks to the commit
 	 * @param svnRevision
 	 * @param selectedItems
@@ -89,15 +106,13 @@ public class IntegrationCallback extends HPMSdkCallbacks{
                         );
                 HPMTaskComment taskComment = new HPMTaskComment();
                 taskComment.m_MessageText = "SVN Revision: " + svnRevision;
-                sdk.TaskSetComment(
-                        id, 
-                        0, //TODO - PostID
+                sdk.TaskCreateComment(
+                        id,
                         taskComment);
             } catch (HPMSdkException | HPMSdkJavaException e) {
                 // TODO Auto-generated catch block
-                e.printStackTrace();
                 HPMSdkException he = (HPMSdkException) e;
-                System.out.println(he.ErrorAsStr());
+                System.err.println(he.ErrorAsStr());
             }
         } 
         
@@ -105,7 +120,7 @@ public class IntegrationCallback extends HPMSdkCallbacks{
 
     private void updateSVNcommit(String commitId, String selectedTasks) {
         // create annotation
-        String hansoftURIprefix = "hsprefix:"; //TODO - replace w actual hansoft URI
+        String hansoftURIprefix = "\n" + "hsprefix:"; //TODO - replace w actual hansoft URI
         String annotation = "";
         //TODO must be a configurable paramter to the integration:
         //TODO is the root of the SVN project
