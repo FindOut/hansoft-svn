@@ -10,6 +10,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.glassfish.grizzly.http.util.HttpStatus;
 
 import se.hansoft.hpmsdk.EHPMError;
@@ -120,14 +121,33 @@ public class IntegrationCallback extends HPMSdkCallbacks{
 
     private void updateSVNcommit(String commitId, String selectedTasks) {
         // create annotation
-        String hansoftURIprefix = "\n" + "hsprefix:"; //TODO - replace w actual hansoft URI
+        String hansoftServer = "falcon.local";
+        String hansoftProject = "Company%20Project";
+        String hansoftURIprefix = "\n" + "hansoft:" + hansoftServer; //TODO - replace w actual hansoft URI
         String annotation = "";
         //TODO must be a configurable paramter to the integration:
         //TODO is the root of the SVN project
         String svnProjectPath = "/Users/fredrik/Library/Subversion/Repository/hstestproject"; 
         List<String> items = Arrays.asList(selectedTasks.split(","));
         for (String item : items) {
-            annotation += hansoftURIprefix + item;
+            //annotation += hansoftURIprefix + item;
+            try {
+                String itemUrl = sdk.UtilGetHansoftURL(item);
+                String escapedUrl = StringEscapeUtils.escapeHtml(itemUrl); 
+                annotation += "\n";
+                //annotation += itemUrl;
+                HPMUniqueID id = new HPMUniqueID(Integer.parseInt(item.trim()));
+                String description = sdk.TaskGetDescription(id);
+                System.out.println("Task description: " + description);
+                annotation += hansoftURIprefix + "/" + hansoftProject + "/"
+                        + item + "/" + description.replaceAll(" ", "%20");
+            } catch (HPMSdkException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (HPMSdkJavaException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
         String content;
         content = "rev=" + commitId;
@@ -135,7 +155,6 @@ public class IntegrationCallback extends HPMSdkCallbacks{
         content += "&path=" + svnProjectPath;
         
         // open connection to http server
-        System.out.println("TODO connect to http server");
         String request = "http://localhost:9006";
         System.out.println("Sending to : " + request);
         System.out.println("Content: " + content);
