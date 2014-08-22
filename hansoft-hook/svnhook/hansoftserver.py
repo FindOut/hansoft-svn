@@ -54,6 +54,8 @@ class PostHandler(BaseHTTPRequestHandler):
 
         sys.stderr.write("Annotated rev %s\n" % rev) # DEBUG
         msg = external_get_message(path, rev)
+        sys.stderr.write("Message %s\n" % msg)
+        msg += "\n"
         tmp_file = create_temp_file(msg, url)
         external_change_log(path, rev, tmp_file.name)
         delete_temp_file(tmp_file.name)
