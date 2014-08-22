@@ -6,7 +6,7 @@ from subprocess import check_output
 from tempfile import NamedTemporaryFile
 from os import remove
 import os
-
+import sys
 
 # svnlook propget /home/svn/testproject/ svn:log --revprop -r 7
 def external_get_message(path, revision):
@@ -52,6 +52,7 @@ class PostHandler(BaseHTTPRequestHandler):
         rev = form['rev'].value
         url = form['url'].value
 
+        sys.stderr.write("Annotated rev %s\n" % rev) # DEBUG
         msg = external_get_message(path, rev)
         tmp_file = create_temp_file(msg, url)
         external_change_log(path, rev, tmp_file.name)
@@ -61,7 +62,8 @@ class PostHandler(BaseHTTPRequestHandler):
 class HansoftServer:
 
     def __init__(self):
-        self.server = HTTPServer(('localhost', 9006), PostHandler)
+        self.server = HTTPServer(('0.0.0.0', 9006), PostHandler)
+        #self.server = HTTPServer(('localhost', 9006), PostHandler)
 
     def start(self):
         self.server.serve_forever()
