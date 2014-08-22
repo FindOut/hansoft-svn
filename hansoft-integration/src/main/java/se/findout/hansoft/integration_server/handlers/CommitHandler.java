@@ -23,16 +23,13 @@ public class CommitHandler {
 	@POST
     @Consumes(MediaType.APPLICATION_JSON)
 	public String postCommit(Commit commit) throws HansoftException {
-		// TODO Hardcoded user for testing...
 	    String svnuser = commit.getAuthor();
 	    if (svnuser.endsWith("\n")) {
 	        // Strip trailing "\n"
 	        svnuser = svnuser.substring(0, svnuser.length() - 1); 
 	    }
-		long id = adapter.getSessionID(svnuser);
-		//TODO: Handle mapping of user names commit -> hansoft names
-        //long id = adapter.getSessionID("Björn Arnelid");
-        adapter.signalCommitPerformed(id, Integer.toString(commit.getRevision()));
+		long id = adapter.getSessionID(adapter.mapSVNUserToHansoftUser(svnuser));
+        adapter.signalCommitPerformed(id, commit); 
         return "OK";
 	}
 

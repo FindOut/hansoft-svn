@@ -1,14 +1,12 @@
 package se.findout.hansoft.integration_client;
 
+import java.io.IOException;
+
 import se.findout.hansoft.integration_server.adapter.Credentials;
 import se.findout.hansoft.integration_server.adapter.HansoftAdapter;
 import se.findout.hansoft.integration_server.adapter.HansoftException;
 import se.findout.hansoft.integration_server.adapter.HansoftServer;
-import se.hansoft.hpmsdk.HPMSdkException;
-import se.hansoft.hpmsdk.HPMSdkJavaException;
-import se.hansoft.hpmsdk.HPMUniqueID;
-
-import java.io.IOException;
+import se.findout.hansoft.integration_server.model.Commit;
 
 /**
  * Created by bjorn on 2014-06-09.
@@ -34,7 +32,11 @@ public class SVNIntegrationClient {
 
         long id = adapter.getSessionID(testUserName);
         System.out.println("session id " + id);
-        adapter.signalCommitPerformed(id, "TestData");
+        String author = "tester";
+        int revision = 42;
+        String path = "/a/b/c/repo/dir";
+        Commit commit = new Commit(author, revision, path);
+        adapter.signalCommitPerformed(id, commit);
         System.out.println("Packet sent!");
     }
 }

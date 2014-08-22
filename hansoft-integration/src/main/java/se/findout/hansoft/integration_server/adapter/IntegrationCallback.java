@@ -9,10 +9,11 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.glassfish.grizzly.http.util.HttpStatus;
 
+import se.findout.hansoft.integration_server.model.Commit;
 import se.hansoft.hpmsdk.EHPMError;
 import se.hansoft.hpmsdk.EHPMTaskSetStatusFlag;
 import se.hansoft.hpmsdk.EHPMTaskStatus;
@@ -27,7 +28,7 @@ import se.hansoft.hpmsdk.HPMUniqueID;
 public class IntegrationCallback extends HPMSdkCallbacks{
 	private HashMap<String, Long> sessions;
     private HPMSdkSession sdk;
-
+    
     private static final String REGISTER_TOKEN = "@Register:";
     private static final String COMMIT_TOKEN = "@Commit:";
     private static final String ITEMS_TOKEN = "@Items:";
@@ -59,7 +60,9 @@ public class IntegrationCallback extends HPMSdkCallbacks{
 		if (data.startsWith(COMMIT_TOKEN)) {
 		    String svnRevision = getRevision(data, COMMIT_TOKEN);
 		    String selectedItems = getItems(data, ITEMS_TOKEN);
-		    handleSelectedTasks(svnRevision, selectedItems);
+		    if (!selectedItems.isEmpty()) {
+		        handleSelectedTasks(svnRevision, selectedItems);
+		    }
 		} else if (data.startsWith(REGISTER_TOKEN)){
 		    String user = data.substring(REGISTER_TOKEN.length());
 		    sessions.put(user, sessionID);
@@ -121,26 +124,18 @@ public class IntegrationCallback extends HPMSdkCallbacks{
 
     private void updateSVNcommit(String commitId, String selectedTasks) {
         // create annotation
-        String hansoftServer = "falcon.local";
-        String hansoftProject = "Company%20Project";
-        String hansoftURIprefix = "\n" + "hansoft:" + hansoftServer; //TODO - replace w actual hansoft URI
         String annotation = "";
-        //TODO must be a configurable paramter to the integration:
-        //TODO is the root of the SVN project
-        String svnProjectPath = "/Users/fredrik/Library/Subversion/Repository/hstestproject"; 
+        String svnProjectPath = getPath(Integer.parseInt(commitId)); 
         List<String> items = Arrays.asList(selectedTasks.split(","));
         for (String item : items) {
-            //annotation += hansoftURIprefix + item;
             try {
                 String itemUrl = sdk.UtilGetHansoftURL(item);
-                String escapedUrl = StringEscapeUtils.escapeHtml(itemUrl); 
-                annotation += "\n";
-                //annotation += itemUrl;
+                String prefix = itemUrl.replaceAll(";", "__");
                 HPMUniqueID id = new HPMUniqueID(Integer.parseInt(item.trim()));
                 String description = sdk.TaskGetDescription(id);
                 System.out.println("Task description: " + description);
-                annotation += hansoftURIprefix + "/" + hansoftProject + "/"
-                        + item + "/" + description.replaceAll(" ", "%20");
+                annotation += prefix + description.replaceAll(" ", "%20");
+                annotation += ", \n";
             } catch (HPMSdkException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -186,16 +181,6 @@ public class IntegrationCallback extends HPMSdkCallbacks{
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
-/*
-        connection = HTTPConnection('localhost', 9006)
-        content = {'rev': 1, 'url': 'http://hansoft.url', 'path': '/home/svn/testproject/'}
-        connection.request("POST", "/post", urlencode(content), 
-           {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"})
-        reply = connection.getresponse()
-        assert reply.status == 200
-        
- */
     }
 
     public long getSessionID(String user) {
@@ -206,4 +191,15 @@ public class IntegrationCallback extends HPMSdkCallbacks{
 			return 0;
 		}
 	}
+
+    Map<Integer, String> commits = new HashMap<>();
+    
+    public void addCommit(Commit commit) {
+        commits.put(commit.getRevision(), commit.getPath());
+    }
+    
+    String getPath(int revision) {
+        String path = commits.remove(revision);
+        return path;
+    }
 }

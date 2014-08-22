@@ -35,7 +35,7 @@ public class CommitHandlerTest {
         c.setRevision(1);
 
         EasyMock.expect(mockAdapter.getUserID("Lennart")).andReturn(lennart);
-        mockAdapter.signalCommitPerformed(lennart, Integer.toString(c.getRevision()));
+        mockAdapter.signalCommitPerformed(lennart, c);
         EasyMock.expectLastCall();
         mockProvider.replayAll();
 

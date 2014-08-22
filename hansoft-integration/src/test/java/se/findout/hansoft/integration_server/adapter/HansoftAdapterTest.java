@@ -1,22 +1,28 @@
 package se.findout.hansoft.integration_server.adapter;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.powermock.api.easymock.PowerMock.mockStatic;
+
+import java.util.ArrayList;
+
 import org.easymock.EasyMock;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.easymock.PowerMock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import se.hansoft.hpmsdk.*;
-
-import java.util.ArrayList;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.powermock.api.easymock.PowerMock.mockStatic;
+import se.findout.hansoft.integration_server.model.Commit;
+import se.hansoft.hpmsdk.EHPMSdkDebugMode;
+import se.hansoft.hpmsdk.HPMCommunicationChannelPacket;
+import se.hansoft.hpmsdk.HPMResourceEnum;
+import se.hansoft.hpmsdk.HPMResourceProperties;
+import se.hansoft.hpmsdk.HPMSdkException;
+import se.hansoft.hpmsdk.HPMSdkJavaException;
+import se.hansoft.hpmsdk.HPMSdkSession;
+import se.hansoft.hpmsdk.HPMUniqueID;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest( { HPMSdkSession.class })
@@ -186,7 +192,8 @@ public class HansoftAdapterTest {
         // Run
         EasyMock.replay(sdkMock);
         HansoftAdapter adapter = openMockAdapter();
-        adapter.signalCommitPerformed(42, "1");
+        Commit commit = new Commit("author", 17, "/path/to/repo/stuff");
+        adapter.signalCommitPerformed(42, commit);
 
         // Verify
         EasyMock.verify(sdkMock);
