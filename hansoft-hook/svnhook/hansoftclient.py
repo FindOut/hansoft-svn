@@ -7,6 +7,7 @@ import subprocess
 from ConfigParser import SafeConfigParser
 from httplib import HTTPConnection
 import json
+from objc import nil
 
 OK_REPLY = 1
 
@@ -35,6 +36,9 @@ class HansoftClient:
             config.read(config_file)
         self.url = config.get('IntegrationServer', 'url')
         self.port = config.getint('IntegrationServer', 'port', )
+        # DEBUG:
+        sys.stderr.write("Integration Server: %s\n" % 
+                         config.get('IntegrationServer', 'url'))
 
     def setup_connection(self):
         self.connection = HTTPConnection(self.url, self.port)
@@ -47,8 +51,11 @@ class HansoftClient:
     def send_request(self, user, revision, path):
         header = {"Content-type": "application/json", "Accept": "text/plain"}
         content = {'author': user, 'revision': revision, 'path': path}
-        self.connection.request("POST", "/commit", json.dumps(content), header)
-        response = self.connection.getresponse()
+        try:
+            self.connection.request("POST", "/commit", json.dumps(content), header)
+            response = self.connection.getresponse()
+        except:
+            return None
         return response
 
 
@@ -62,6 +69,9 @@ def main():
     hansoft = HansoftClient(conf_file)
     hansoft.setup_connection()
     response = hansoft.handle_commit(sys.argv[2], sys.argv[3])
+    if response is None:
+        sys.stderr.write('Failed to connect the the Hansoft/SVN integration server') 
+        exit(1)
     if response.status is not 200:
         sys.stderr.write('Failed when trying to integrate with Hansoft\n')
         sys.stderr.write(response.reason)
@@ -69,6 +79,6 @@ def main():
         sys.stderr.write('port: %s\n' % hansoft.port)
         exit(response.status)
 
-# Initialise main method
+# Initialize main method
 if __name__ == '__main__':
     main()
