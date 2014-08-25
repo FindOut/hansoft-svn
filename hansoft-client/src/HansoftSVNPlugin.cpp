@@ -82,7 +82,6 @@ public:
 	{
 		if (m_pSession)
 		{
-			HPMSdkSession::SessionDestroy(m_pSession);
 			m_pSession = NULL;
 		}
 	}
