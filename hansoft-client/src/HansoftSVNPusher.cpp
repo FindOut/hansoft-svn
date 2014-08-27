@@ -67,7 +67,30 @@ public:
 	}
 
 #ifdef _MSC_VER
-	wstring GetProgramPath()
+    template <typename t_CData1, typename t_CData2, typename t_CData3>
+    t_CData1 *StrReplaceChar(t_CData1 *_pStr1, t_CData2 _CharFind, t_CData3 _CharReplace)
+    {
+        t_CData1 *pStr1 = _pStr1;
+
+        while (*pStr1)
+        {
+            if (sizeof(t_CData1) > sizeof(t_CData2))
+            {
+                if (*pStr1 - _CharFind == 0)
+                    *pStr1 = _CharReplace;
+            }
+            else
+            {
+                if (_CharFind - *pStr1 == 0)
+                    *pStr1 = _CharReplace;
+            }
+
+            ++pStr1;
+        }
+        return _pStr1;
+    }
+
+    wstring GetProgramPath()
 	{
 		wstring CommandLine;
 
