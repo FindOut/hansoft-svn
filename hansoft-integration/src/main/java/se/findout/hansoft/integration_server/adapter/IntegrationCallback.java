@@ -112,9 +112,9 @@ public class IntegrationCallback extends HPMSdkCallbacks{
                         );
                 // get the user from the SVN revision
                 Commit commit = getCommit(svnRevision);
-                String svnUser = commit.getAuthor();
+                //String svnUser = commit.getAuthor();
                 String message = commit.getMessage();
-                String hansoftUser = HansoftAdapter.getInstance().mapSVNUserToHansoftUser(svnUser);
+                //String hansoftUser = HansoftAdapter.getInstance().mapSVNUserToHansoftUser(svnUser);
                 // TODO - impersonate to "do as actual user"
                 HPMTaskComment taskComment = new HPMTaskComment();
                 taskComment.m_MessageText = "Completed by SVN Revision: " + svnRevision + "\n" + message;
@@ -146,8 +146,8 @@ public class IntegrationCallback extends HPMSdkCallbacks{
                 String itemUrl = session.UtilGetHansoftURL(item);
                 // ';' breaks to URL when sent to hansoftserver.py, so encode:
                 String prefix = "Hansoft-URL: " + itemUrl.replaceAll(";", "%3B");
-                HPMUniqueID id = new HPMUniqueID(Integer.parseInt(item.trim()));
-                String description = session.TaskGetDescription(id);
+                //HPMUniqueID id = new HPMUniqueID(Integer.parseInt(item.trim()));
+                //String description = session.TaskGetDescription(id);
                 annotation += prefix; // + "[" + description.replaceAll(" ", "%20") + "]";
             } catch (HPMSdkException e) {
                 // TODO Auto-generated catch block
