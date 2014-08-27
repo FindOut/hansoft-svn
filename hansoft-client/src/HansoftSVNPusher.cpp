@@ -1,21 +1,7 @@
-
-/*¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯*\
-|	File:																						|
-|																								|
-|	Author:			Erik Olofsson																|
-|																								|
-|	Copyright:		Hansoft AB, 2007															|
-|																								|
-|	Contents:		Hansoft Project Manager SDK "Simple sample"									|
-|																								|
-|	Comments:		This sample shows how to use the SDK from a client plugin.					|
-|					The sample will upload the custom DLL's to the server.						|
-|																								|
-|	History:																					|
-|		070312:		Created sample																|
-\*_____________________________________________________________________________________________*/
-
-
+/**
+* Copyright (c) - placeholder
+*
+*/
 
 #ifdef _MSC_VER
 #include <tchar.h>

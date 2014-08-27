@@ -1,3 +1,7 @@
+/**
+* Copyright (c) - placeholder
+*
+*/
 
 #include <HPMSdkCpp.h>
 

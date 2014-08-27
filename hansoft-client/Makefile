@@ -1,3 +1,5 @@
+###
+# Copyright (c) - placeholder
 #
 ### Makefile for building hansoft-client
 #

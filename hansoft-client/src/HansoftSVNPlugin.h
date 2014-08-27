@@ -1,9 +1,7 @@
-/*
- * HansoftSVNPlugin.h
- *
- *  Created on: 12 jun 2014
- *      Author: bjorn
- */
+/**
+* Copyright (c) - placeholder
+*
+*/
 
 #ifndef HANSOFTSVNPLUGIN_H_
 #define HANSOFTSVNPLUGIN_H_
