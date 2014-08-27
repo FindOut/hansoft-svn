@@ -49,6 +49,7 @@ endif
 
 # Common settings
 CC	= g++
+#CFLAGS	= $(_CCFLAGS)
 CFLAGS	= -g -D_DEBUG=true  $(_CCFLAGS)
 LDFLAGS = -ldl $(_LDFLAGS)
 SDKROOT = $(USER_SDKROOT)
@@ -63,6 +64,7 @@ all: Plugin.$(_SDKEXT) HansoftSVNPusher
 Plugin.$(_SDKEXT): HPMSdkCpp.o HansoftSVNPlugin.o
 	$(CC) $(INC) -o $@ $^ -shared
 
+#HansoftSVNPusher: HPMSdkCpp.o HansoftSVNPusher.o PropertiesUtil.o
 HansoftSVNPusher: HPMSdkCpp.o HansoftSVNPusher.o
 	$(CC) $(INC) -o $@ $^ $(LDFLAGS)
 
@@ -73,6 +75,9 @@ HansoftSVNPlugin.o: src/HansoftSVNPlugin.cpp
 	$(CC) $(CFLAGS) $(INC) -c -fPIC -o $@ $<
 
 HansoftSVNPusher.o: src/HansoftSVNPusher.cpp
+	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+	
+PropertiesUtil.o:	src/PropertiesUtil.cpp
 	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 	
 clean:

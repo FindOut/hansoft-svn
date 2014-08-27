@@ -30,9 +30,15 @@ public:
     {
         m_pSession = NULL;
 
-        _debuglog.open("/tmp/hssvnplugin.log"); //TODO - close...
+#ifdef _DEBUG
+#ifdef _MSC_VER
+        _debuglog.open("C:\hssvnplugin.log");
+#else
+        _debuglog.open("/tmp/hssvnplugin.log");
+#endif
         _debuglog << "Starting log" << endl;
         _debuglog.flush();
+#endif
 
         try
         {
@@ -120,8 +126,10 @@ public:
 
     virtual void On_Callback(const HPMChangeCallbackData_CustomTaskStatusNotification &_Data) {
         if (_Data.m_Notification == EHPMCustomTaskStatusNotification_DialogEndedOk) {
+#ifdef _DEBUG
             _debuglog << "Dialog closed!" << std::endl;
             _debuglog.flush();
+#endif
             HPMString channel = hpm_str("svnChannel");
             HPMCommunicationChannelPacket packet;
 			HPMString text = hpm_str("@Commit:");
@@ -130,19 +138,25 @@ public:
             for (std::vector<HPMUniqueID>::size_type i = 0; i != _Data.m_SelectedTasks.size(); i++) {
                 text.append(convertToString(_Data.m_SelectedTasks.at(i)) + ",");
             }
+#ifdef _DEBUG
             _debuglog << text << std::endl;
             _debuglog.flush();
+#endif
             const HPMUInt8 *data = (const HPMUInt8 *)text.c_str();
             copy(data, data + text.length() * sizeof(wchar_t), back_inserter(packet.m_Bytes));
             m_pSession->CommunicationChannelSendPacket(channel, _sessionId, packet);
+#ifdef _DEBUG
             _debuglog << "Packet sent!" << std::endl;
             _debuglog.flush();
+#endif
         }
     }
 
     virtual void On_ProcessError(EHPMError _Error) {
+#ifdef _DEBUG
         _debuglog << _Error << std::endl;
         _debuglog.flush();
+#endif
     }
 
 private:
@@ -209,27 +223,35 @@ private:
                 m_pSession->ProjectEnum() // list of allowed projects
                 );
             _sessionId = _Data.m_FromSessionID;
+#ifdef _DEBUG
             _debuglog << "Called from session: " << _sessionId << std::endl;
             _debuglog.flush();
+#endif
         }
         catch (const HPMSdk::HPMSdkException &_Exception)
         {
+#ifdef _DEBUG
             _debuglog << _Exception.GetAsString() << _sessionId << std::endl;
             _debuglog.flush();
+#endif
             if (_Exception.GetError() == EHPMError_ConnectionLost)
                 return;
         }
         catch (const HPMSdk::HPMSdkCppException & _Exception)
         {
+#ifdef _DEBUG
             _debuglog << _Exception.what() << _sessionId << std::endl;
             _debuglog.flush();
+#endif
         }
     }
 
     HPMSdkSession *m_pSession;
     HPMUInt64 _sessionId;
 
+#ifdef _DEBUG
     ofstream _debuglog;
+#endif
     HPMNotificationSubscription popup;
     HPMString commit;
 };
