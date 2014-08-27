@@ -1,0 +1,7 @@
+#
+# File mapping SVN usernames to Hansoft usernames
+#
+# SVNuser = HansoftUser
+fredrik = fredrik
+svntest1 = hstest1
+
