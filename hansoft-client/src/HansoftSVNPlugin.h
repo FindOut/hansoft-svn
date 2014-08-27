@@ -5,7 +5,7 @@
 
 #ifndef HANSOFTSVNPLUGIN_H_
 #define HANSOFTSVNPLUGIN_H_
-
+#include <HPMSdkCpp.h>
 class HansoftSVNPlugin : public HPMSdk::HPMSdkCallbacks{
 public:
 	HansoftSVNPlugin();

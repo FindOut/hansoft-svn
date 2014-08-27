@@ -33,11 +33,16 @@ class HansoftSVNPusher : public HPMSdkCallbacks
 {
 public:
 	HPMSdkSession *m_pSession;
-	const char *server;
-	const char *database;
+#ifdef _MSC_VER
+#define HS_CHAR wchar_t
+#else
+#define HS_CHAR char
+#endif
+	const HS_CHAR *server;
+	const HS_CHAR *database;
 	int port;
-	const char *sdkuser;
-	const char *sdkpassword;
+	const HS_CHAR *sdkuser;
+	const HS_CHAR *sdkpassword;
 
 	virtual void On_ProcessError(EHPMError _Error)
 	{
@@ -240,14 +245,14 @@ public:
         osx_x64_path = hpm_str("SDK/Plugins/se.findout.hansoft.svn.clientplugin/OSX10.7/x64/Plugin.dylib");
         linux_x64_path = hpm_str("SDK/Plugins/se.findout.hansoft.svn.clientplugin/Linux2.6/x64/Plugin.so");
         if (updateAllPlatforms) {
-            DoAddVersionControlFile(win32_x86_path, "/Plugin.dll");
-            DoAddVersionControlFile(win32_x64_path, "/Plugin.dll");
-            DoAddVersionControlFile(osx_x64_path, "/Plugin.dylib");
-            DoAddVersionControlFile(linux_x64_path, "/Plugin.so");
+            DoAddVersionControlFile(win32_x86_path, hpm_str("/Plugin.dll"));
+			DoAddVersionControlFile(win32_x64_path, hpm_str("/Plugin.dll"));
+			DoAddVersionControlFile(osx_x64_path, hpm_str("/Plugin.dylib"));
+			DoAddVersionControlFile(linux_x64_path, hpm_str("/Plugin.so"));
         } else {
 #ifdef _MSC_VER
-            DoAddVersionControlFile(win32_x86_path, "/Plugin.dll");
-            DoAddVersionControlFile(win32_x64_path, "/Plugin.dll");
+			DoAddVersionControlFile(win32_x86_path, hpm_str("/Plugin.dll"));
+			DoAddVersionControlFile(win32_x64_path, hpm_str("/Plugin.dll"));
 //		AddVersionControlFile(
 //		        win32_x86_path,
 //		        GetProgramDirectory() + hpm_str("/Plugin.dll"));
@@ -482,10 +487,11 @@ int main(int argc, const char * argv[])
 	bool updateAll = false;
 	bool onlyDelete = false;
 	if (argc > 1) {
+		std::vector<std::string> params(argv, argv + argc);
 	    // parse command line arguments
 	    for (int i = 1; i < argc; i++) {
 	        std::string flagprefix = "-";
-	        std::string arg = argv[i];
+			std::string arg = params.at(i);
             if (arg.compare(0, flagprefix.length(), flagprefix) == 0) {
                 // parse flags
                 if(arg.compare(flagprefix.length(), flagprefix.length() + 1, "a") == 0) {
@@ -496,13 +502,12 @@ int main(int argc, const char * argv[])
             }
 	    }
 	}
-    // check if properties file
+    // check if there's a properties file
 	const char *props = "plugin.properties";
     ifstream ifile;
     ifile.open(props, ifstream::in);
     if (ifile) {
         // exists
-        cout << "Properties file exists" << endl;
         ConfigFile cfg("plugin.properties");
         std::string serverValue =
                 cfg.getValueOfKey<std::string>("server", "localhost");
@@ -520,14 +525,14 @@ int main(int argc, const char * argv[])
         pusher.database = databaseValue.c_str();
         pusher.sdkuser = sdkUsernameValue.c_str();
         pusher.sdkpassword = sdkPasswordValue.c_str();
-
-        cout << "Server:       " << serverValue << endl;
-        cout << "Port:         " << portValue << endl;
-        cout << "Database:     " << databaseValue << endl;
-        cout << "SDK Username: " << sdkUsernameValue << endl;
-        cout << "SDK Password: " << "*** ;-)" << endl;
     } else {
-        cout << "No properties file" << endl;
+        cerr << "No 'plugin.properties' file - exiting" << endl;
+        exit(1);
 	}
+    cout << "Server:       " << pusher.server << endl;
+    cout << "Port:         " << pusher.port << endl;
+    cout << "Database:     " << pusher.database << endl;
+    cout << "SDK Username: " << pusher.sdkuser << endl;
+    cout << "SDK Password: " << "*** ;-)" << endl;
 	return pusher.Run(updateAll, onlyDelete);
 }
