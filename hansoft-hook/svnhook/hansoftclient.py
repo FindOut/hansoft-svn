@@ -20,6 +20,13 @@ def external_get_author(path, revision):
     p.wait()
     return output
 
+def external_get_message(path, revision):
+    args = ['svnlook', 'log', '-r'+revision, path]
+    p = subprocess.Popen(' '.join(args), stdout=subprocess.PIPE, shell=True)
+    (output, err) = p.communicate()
+    p.wait()
+    return output
+
 
 class HansoftClient:
     FAIL_REPLY = -1
@@ -45,12 +52,13 @@ class HansoftClient:
 
     def handle_commit(self, path, revision):
         author = external_get_author(path, revision)
-        result = self.send_request(author, revision, path)
+        message = external_get_message(path, revision)
+        result = self.send_request(author, revision, path, message)
         return result
 
-    def send_request(self, user, revision, path):
+    def send_request(self, user, revision, path, message):
         header = {"Content-type": "application/json", "Accept": "text/plain"}
-        content = {'author': user, 'revision': revision, 'path': path}
+        content = {'author': user, 'revision': revision, 'path': path, 'message': message}
         try:
             self.connection.request("POST", "/commit", json.dumps(content), header)
             response = self.connection.getresponse()

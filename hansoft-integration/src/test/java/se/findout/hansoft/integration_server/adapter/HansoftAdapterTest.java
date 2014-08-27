@@ -192,7 +192,7 @@ public class HansoftAdapterTest {
         // Run
         EasyMock.replay(sdkMock);
         HansoftAdapter adapter = openMockAdapter();
-        Commit commit = new Commit("author", 17, "/path/to/repo/stuff");
+        Commit commit = new Commit("author", 17, "/path/to/repo/stuff", "Another test of commit");
         adapter.signalCommitPerformed(42, commit);
 
         // Verify

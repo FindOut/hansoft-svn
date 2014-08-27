@@ -23,11 +23,26 @@ import se.hansoft.hpmsdk.HPMUniqueID;
 
 @Singleton
 public class HansoftAdapter {
-    private HPMSdkSession sdk;
+    private HPMSdkSession sdkSession;
     private IntegrationCallback callback;
+    private Credentials sdkUser;
+    
+    private static HansoftAdapter instance;
+    
+    public HansoftAdapter() {
+        instance = this;
+    }
+    
+    public static HansoftAdapter getInstance() {
+        if (instance == null) {
+            instance = new HansoftAdapter();
+        }
+        return instance;
+    }
 
     public void initialize(HansoftServer s, String databaseName, Credentials user) throws HansoftException {
-        if(sdk == null) {
+        if(sdkSession == null) {
+            sdkUser = user;
             try {
             	System.out.println("Initializing!");
             	callback = new IntegrationCallback();
@@ -35,7 +50,7 @@ public class HansoftAdapter {
                 String hansoftLibPath = System.getenv("HANSOFT_SDK_PATH");
                 String usermappingFile = System.getenv("HANSOFT_SVN_MAPPINGFILE");
                 populateMap(usermappingFile);
-                sdk = HPMSdkSession.SessionOpen(
+                sdkSession = HPMSdkSession.SessionOpen(
                         s.getURL(), 
                         s.getPort(), 
                         databaseName, 
@@ -49,7 +64,7 @@ public class HansoftAdapter {
                         hansoftWorkingDir, 
                         hansoftLibPath, 
                         null);
-                callback.setSdk(sdk);
+                callback.setSdk(sdkSession);
             } catch (HPMSdkException e) {
                 throw new HansoftException(e.ErrorAsStr());
             } catch (HPMSdkJavaException e) {
@@ -64,10 +79,10 @@ public class HansoftAdapter {
 
     public int getUserID(String name) throws HansoftException {
         try {
-            HPMResourceEnum users = sdk.ResourceEnum();
+            HPMResourceEnum users = sdkSession.ResourceEnum();
             if (users != null) {
                 for (HPMUniqueID userID : users.m_Resources) {
-                    HPMResourceProperties userInfo = sdk.ResourceGetProperties(userID);
+                    HPMResourceProperties userInfo = sdkSession.ResourceGetProperties(userID);
                     if (userInfo.m_Name.equals(name)) {
                         return userID.m_ID;
                     }
@@ -82,15 +97,24 @@ public class HansoftAdapter {
 
         return -1;
     }
+    
+    public Credentials getSdkUser() {
+        return sdkUser;
+    }
 
     public void signalCommitPerformed(long sessionID, Commit commit) throws HansoftException {
         String revision = Integer.toString(commit.getRevision());
+        File repoFile = new File(commit.getPath());
+        String repoName = repoFile.getName();
+        String packetStr = revision + "@" + repoName;
         callback.addCommit(commit);
         HPMCommunicationChannelPacket packet = new HPMCommunicationChannelPacket();
-        packet.m_Bytes = revision.getBytes();
+        // send: revision@repo to Hansoft client plug-in:
+        //packet.m_Bytes = revision.getBytes();
+        packet.m_Bytes = packetStr.getBytes();
         packet.m_Flags = EHPMPacketFlag.toEnumSet(0);
         try {
-            sdk.CommunicationChannelSendPacket("svnChannel", sessionID, packet);
+            sdkSession.CommunicationChannelSendPacket("svnChannel", sessionID, packet);
         } catch (HPMSdkException e) {
             throw new HansoftException(e.ErrorAsStr());
         } catch (HPMSdkJavaException e) {
@@ -102,7 +126,7 @@ public class HansoftAdapter {
 
 	public void registerChannel() throws HansoftException {
 		try {
-			sdk.CommunicationChannelRegister("svnChannel", EHPMChannelFlag.toEnumSet(0), new HPMCommunicationChannelData(), "Test channel");
+			sdkSession.CommunicationChannelRegister("svnChannel", EHPMChannelFlag.toEnumSet(0), new HPMCommunicationChannelData(), "Test channel");
 	       } catch (HPMSdkException e) {
 	            throw new HansoftException(e.ErrorAsStr());
 	        } catch (HPMSdkJavaException e) {

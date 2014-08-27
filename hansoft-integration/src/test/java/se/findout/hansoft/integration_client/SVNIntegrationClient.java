@@ -14,7 +14,7 @@ import se.findout.hansoft.integration_server.model.Commit;
 public class SVNIntegrationClient {
 
     public static void main(String [] args) throws HansoftException, IOException {
-        HansoftAdapter adapter = new HansoftAdapter();
+        HansoftAdapter adapter = HansoftAdapter.getInstance();
         HansoftServer server = new HansoftServer();
         Credentials sdkUser = new Credentials();
         String sdkUsername = System.getenv("HANSOFT_SDK_USERNAME");
@@ -35,7 +35,8 @@ public class SVNIntegrationClient {
         String author = "tester";
         int revision = 42;
         String path = "/a/b/c/repo/dir";
-        Commit commit = new Commit(author, revision, path);
+        String message = "Test of commit message";
+        Commit commit = new Commit(author, revision, path, message);
         adapter.signalCommitPerformed(id, commit);
         System.out.println("Packet sent!");
     }

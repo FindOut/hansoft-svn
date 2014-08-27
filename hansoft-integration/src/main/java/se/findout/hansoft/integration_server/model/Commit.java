@@ -7,20 +7,34 @@ package se.findout.hansoft.integration_server.model;
 // 'author': 'bjorn', 'revision': 1, 'path': '/home/svn/testproject/'
 public class Commit {
     private String author;
-
     private int revision;
     private String path;
+    private String message;
 
     public Commit() {
 
     }
 
-    public Commit(String author, int revision, String path) {
+    public Commit(String author, int revision, String path, String message) {
+        if (author.endsWith("\n")) {
+            // Strip trailing "\n"
+            author = author.substring(0, author.length() - 1); 
+        }
+
         this.author = author;
         this.revision = revision;
         this.path = path;
+        this.message = message;
     }
 
+    public String getMessage() {
+        return message;
+    }
+    
+    public void setMessage(String message) {
+        this.message = message;
+    }
+    
     public String getPath() {
         return path;
     }

@@ -27,7 +27,7 @@ import se.hansoft.hpmsdk.HPMUniqueID;
 
 public class IntegrationCallback extends HPMSdkCallbacks{
 	private HashMap<String, Long> sessions;
-    private HPMSdkSession sdk;
+    private HPMSdkSession session;
     
     private static final String REGISTER_TOKEN = "@Register:";
     private static final String COMMIT_TOKEN = "@Commit:";
@@ -37,8 +37,8 @@ public class IntegrationCallback extends HPMSdkCallbacks{
 		sessions = new HashMap<String, Long>();
 	}
 
-    public void setSdk(HPMSdkSession sdk) {
-        this.sdk = sdk;
+    public void setSdk(HPMSdkSession session) {
+        this.session = session;
     }
 	
 	@Override
@@ -93,24 +93,32 @@ public class IntegrationCallback extends HPMSdkCallbacks{
 	    updateSVNcommit(svnRevision, selectedItems);
 	    // Update Hansoft items to mark as completed and add SVN commit info
 	    updateHansoftItems(svnRevision, selectedItems);
+	    // Remove the commit from the "stash"
+	    doneWithCommit(svnRevision);
     }
 
     private void updateHansoftItems(String svnRevision, String selectedItems) {
-        List<String> items = Arrays.asList(selectedItems.split(","));
+         List<String> items = Arrays.asList(selectedItems.split(","));
         for (String item : items) {
             HPMUniqueID id = new HPMUniqueID(Integer.parseInt(item.trim()));
             try {
                 EnumSet<EHPMTaskSetStatusFlag> noStatusFlags = 
                         EnumSet.noneOf(EHPMTaskSetStatusFlag.class);
-                sdk.TaskSetStatus(
+                session.TaskSetStatus(
                         id,
                         EHPMTaskStatus.Completed,
                         false, //GotoWorkFlowStatus boolean: False
                         noStatusFlags  //SetStatusFlags: 0
                         );
+                // get the user from the SVN revision
+                Commit commit = getCommit(svnRevision);
+                String svnUser = commit.getAuthor();
+                String message = commit.getMessage();
+                String hansoftUser = HansoftAdapter.getInstance().mapSVNUserToHansoftUser(svnUser);
+                // TODO - impersonate to "do as actual user"
                 HPMTaskComment taskComment = new HPMTaskComment();
-                taskComment.m_MessageText = "SVN Revision: " + svnRevision;
-                sdk.TaskCreateComment(
+                taskComment.m_MessageText = "Completed by SVN Revision: " + svnRevision + "\n" + message;
+                session.TaskCreateComment(
                         id,
                         taskComment);
             } catch (HPMSdkException | HPMSdkJavaException e) {
@@ -129,11 +137,11 @@ public class IntegrationCallback extends HPMSdkCallbacks{
         List<String> items = Arrays.asList(selectedTasks.split(","));
         for (String item : items) {
             try {
-                String itemUrl = sdk.UtilGetHansoftURL(item);
-                String prefix = itemUrl.replaceAll(";", "__");
+                //TODO: Get the Hansoft Item URL to work
+                String itemUrl = session.UtilGetHansoftURL(item);
+                String prefix = "Hansoft-URL: " + itemUrl.replaceAll(";", "__");
                 HPMUniqueID id = new HPMUniqueID(Integer.parseInt(item.trim()));
-                String description = sdk.TaskGetDescription(id);
-                System.out.println("Task description: " + description);
+                String description = session.TaskGetDescription(id);
                 annotation += prefix + description.replaceAll(" ", "%20");
                 annotation += ", \n";
             } catch (HPMSdkException e) {
@@ -192,14 +200,23 @@ public class IntegrationCallback extends HPMSdkCallbacks{
 		}
 	}
 
-    Map<Integer, String> commits = new HashMap<>();
+    Map<Integer, Commit> commits = new HashMap<>();
     
     public void addCommit(Commit commit) {
-        commits.put(commit.getRevision(), commit.getPath());
+        commits.put(commit.getRevision(), commit);
+    }
+    
+    public Commit getCommit(String revision) {
+        Integer rev = Integer.parseInt(revision);
+        return commits.get(rev);
     }
     
     String getPath(int revision) {
-        String path = commits.remove(revision);
-        return path;
+        Commit commit = commits.get(revision);
+        return commit.getPath();
+    }
+    
+    public void doneWithCommit(String revision) {
+        commits.remove(revision);
     }
 }
