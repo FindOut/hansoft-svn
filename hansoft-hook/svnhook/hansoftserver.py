@@ -52,9 +52,10 @@ class PostHandler(BaseHTTPRequestHandler):
         rev = form['rev'].value
         url = form['url'].value
 
-        sys.stderr.write("Annotated rev %s\n" % rev) # DEBUG
+        # restore original URL - "protected" ';' etc:        
+        url = url.replace("%3B", ";")
+
         msg = external_get_message(path, rev)
-        sys.stderr.write("Message %s\n" % msg)
         msg += "\n"
         tmp_file = create_temp_file(msg, url)
         external_change_log(path, rev, tmp_file.name)

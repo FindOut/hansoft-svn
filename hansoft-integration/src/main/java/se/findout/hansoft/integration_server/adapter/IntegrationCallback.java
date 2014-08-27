@@ -143,13 +143,12 @@ public class IntegrationCallback extends HPMSdkCallbacks{
                 annotation += "\n";
             }
             try {
-                //TODO: Get the Hansoft Item URL to work
                 String itemUrl = session.UtilGetHansoftURL(item);
-                //FIXME: ';' breaks to URL when sent to hansoftserver.py:
-                String prefix = "Hansoft-URL: " + itemUrl.replaceAll(";", "__");
+                // ';' breaks to URL when sent to hansoftserver.py, so encode:
+                String prefix = "Hansoft-URL: " + itemUrl.replaceAll(";", "%3B");
                 HPMUniqueID id = new HPMUniqueID(Integer.parseInt(item.trim()));
                 String description = session.TaskGetDescription(id);
-                annotation += prefix + "[" + description.replaceAll(" ", "%20") + "]";
+                annotation += prefix; // + "[" + description.replaceAll(" ", "%20") + "]";
             } catch (HPMSdkException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
