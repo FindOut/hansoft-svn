@@ -21,7 +21,6 @@
 #define mod_export __attribute__ ((__visibility__("default")))
 #endif
 
-using namespace std;
 using namespace HPMSdk;
 
 
@@ -36,11 +35,11 @@ public:
 
 #ifdef _DEBUG
 #ifdef _MSC_VER
-        _debuglog.open("C:\hssvnplugin.log");
+        _debuglog.open("C:\\hssvnplugin.log");
 #else
         _debuglog.open("/tmp/hssvnplugin.log");
 #endif
-        _debuglog << "Starting log" << endl;
+        _debuglog << "Starting log" << std::endl;
         _debuglog.flush();
 #endif
 
@@ -67,23 +66,23 @@ public:
             HPMString ErrorStr = _Exception.GetAsString();
 
 #ifdef _MSC_VER
-            wstringstream Stream;
+            std::wstringstream Stream;
             Stream << hpm_str("Error initializing client SVN plugin:\r\n\r\n");
             Stream << ErrorStr;
             MessageBox(NULL, Stream.str().c_str(), hpm_str("Client SVN plugin Error"), MB_OK | MB_ICONERROR);
 #else
-            cerr << hpm_str("Error initializing client SVN plugin: ") << ErrorStr << "\n";
+            std::cerr << hpm_str("Error initializing client SVN plugin: ") << ErrorStr << "\n";
 #endif
         }
         catch (HPMSdkCppException &_Exception)
         {
 #ifdef _MSC_VER
-            wstringstream Stream;
+            std::wstringstream Stream;
             Stream << hpm_str("Error initializing client SVN plugin:\r\n\r\n");
             Stream << _Exception.what();
             MessageBox(NULL, Stream.str().c_str(), hpm_str("Client SVN plugin Error"), MB_OK | MB_ICONERROR);
 #else
-            cerr << hpm_str("Error initializing client SVN plugin: ") << _Exception.what() << "\n";
+            std::cerr << hpm_str("Error initializing client SVN plugin: ") << _Exception.what() << "\n";
 #endif
         }
     }
@@ -106,10 +105,10 @@ public:
             hpm_str("Client SVN plugin"),
             MB_OK | MB_ICONINFORMATION);
 #else
-        cout << "The client has finished syncing and the Client SVN plugin is working.\n";
+        std::cout << "The client has finished syncing and the Client SVN plugin is working.\n";
 #endif
         RegisterWithIntegration();
-		popup = m_pSession->GlobalRegisterForCustomTaskStatusNotifications("SDK/Plugins/se.findout.hansoft.svn.clientplugincpp", new HPMUserContext());
+		popup = m_pSession->GlobalRegisterForCustomTaskStatusNotifications(hpm_str("SDK/Plugins/se.findout.hansoft.svn.clientplugincpp"), new HPMUserContext());
 
     }
 
@@ -138,12 +137,13 @@ public:
             HPMCommunicationChannelPacket packet;
 			HPMString text = hpm_str("@Commit:");
             text.append(commit);
-			text.append("@Items:");
+			text.append(hpm_str("@Items:"));
             for (std::vector<HPMUniqueID>::size_type i = 0; i != _Data.m_SelectedTasks.size(); i++) {
-                text.append(convertToString(_Data.m_SelectedTasks.at(i)) + ",");
+				HPMString temp = hpm_str(convertToString(_Data.m_SelectedTasks.at(i)) + ",");
+                text.append(temp);
             }
 #ifdef _DEBUG
-            _debuglog << text << std::endl;
+            _debuglog << text.c_str() << std::endl;
             _debuglog.flush();
 #endif
             const HPMUInt8 *data = (const HPMUInt8 *)text.c_str();
@@ -165,8 +165,8 @@ public:
 
 private:
 
-    std::string convertToString(int from) {
-        std::ostringstream ss;
+	std::string convertToString(int from) {
+		std::ostringstream ss;
         ss << from;
         return ss.str();
     }
@@ -178,7 +178,7 @@ private:
         HPMDatabaseGUIDs GUIDs = m_pSession->GlobalGetDatabaseGUIDs();
         HPMUInt32 nSessions = 0;
         HPMUInt64 Ret = 0;
-        for (vector<HPMCommunicationChannelProperties>::iterator Iter = Channels.m_Channels.begin(), End = Channels.m_Channels.end(); Iter != End; ++Iter) {
+        for (std::vector<HPMCommunicationChannelProperties>::iterator Iter = Channels.m_Channels.begin(), End = Channels.m_Channels.end(); Iter != End; ++Iter) {
             // We need to check the database GUID to make sure that this channel isn't from a share
             if (Iter->m_DatabaseGUID == GUIDs.m_GUID) {
                 ++nSessions;
@@ -186,7 +186,7 @@ private:
             }
         }
         if (nSessions > 1) {
-            cerr << hpm_str("More than one integration channel session ID found.");
+            std::cerr << hpm_str("More than one integration channel session ID found.");
         }
 
         return Ret;
@@ -215,9 +215,10 @@ private:
             int pos = str.find("@");
             std::string revision = str.substr(0, pos);
             std::string repo = str.substr(pos + 1);
-            std::string title = "SVN Commit - " + repo;
+            std::string dialogTitle = "SVN Commit - " + repo;
             HPMCustomTaskStatusDialogValues values;
-            values.m_Title = m_pSession->LocalizationCreateUntranslatedStringFromString(hpm_str(title));
+			HPMString sampleTitle = hpm_str("dialog title");
+            values.m_Title = m_pSession->LocalizationCreateUntranslatedStringFromString(hpm_str(dialogTitle));
             values.m_ButtonLabel = m_pSession->LocalizationCreateUntranslatedStringFromString(hpm_str("OK"));
             values.m_CancelLabel = m_pSession->LocalizationCreateUntranslatedStringFromString(hpm_str("Cancel"));
             values.m_InfoText = m_pSession->LocalizationCreateUntranslatedStringFromString(hpm_str("Select items to associate with your SVN commit"));
@@ -235,7 +236,7 @@ private:
         catch (const HPMSdk::HPMSdkException &_Exception)
         {
 #ifdef _DEBUG
-            _debuglog << _Exception.GetAsString() << _sessionId << std::endl;
+            _debuglog << _Exception.GetAsString().c_str() << _sessionId << std::endl;
             _debuglog.flush();
 #endif
             if (_Exception.GetError() == EHPMError_ConnectionLost)
@@ -254,7 +255,7 @@ private:
     HPMUInt64 _sessionId;
 
 #ifdef _DEBUG
-    ofstream _debuglog;
+	std::ofstream _debuglog;
 #endif
     HPMNotificationSubscription popup;
     HPMString commit;

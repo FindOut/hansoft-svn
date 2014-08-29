@@ -7,8 +7,8 @@
 #define HANSOFTSVNPLUGIN_H_
 #include <HPMSdkCpp.h>
 class HansoftSVNPlugin : public HPMSdk::HPMSdkCallbacks{
-public:
-	HansoftSVNPlugin();
+	public:
+	HansoftSVNPlugin(const void *_pClientData);
 	virtual ~HansoftSVNPlugin();
 
 	void initialize(const void *data);
@@ -21,7 +21,7 @@ public:
 	//HPMSdk::HPMSdkSession *session;
 private:
 	void displayDialog();
-	HPMSdk::HPMSdkSession *session;
+	HPMSdk::HPMSdkSession *m_pSession;
 	HPMSdk::HPMCustomTaskStatusDialogValues dialogTexts;
 	HPMSdk::HPMNotificationSubscription subscription;
 };

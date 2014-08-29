@@ -25,7 +25,6 @@
 
 //#include "PropertiesUtil.h"
 
-using namespace std;
 using namespace HPMSdk;
 
 
@@ -47,9 +46,9 @@ public:
 	virtual void On_ProcessError(EHPMError _Error)
 	{
 		HPMString SdkError = HPMSdkSession::ErrorToStr(_Error);
-		wstring Error(SdkError.begin(), SdkError.end());
+		std::wstring Error(SdkError.begin(), SdkError.end());
 
-		wcout << "On_ProcessError: " << Error << "\r\n";
+		std::wcout << "On_ProcessError: " << Error << "\r\n";
 
 	}
 
@@ -67,32 +66,33 @@ public:
 	}
 
 #ifdef _MSC_VER
-    template <typename t_CData1, typename t_CData2, typename t_CData3>
-    t_CData1 *StrReplaceChar(t_CData1 *_pStr1, t_CData2 _CharFind, t_CData3 _CharReplace)
-    {
-        t_CData1 *pStr1 = _pStr1;
-
-        while (*pStr1)
-        {
-            if (sizeof(t_CData1) > sizeof(t_CData2))
-            {
-                if (*pStr1 - _CharFind == 0)
-                    *pStr1 = _CharReplace;
-            }
-            else
-            {
-                if (_CharFind - *pStr1 == 0)
-                    *pStr1 = _CharReplace;
-            }
-
-            ++pStr1;
-        }
-        return _pStr1;
-    }
-
-    wstring GetProgramPath()
+	template <typename t_CData1, typename t_CData2, typename t_CData3>
+	t_CData1 *StrReplaceChar(t_CData1 *_pStr1, t_CData2 _CharFind, t_CData3 _CharReplace)
 	{
-		wstring CommandLine;
+		t_CData1 *pStr1 = _pStr1;
+
+		while (*pStr1)
+		{
+			if (sizeof(t_CData1) > sizeof(t_CData2))
+			{
+				if (*pStr1 - _CharFind == 0)
+					*pStr1 = _CharReplace;
+			}
+			else
+			{
+				if (_CharFind - *pStr1 == 0)
+					*pStr1 = _CharReplace;
+			}
+
+			++pStr1;
+		}
+		return _pStr1;
+	}
+
+
+	std::wstring GetProgramPath()
+	{
+		std::wstring CommandLine;
 
 		int nArgs = 0;
 
@@ -102,7 +102,7 @@ public:
 			CommandLine = *pArgs;
 			GlobalFree(pArgs);
 
-			wstring FullFileName;
+			std::wstring FullFileName;
 			wchar_t *pFileName;
 			wchar_t Temp;
 			unsigned int nNeeded = GetFullPathNameW(CommandLine.c_str(), 0, &Temp, &pFileName);
@@ -123,9 +123,9 @@ public:
 		return CommandLine;
 	}
 
-	wstring GetProgramDirectory()
+	std::wstring GetProgramDirectory()
 	{
-		wstring Ret;
+		std::wstring Ret;
 		Ret = GetProgramPath();
 		size_t iFind = Ret.find_last_of('/');
 
@@ -136,10 +136,10 @@ public:
 		return Ret;
 	}
 #elif __GNUC__
-	string GetProgramDirectory()
+	std::string GetProgramDirectory()
 	{
 		char TmpBuf[PATH_MAX];
-		string CurrentDirectory = string(getcwd(TmpBuf, sizeof(TmpBuf)));
+		std::string CurrentDirectory = std::string(getcwd(TmpBuf, sizeof(TmpBuf)));
 		return CurrentDirectory;
 	}
 #endif
@@ -159,7 +159,7 @@ public:
 		{
 			m_pSession = HPMSdkSession::SessionOpen(
 			        hpm_str(server),
-			        port,
+					port,
 			        hpm_str(database),
 			        hpm_str(sdkuser),
 			        hpm_str(sdkpassword),
@@ -176,18 +176,18 @@ public:
 		catch (const HPMSdkException &_Error)
 		{
 			HPMString SdkError = _Error.GetAsString();
-			wstring Error(SdkError.begin(), SdkError.end());
-			wcout << hpm_str("SessionOpen failed with error:") << Error << hpm_str("\r\n");
+			std::wstring Error(SdkError.begin(), SdkError.end());
+			std::wcout << hpm_str("SessionOpen failed with error:") << Error << hpm_str("\r\n");
 			return false;
 
 		}
 		catch (const HPMSdkCppException &_Error)
 		{
-			wcout << hpm_str("SessionOpen failed with error:") << _Error.what() << "\r\n";
+			std::wcout << hpm_str("SessionOpen failed with error:") << _Error.what() << "\r\n";
 			return false;
 		}
 
-		wcout << "Successfully opened session.\r\n";
+		std::wcout << "Successfully opened session.\r\n";
 
 		m_pSession->VersionControlInit(hpm_str("./LocalFiles"));
 
@@ -215,8 +215,13 @@ public:
 		HPMChangeCallbackData_VersionControlDeleteFilesResponse Response = m_pSession->VersionControlDeleteFilesBlock(ToDelete);
 		if (Response.m_Errors.size())
 		{
-			wcout << "Error deleting version control file: '" << Response.m_Errors[0].m_File.c_str() << "' Error: '" << m_pSession->VersionControlErrorToStr(Response.m_Errors[0].m_Error).c_str() << "'\r\n";
-		}
+			std::wcout << "Attempt to delete previous plugin: '" <<
+				Response.m_Errors[0].m_File.c_str() << "' : '" <<
+				m_pSession->VersionControlErrorToStr(Response.m_Errors[0].m_Error).c_str() << 
+				"'\r\n";
+		} else {
+            std::wcout << "Successfully deleted previous Hansoft/SVN plugin version" << std::endl;
+        }
 	}
 
 	void AddVersionControlFile(HPMString _File, HPMString _FileLocal)
@@ -233,7 +238,9 @@ public:
 		HPMChangeCallbackData_VersionControlAddFilesResponse Response = m_pSession->VersionControlAddFilesBlock(ToAdd);
 		if (Response.m_Errors.size())
 		{
-			wcout << "Error adding version control file: '" << Response.m_Errors[0].m_File.c_str() << "' Error: '" << m_pSession->VersionControlErrorToStr(Response.m_Errors[0].m_Error).c_str() << "'\r\n";
+			std::wcout << "Error adding version control file: '" << Response.m_Errors[0].m_File.c_str() << "' Error: '" << m_pSession->VersionControlErrorToStr(Response.m_Errors[0].m_Error).c_str() << "'\r\n";
+		} else {
+		    std::wcout << "Successfully uploaded the Hansoft/SVN plugin" << std::endl;
 		}
 	}
 
@@ -313,12 +320,12 @@ public:
 			catch (HPMSdkException &_Error)
 			{
 				HPMString SdkError = _Error.GetAsString();
-				wstring Error(SdkError.begin(), SdkError.end());
-				wcout << hpm_str("Exception in processing loop: ") << Error << hpm_str("\r\n");
+				std::wstring Error(SdkError.begin(), SdkError.end());
+				std::wcout << hpm_str("Exception in processing loop: ") << Error << hpm_str("\r\n");
 			}
 			catch (HPMSdkCppException _Error)
 			{
-				wcout << hpm_str("Exception in processing loop: ") << _Error.what() << hpm_str("\r\n");
+				std::wcout << hpm_str("Exception in processing loop: ") << _Error.what() << hpm_str("\r\n");
 			}
 		}
 	}
@@ -527,8 +534,8 @@ int main(int argc, const char * argv[])
 	}
     // check if there's a properties file
 	const char *props = "plugin.properties";
-    ifstream ifile;
-    ifile.open(props, ifstream::in);
+    std::ifstream ifile;
+    ifile.open(props, std::ifstream::in);
     if (ifile) {
         // exists
         ConfigFile cfg("plugin.properties");
@@ -541,21 +548,21 @@ int main(int argc, const char * argv[])
         replaceAll(databaseValue, "%20", " ");
         std::string sdkUsernameValue =
                 cfg.getValueOfKey<std::string>("sdkuser", "SDK");
-        std:string sdkPasswordValue =
+        std::string sdkPasswordValue =
                 cfg.getValueOfKey<std::string>("sdkpassword", "SDK");
-        pusher.server = serverValue.c_str();;
+        pusher.server = (const HS_CHAR *) serverValue.c_str();;
         pusher.port = portValue;
-        pusher.database = databaseValue.c_str();
-        pusher.sdkuser = sdkUsernameValue.c_str();
-        pusher.sdkpassword = sdkPasswordValue.c_str();
+		pusher.database = (const HS_CHAR *)databaseValue.c_str();
+		pusher.sdkuser = (const HS_CHAR *)sdkUsernameValue.c_str();
+		pusher.sdkpassword = (const HS_CHAR *)sdkPasswordValue.c_str();
     } else {
-        cerr << "No 'plugin.properties' file - exiting" << endl;
+        std::cerr << "No 'plugin.properties' file - exiting" << std::endl;
         exit(1);
 	}
-    cout << "Server:       " << pusher.server << endl;
-    cout << "Port:         " << pusher.port << endl;
-    cout << "Database:     " << pusher.database << endl;
-    cout << "SDK Username: " << pusher.sdkuser << endl;
-    cout << "SDK Password: " << "*** ;-)" << endl;
+	std::cout << "Server:       " << pusher.server << std::endl;
+	std::cout << "Port:         " << pusher.port << std::endl;
+	std::cout << "Database:     " << pusher.database << std::endl;
+	std::cout << "SDK Username: " << pusher.sdkuser << std::endl;
+	std::cout << "SDK Password: " << "*** ;-)" << std::endl;
 	return pusher.Run(updateAll, onlyDelete);
 }
