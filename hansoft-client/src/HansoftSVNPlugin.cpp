@@ -3,6 +3,7 @@
 *
 */
 
+#include "HansoftSVNPlugin.h"
 #include <HPMSdkCpp.h>
 
 #ifdef _MSC_VER
@@ -17,19 +18,25 @@
 
 #ifdef _MSC_VER
 #define mod_export __declspec(dllexport)
+#define STD_STRING std::wstring
+#define STD_STRINGSTREAM std::wstringstream
+#define STD_OSTRINGSTREAM std::wostringstream
 #elif __GNUC__
 #define mod_export __attribute__ ((__visibility__("default")))
+#define STD_STRING std::string
+#define STD_STRINGSTREAM std::stringstream
+#define STD_OSTRINGSTREAM std::ostringstream
 #endif
 
+//using namespace std;
 using namespace HPMSdk;
 
 
-class HansoftSVNPlugin : public HPMSdkCallbacks
-{
-public:
+#ifdef _DEBUG
+std::ofstream _debuglog;
+#endif
 
-
-    HansoftSVNPlugin(const void *_pClientData)
+HansoftSVNPlugin::HansoftSVNPlugin(const void *_pClientData)
     {
         m_pSession = NULL;
 
@@ -66,7 +73,7 @@ public:
             HPMString ErrorStr = _Exception.GetAsString();
 
 #ifdef _MSC_VER
-            std::wstringstream Stream;
+            STD_STRINGSTREAM Stream;
             Stream << hpm_str("Error initializing client SVN plugin:\r\n\r\n");
             Stream << ErrorStr;
             MessageBox(NULL, Stream.str().c_str(), hpm_str("Client SVN plugin Error"), MB_OK | MB_ICONERROR);
@@ -77,7 +84,7 @@ public:
         catch (HPMSdkCppException &_Exception)
         {
 #ifdef _MSC_VER
-            std::wstringstream Stream;
+            STD_STRINGSTREAM Stream;
             Stream << hpm_str("Error initializing client SVN plugin:\r\n\r\n");
             Stream << _Exception.what();
             MessageBox(NULL, Stream.str().c_str(), hpm_str("Client SVN plugin Error"), MB_OK | MB_ICONERROR);
@@ -87,7 +94,7 @@ public:
         }
     }
 
-    ~HansoftSVNPlugin()
+HansoftSVNPlugin::~HansoftSVNPlugin()
     {
         if (m_pSession)
         {
@@ -95,7 +102,7 @@ public:
         }
     }
 
-    virtual void On_Callback(const HPMChangeCallbackData_ClientSyncDone &_Data)
+void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_ClientSyncDone &_Data)
     {
 
 #ifdef _MSC_VER
@@ -107,12 +114,14 @@ public:
 #else
         std::cout << "The client has finished syncing and the Client SVN plugin is working.\n";
 #endif
-        RegisterWithIntegration();
+        HansoftSVNPlugin::RegisterWithIntegration();
 		popup = m_pSession->GlobalRegisterForCustomTaskStatusNotifications(hpm_str("SDK/Plugins/se.findout.hansoft.svn.clientplugincpp"), new HPMUserContext());
 
     }
 
-    virtual void On_Callback(const HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data) {
+//void HansoftSVNPlugin::On_Callback(const HPMSdk::HPMChangeCallbackData_RightClickDisplayTaskMenu &_Data) {}
+
+void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data) {
         displayDialog(_Data);
         std::string revRepoStr(_Data.m_Packet.m_Bytes.begin(), _Data.m_Packet.m_Bytes.end());
         int pos = revRepoStr.find("@");
@@ -127,7 +136,13 @@ public:
 #endif
     }
 
-    virtual void On_Callback(const HPMChangeCallbackData_CustomTaskStatusNotification &_Data) {
+static STD_STRING convertToString(int from) {
+	STD_OSTRINGSTREAM ss;
+	ss << from;
+	return ss.str();
+}
+
+void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_CustomTaskStatusNotification &_Data) {
         if (_Data.m_Notification == EHPMCustomTaskStatusNotification_DialogEndedOk) {
 #ifdef _DEBUG
             _debuglog << "Dialog closed!" << std::endl;
@@ -139,8 +154,9 @@ public:
             text.append(commit);
 			text.append(hpm_str("@Items:"));
             for (std::vector<HPMUniqueID>::size_type i = 0; i != _Data.m_SelectedTasks.size(); i++) {
-				HPMString temp = hpm_str(convertToString(_Data.m_SelectedTasks.at(i)) + ",");
-                text.append(temp);
+				HPMString temp = convertToString(_Data.m_SelectedTasks.at(i));
+				temp += hpm_str(",");
+				text.append(temp);
             }
 #ifdef _DEBUG
             _debuglog << text.c_str() << std::endl;
@@ -156,24 +172,17 @@ public:
         }
     }
 
-    virtual void On_ProcessError(EHPMError _Error) {
+void HansoftSVNPlugin::On_ProcessError(EHPMError _Error) {
 #ifdef _DEBUG
         _debuglog << _Error << std::endl;
         _debuglog.flush();
 #endif
     }
 
-private:
 
-	std::string convertToString(int from) {
-		std::ostringstream ss;
-        ss << from;
-        return ss.str();
-    }
-
-
-    HPMUInt64 GetIntegrationSessionID() {
-        HPMCommunicationChannelEnum Channels = m_pSession->CommunicationChannelEnum(hpm_str("svnChannel"));
+HPMUInt64 HansoftSVNPlugin::GetIntegrationSessionID() {
+	HPMCommunicationChannelEnum Channels = this->m_pSession->CommunicationChannelEnum(hpm_str("svnChannel"));
+			//session->CommunicationChannelEnum(hpm_str("svnChannel"));
 
         HPMDatabaseGUIDs GUIDs = m_pSession->GlobalGetDatabaseGUIDs();
         HPMUInt32 nSessions = 0;
@@ -192,7 +201,7 @@ private:
         return Ret;
     }
 
-    void RegisterWithIntegration() {
+void HansoftSVNPlugin::RegisterWithIntegration() {
         HPMUInt64 Owner = GetIntegrationSessionID();
         if (Owner == 0) {
             return;
@@ -207,18 +216,24 @@ private:
         m_pSession->CommunicationChannelSendPacket(hpm_str("svnChannel"), Owner, packet);
     }
 
-    void displayDialog(const HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data) {
+void HansoftSVNPlugin::displayDialog(const HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data) {
         try
         {
-            std::string str(_Data.m_Packet.m_Bytes.begin(), _Data.m_Packet.m_Bytes.end());
+#ifdef _MSC_VER
+			STD_STRING toFind = L"@";
+			STD_STRING commitPrefix = L"SVN Commit - ";
+#else
+			STD_STRING toFind = "@";
+			STD_STRING commitPrefix = "SVN Commit - ";
+#endif
+			STD_STRING str(_Data.m_Packet.m_Bytes.begin(), _Data.m_Packet.m_Bytes.end());
             // Format: revision@repo
-            int pos = str.find("@");
-            std::string revision = str.substr(0, pos);
-            std::string repo = str.substr(pos + 1);
-            std::string dialogTitle = "SVN Commit - " + repo;
+			int pos = str.find(toFind);
+            STD_STRING revision = str.substr(0, pos);
+			STD_STRING repo = str.substr(pos + 1);
+			HPMString dialogTitle = commitPrefix + repo;
             HPMCustomTaskStatusDialogValues values;
-			HPMString sampleTitle = hpm_str("dialog title");
-            values.m_Title = m_pSession->LocalizationCreateUntranslatedStringFromString(hpm_str(dialogTitle));
+            values.m_Title = m_pSession->LocalizationCreateUntranslatedStringFromString(dialogTitle);
             values.m_ButtonLabel = m_pSession->LocalizationCreateUntranslatedStringFromString(hpm_str("OK"));
             values.m_CancelLabel = m_pSession->LocalizationCreateUntranslatedStringFromString(hpm_str("Cancel"));
             values.m_InfoText = m_pSession->LocalizationCreateUntranslatedStringFromString(hpm_str("Select items to associate with your SVN commit"));
@@ -251,17 +266,10 @@ private:
         }
     }
 
-    HPMSdkSession *m_pSession;
-    HPMUInt64 _sessionId;
 
-#ifdef _DEBUG
-	std::ofstream _debuglog;
-#endif
     HPMNotificationSubscription popup;
     HPMString commit;
-};
-
-HansoftSVNPlugin *g_pClientPlugin;
+	HansoftSVNPlugin *g_pClientPlugin;
 
 extern "C" mod_export void DHPMSdkCallingConvention HPMClientSDKCreate(const void *_pClientData)
 {
