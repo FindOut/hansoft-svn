@@ -8,6 +8,8 @@ import java.util.Properties;
 
 import javax.inject.Singleton;
 
+import se.findout.hansoft.integration_server.IntegrationServer;
+import se.findout.hansoft.integration_server.Utilities;
 import se.findout.hansoft.integration_server.model.Commit;
 import se.hansoft.hpmsdk.EHPMChannelFlag;
 import se.hansoft.hpmsdk.EHPMPacketFlag;
@@ -44,12 +46,15 @@ public class HansoftAdapter {
         if(sdkSession == null) {
             sdkUser = user;
             try {
-            	System.out.println("Initializing!");
+            	Utilities.debug("Initializing!");
             	callback = new IntegrationCallback();
-                String hansoftWorkingDir = System.getenv("HANSOFT_WORKING_DIR");
-                String hansoftLibPath = System.getenv("HANSOFT_SDK_PATH");
-                String usermappingFile = System.getenv("HANSOFT_SVN_MAPPINGFILE");
+                String hansoftWorkingDir = IntegrationServer.getProperty("WORKING_DIR");
+                String hansoftLibPath = IntegrationServer.getProperty("SDK_PATH");
+                String usermappingFile = IntegrationServer.getProperty("SVN_USER_MAPPINGFILE");
                 populateMap(usermappingFile);
+                Utilities.debug("Opening session for: " + s.getURL() + ", "
+                        + s.getPort() + ", " + user.getUsername() + ", "
+                        + hansoftWorkingDir + ", " + hansoftLibPath);
                 sdkSession = HPMSdkSession.SessionOpen(
                         s.getURL(), 
                         s.getPort(), 
@@ -142,7 +147,7 @@ public class HansoftAdapter {
     	    File mapFile = new File(mapFilename);
     	    FileInputStream fileInput = new FileInputStream(mapFile);
     	    userMapping.load(fileInput);
-    	    System.out.println("HansoftAdapter.populateMap() - element count: " + userMapping.size());
+    	    Utilities.debug("HansoftAdapter.populateMap() - element count: " + userMapping.size());
     	    fileInput.close();
         } catch (FileNotFoundException e) {
             System.err
@@ -155,8 +160,15 @@ public class HansoftAdapter {
         }
 	}
 	
+	/**
+	 * Map SVN user to Hansoft user.<br>
+	 * If no mapping exists, just return the svnUser
+	 * @param svnUser
+	 * @return hansoftUser
+	 */
 	public String mapSVNUserToHansoftUser(String svnUser) {
-	    String hansoftUser = userMapping.getProperty(svnUser);
+	    String hansoftUser = userMapping.getProperty(svnUser, svnUser);
+	    Utilities.debug("DEBUG: Matched SVN user: " + svnUser + " with Hansoft user: " + hansoftUser);
 	    return hansoftUser;
 	}
 }

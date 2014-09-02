@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.glassfish.grizzly.http.util.HttpStatus;
 
+import se.findout.hansoft.integration_server.Utilities;
 import se.findout.hansoft.integration_server.model.Commit;
 import se.hansoft.hpmsdk.EHPMError;
 import se.hansoft.hpmsdk.EHPMTaskSetStatusFlag;
@@ -35,6 +36,7 @@ public class IntegrationCallback extends HPMSdkCallbacks{
 	
 	public IntegrationCallback() {
 		sessions = new HashMap<String, Long>();
+        Utilities.debug("LIBPATH: " + System.getProperty("java.library.path"));
 	}
 
     public void setSdk(HPMSdkSession session) {
@@ -65,6 +67,7 @@ public class IntegrationCallback extends HPMSdkCallbacks{
 		    }
 		} else if (data.startsWith(REGISTER_TOKEN)){
 		    String user = data.substring(REGISTER_TOKEN.length());
+		    Utilities.debug("Adding Hansoft user: " + user + " for session: " + sessionID);
 		    sessions.put(user, sessionID);
 		}
 	}
@@ -164,8 +167,8 @@ public class IntegrationCallback extends HPMSdkCallbacks{
         
         // open connection to http server
         String request = "http://localhost:9006";
-        System.out.println("Sending to : " + request);
-        System.out.println("Content: " + content);
+        Utilities.debug("Sending to : " + request);
+        Utilities.debug("Content: " + content);
         URL url;
         try {
             url = new URL(request);

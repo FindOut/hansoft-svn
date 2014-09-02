@@ -8,15 +8,17 @@ import javax.inject.Singleton;
 
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
+import se.findout.hansoft.integration_server.IntegrationServer;
+
 public class AdapterBinder extends AbstractBinder {
     @Override
     protected void configure() {
     	HansoftAdapter adapter = new HansoftAdapter();
         HansoftServer server = new HansoftServer();
         Credentials sdkUser = new Credentials();
-        String sdkUsername = System.getenv("HANSOFT_SDK_USERNAME");
-        String sdkPassword = System.getenv("HANSOFT_SDK_PASSWORD");
-        String sdkDatabase = System.getenv("HANSOFT_DATABASE");
+        String sdkUsername = IntegrationServer.getProperty("SDK_USERNAME");
+        String sdkPassword = IntegrationServer.getProperty("SDK_PASSWORD");
+        String sdkDatabase = IntegrationServer.getProperty("DATABASE");
         sdkUser.setUsername(sdkUsername);
         sdkUser.setPassword(sdkPassword);
 
