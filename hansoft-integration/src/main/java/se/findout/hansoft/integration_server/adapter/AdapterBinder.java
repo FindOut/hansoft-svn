@@ -11,14 +11,22 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import se.findout.hansoft.integration_server.IntegrationServer;
 
 public class AdapterBinder extends AbstractBinder {
+
+    private String hansoftServer;
+    
+    public AdapterBinder(String hansoftServer) {
+        this.hansoftServer = hansoftServer;
+    }
+
     @Override
     protected void configure() {
     	HansoftAdapter adapter = new HansoftAdapter();
         HansoftServer server = new HansoftServer();
+        server.setURL(hansoftServer);
         Credentials sdkUser = new Credentials();
-        String sdkUsername = IntegrationServer.getProperty("SDK_USERNAME");
-        String sdkPassword = IntegrationServer.getProperty("SDK_PASSWORD");
-        String sdkDatabase = IntegrationServer.getProperty("DATABASE");
+        String sdkUsername = IntegrationServer.getProperty("HANSOFT_SDK_USERNAME");
+        String sdkPassword = IntegrationServer.getProperty("HANSOFT_SDK_PASSWORD");
+        String sdkDatabase = IntegrationServer.getProperty("HANSOFT_DATABASE");
         sdkUser.setUsername(sdkUsername);
         sdkUser.setPassword(sdkPassword);
 

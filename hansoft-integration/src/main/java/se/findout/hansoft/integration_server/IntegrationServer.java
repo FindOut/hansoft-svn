@@ -76,9 +76,10 @@ public class IntegrationServer {
     
 	public void start() {
 		final ResourceConfig rc = new ResourceConfig().packages("se.findout.hansoft.integration_server.handlers");
-        rc.register(new AdapterBinder());
-		server = GrizzlyHttpServerFactory.createHttpServer(URI.create("http://0.0.0.0:9005"), rc);
-		//server = GrizzlyHttpServerFactory.createHttpServer(URI.create("http://localhost:9005"), rc);
+		String hansoftServer = getProperty("HANSOFT_SERVER", "localhost");
+        rc.register(new AdapterBinder(hansoftServer));
+        String integrationServerPort = getProperty("INTEGRATION_SERVER_PORT", "9005");
+		server = GrizzlyHttpServerFactory.createHttpServer(URI.create("http://0.0.0.0:" + integrationServerPort), rc);
 	}
 
 	public void shutdown() {
@@ -92,5 +93,9 @@ public class IntegrationServer {
 
     public static String getProperty(String key) {
         return properties.getProperty(key);
+    }
+    
+    public static String getProperty(String key, String defaultValue) {
+        return properties.getProperty(key, defaultValue);
     }
 }

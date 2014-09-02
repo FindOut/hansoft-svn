@@ -42,22 +42,22 @@ public class HansoftAdapter {
         return instance;
     }
 
-    public void initialize(HansoftServer s, String databaseName, Credentials user) throws HansoftException {
+    public void initialize(HansoftServer server, String databaseName, Credentials user) throws HansoftException {
         if(sdkSession == null) {
             sdkUser = user;
             try {
             	Utilities.debug("Initializing!");
             	callback = new IntegrationCallback();
-                String hansoftWorkingDir = IntegrationServer.getProperty("WORKING_DIR");
-                String hansoftLibPath = IntegrationServer.getProperty("SDK_PATH");
-                String usermappingFile = IntegrationServer.getProperty("SVN_USER_MAPPINGFILE");
+                String hansoftWorkingDir = IntegrationServer.getProperty("HANSOFT_WORKING_DIR");
+                String hansoftLibPath = IntegrationServer.getProperty("HANSOFT_SDK_PATH");
+                String usermappingFile = IntegrationServer.getProperty("HANSOFT_SVN_USER_MAPPINGFILE");
                 populateMap(usermappingFile);
-                Utilities.debug("Opening session for: " + s.getURL() + ", "
-                        + s.getPort() + ", " + user.getUsername() + ", "
+                Utilities.debug("Opening session for: " + server.getURL() + ", "
+                        + server.getPort() + ", " + user.getUsername() + ", "
                         + hansoftWorkingDir + ", " + hansoftLibPath);
                 sdkSession = HPMSdkSession.SessionOpen(
-                        s.getURL(), 
-                        s.getPort(), 
+                        server.getURL(), 
+                        server.getPort(), 
                         databaseName, 
                         user.getUsername(), 
                         user.getPassword(),
