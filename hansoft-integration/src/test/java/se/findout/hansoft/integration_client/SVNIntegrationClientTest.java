@@ -11,7 +11,7 @@ import se.findout.hansoft.integration_server.model.Commit;
 /**
  * Created by bjorn on 2014-06-09.
  */
-public class SVNIntegrationClient {
+public class SVNIntegrationClientTest {
 
     public static void main(String [] args) throws HansoftException, IOException {
         HansoftAdapter adapter = HansoftAdapter.getInstance();
