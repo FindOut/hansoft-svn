@@ -76,7 +76,7 @@ class HansoftServer:
 
 
 def main():
-    print "Staring server press ctrl + C to stop"
+    print "Starting Hansoft/Subversion annotation server press ctrl + C to stop"
     s = HansoftServer()
     try:
         s.start()

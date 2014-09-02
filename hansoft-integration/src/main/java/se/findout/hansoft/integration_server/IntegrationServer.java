@@ -35,7 +35,7 @@ public class IntegrationServer {
 
     	IntegrationServer is = new IntegrationServer();
     	is.start();
-    	System.out.println("Server started!");
+    	System.out.println("Hansoft/Subversion Integration Server started!");
     	waitForShutdown();
     	is.shutdown();
    }
