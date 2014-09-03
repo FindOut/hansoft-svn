@@ -344,11 +344,16 @@ public:
     template <typename T>
     static T string_to_T(STD_STRING const &val)
     {
-        std::istringstream istr(val);
-        T returnVal;
+//        std::istringstream istr(val);
+		std::wistringstream istr(val);
+		T returnVal;
         if (!(istr >> returnVal))
-            exitWithError("CFG: Not a valid " + (STD_STRING)typeid(T).name() + " received!\n");
-
+#ifdef _MSC_VER
+			//exitWithError(L"CFG: Not a valid " + typeid(T).name() + L" received!\n");
+			exitWithError(L"CFG: Not a valid <type name should go here> received!\n");
+#else
+			exitWithError("CFG: Not a valid " + typeid(T).name() + " received!\n");
+#endif
         return returnVal;
     }
 
@@ -383,8 +388,12 @@ private:
     bool validLine(const STD_STRING &line) const
     {
         STD_STRING temp = line;
-        temp.erase(0, temp.find_first_not_of("\t "));
-        if (temp[0] == '=')
+#ifdef _MSC_VER
+        temp.erase(0, temp.find_first_not_of(L"\t "));
+#else
+		temp.erase(0, temp.find_first_not_of("\t "));
+#endif
+		if (temp[0] == '=')
             return false;
 
         for (size_t i = temp.find('=') + 1; i < temp.length(); i++)
@@ -398,20 +407,33 @@ private:
     {
         key = line.substr(0, sepPos);
         if (key.find('\t') != line.npos || key.find(' ') != line.npos)
-            key.erase(key.find_first_of("\t "));
+#ifdef _MSC_VER
+			key.erase(key.find_first_of(L"\t "));
+#else
+			key.erase(key.find_first_of("\t "));
+#endif
         }
     void extractValue(STD_STRING &value, size_t const &sepPos, const STD_STRING &line) const
     {
         value = line.substr(sepPos + 1);
-        value.erase(0, value.find_first_not_of("\t "));
-        value.erase(value.find_last_not_of("\t ") + 1);
-    }
+#ifdef _MSC_VER
+		value.erase(0, value.find_first_not_of(L"\t "));
+		value.erase(value.find_last_not_of(L"\t ") + 1);
+#else
+		value.erase(0, value.find_first_not_of("\t "));
+		value.erase(value.find_last_not_of("\t ") + 1);
+#endif
+	}
 
     void extractContents(const STD_STRING &line)
     {
         STD_STRING temp = line;
-        temp.erase(0, temp.find_first_not_of("\t "));
-        size_t sepPos = temp.find('=');
+#ifdef _MSC_VER
+		temp.erase(0, temp.find_first_not_of(L"\t "));
+#else
+		temp.erase(0, temp.find_first_not_of("\t "));
+#endif
+		size_t sepPos = temp.find('=');
 
         STD_STRING key, value;
         extractKey(key, sepPos, temp);
@@ -431,13 +453,13 @@ private:
     {
         if (line.find('=') == line.npos)
 #ifdef _MSC_VER
-            exitWithError(L"CFG: Couldn't find separator on line: " + Convert::T_to_string(lineNo) + '\n');
+            exitWithError(L"CFG: Couldn't find separator on line: " + Convert::T_to_string(lineNo) + L'\n');
 #else
         exitWithError("CFG: Couldn't find separator on line: " + Convert::T_to_string(lineNo) + '\n');
 #endif
         if (!validLine(line))
 #ifdef _MSC_VER
-			exitWithError(L"CFG: Bad format for line: " + Convert::T_to_string(lineNo) + '\n');
+			exitWithError(L"CFG: Bad format for line: " + Convert::T_to_string(lineNo) + L'\n');
 #else
             exitWithError("CFG: Bad format for line: " + Convert::T_to_string(lineNo) + '\n');
 #endif
@@ -446,7 +468,7 @@ private:
 
     void ExtractKeys()
     {
-        std::ifstream file;
+        STD_IFSTREAM file;
         file.open(fName.c_str());
         if (!file)
 #ifdef _MSC_VER
@@ -521,36 +543,62 @@ int main(int argc, const char * argv[])
 		std::vector<STD_STRING> params(argv, argv + argc);
 	    // parse command line arguments
 	    for (int i = 1; i < argc; i++) {
-	        STD_STRING flagprefix = "-";
+#ifdef _MSC_VER
+			STD_STRING flagprefix = L"-";
+			STD_STRING optionA = L"a";
+			STD_STRING optionD = L"d";
+#else
+			STD_STRING flagprefix = "-";
+			STD_STRING optionA = "a";
+			STD_STRING optionA = "d";
+#endif
 			STD_STRING arg = params.at(i);
             if (arg.compare(0, flagprefix.length(), flagprefix) == 0) {
                 // parse flags
-                if(arg.compare(flagprefix.length(), flagprefix.length() + 1, "a") == 0) {
+                if(arg.compare(flagprefix.length(), flagprefix.length() + 1, optionA) == 0) {
                     updateAll = true;
-                } else if (arg.compare(flagprefix.length(), flagprefix.length() + 1, "d") == 0) {
+                } else if (arg.compare(flagprefix.length(), flagprefix.length() + 1, optionD) == 0) {
                     onlyDelete = true;
                 }
             }
 	    }
 	}
-    // check if there's a properties file
+#ifdef _MSC_VER
+	STD_STRING pluginProperties = L"plugin.properties";
+	STD_STRING encodedSpace = L"%20";
+	STD_STRING space = L" ";
+	STD_STRING server = L"server";
+	STD_STRING defaultServer = L"localhost";
+	STD_STRING port = L"port";
+	STD_STRING database = L"database";
+	STD_STRING defaultDatabase = L"Company project";
+	STD_STRING sdkuser = L"sdkuser";
+	STD_STRING defaultSdkuser = L"SDK";
+	STD_STRING sdkpassword = L"sdkpassword";
+	STD_STRING defaultSdkpassword = L"SDK";
+#else
+	STD_STRING pluginProperties = "plugin.properties";
+	STD_STRING encodedSpace = "%20";
+	STD_STRING space = " ";
+#endif
+	// check if there's a properties file
 	const char *props = "plugin.properties";
-    std::ifstream ifile;
+	std::ifstream ifile;
     ifile.open(props, std::ifstream::in);
     if (ifile) {
         // exists
-        ConfigFile cfg("plugin.properties");
+		ConfigFile cfg(pluginProperties);
         STD_STRING serverValue =
-                cfg.getValueOfKey<STD_STRING>("server", "localhost");
+                cfg.getValueOfKey<STD_STRING>(server, defaultServer);
         int portValue =
-                cfg.getValueOfKey<int>("port", 50256);
+                cfg.getValueOfKey<int>(port, 50256);
         STD_STRING databaseValue =
-                cfg.getValueOfKey<STD_STRING>("database", "Company projects");
-        replaceAll(databaseValue, "%20", " ");
+                cfg.getValueOfKey<STD_STRING>(database, defaultDatabase);
+        replaceAll(databaseValue, encodedSpace, space);
         STD_STRING sdkUsernameValue =
-                cfg.getValueOfKey<STD_STRING>("sdkuser", "SDK");
+                cfg.getValueOfKey<STD_STRING>(sdkuser, defaultSdkuser);
         STD_STRING sdkPasswordValue =
-                cfg.getValueOfKey<STD_STRING>("sdkpassword", "SDK");
+                cfg.getValueOfKey<STD_STRING>(sdkpassword, defaultSdkpassword);
         pusher.server = (const HS_CHAR *) serverValue.c_str();;
         pusher.port = portValue;
 		pusher.database = (const HS_CHAR *)databaseValue.c_str();

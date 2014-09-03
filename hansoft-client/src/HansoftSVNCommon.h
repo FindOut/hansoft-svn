@@ -9,12 +9,14 @@
 #define STD_STRING std::wstring
 #define STD_STRINGSTREAM std::wstringstream
 #define STD_OSTRINGSTREAM std::wostringstream
+#define STD_IFSTREAM std::wifstream
 #define STD_COUT std::wcout
 #define HS_CHAR wchar_t
 #elif __GNUC__
 #define STD_STRING std::string
 #define STD_STRINGSTREAM std::stringstream
 #define STD_OSTRINGSTREAM std::ostringstream
+#define STD_IFSTREAM std::ifstream
 #define STD_COUT std::cout
 #define HS_CHAR char
 #endif
