@@ -13,6 +13,8 @@
 #ifdef __GNUC__
 #ifdef __linux__
 #include <linux/limits.h>
+#include <stdlib.h>
+#include <typeinfo>
 #endif
 #include <unistd.h>
 #endif
