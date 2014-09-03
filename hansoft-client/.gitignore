@@ -1,15 +1,29 @@
 /Default
 /Debug
+#
 #.cproject
 *.o
 *.so
 *.dll
 *.dylib
 HansoftSVNPusher
-
+#
 # ignore misc runtime artifacts polluting the workspace:
 VersionControl
 VersionsSDK
 WriteRightsCheck
 FileCache
 LocalFiles
+#
+# Ignoring Visual Studio stuff:
+#
+/msvc/Debug
+/msvc/Plugin
+/msvc/Pusher
+/msvc/*.suo
+/msvc/*.ncb
+/msvc/*.user
+/msvc/*.ccscc
+/msvc/*.cache
+/msvc/*.opensdf
+/msvc/*.sdf
