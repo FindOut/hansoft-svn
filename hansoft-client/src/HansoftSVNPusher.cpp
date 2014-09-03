@@ -217,12 +217,15 @@ void HansoftSVNPusher::AddVersionControlFile(HPMString _File, HPMString _FileLoc
             m_pSession->VersionControlAddFilesBlock(ToAdd);
     if (Response.m_Errors.size())
     {
-        STD_COUT << "Error adding version control file: '"
-                << Response.m_Errors[0].m_File.c_str() << "' Error: '"
+        STD_COUT << "Error uploading the Hansoft/SVN plugin: "
+                << _FileLocal << "\n"
+                << "Reason: "
+                //<< Response.m_Errors[0].m_File.c_str() << "' Error: '"
                 << m_pSession->VersionControlErrorToStr(
-                        Response.m_Errors[0].m_Error).c_str() << "'\r\n";
+                        Response.m_Errors[0].m_Error).c_str() << std::endl;;
     } else {
-        STD_COUT << "Successfully uploaded the Hansoft/SVN plugin"
+        STD_COUT << "Successfully uploaded the Hansoft/SVN plugin:"
+                << _FileLocal
                 << std::endl;
     }
 }
@@ -270,22 +273,10 @@ void HansoftSVNPusher::UpdateServer(bool updateAllPlatforms, bool onlyDelete) {
 #ifdef _MSC_VER
 			DoAddVersionControlFile(win32_x86_path, hpm_str("/Plugin.dll"));
 			DoAddVersionControlFile(win32_x64_path, hpm_str("/Plugin.dll"));
-//		AddVersionControlFile(
-//		        win32_x86_path,
-//		        GetProgramDirectory() + hpm_str("/Plugin.dll"));
-//		AddVersionControlFile(
-//		        win32_x64win32_x64_path,
-//		        GetProgramDirectory() + hpm_str("/Plugin.dll"));
 #elif defined(__APPLE__)
             DoAddVersionControlFile(osx_x64_path, "/Plugin.dylib");
-//		AddVersionControlFile(
-//		        osx_x64_path,
-//		        GetProgramDirectory() + hpm_str("/Plugin.dylib"));
 #elif defined(__linux__)
-//            DoAddVersionControlFile(linux_x64_path, "/Plugin.so");
-//		AddVersionControlFile(
-//		        linlinux_x64_path,
-//		        GetProgramDirectory() + hpm_str("/Plugin.so"));
+            DoAddVersionControlFile(linux_x64_path, "/Plugin.so");
 #else
 #error "Unknown platform"
 #endif
@@ -534,6 +525,7 @@ int _tmain(int argc, _TCHAR* argv[])
 int main(int argc, const char * argv[])
 #endif
 {
+    STD_COUT << "Hit enter to start upload:";
     int c = getchar();
 	HansoftSVNPusher pusher;
 
