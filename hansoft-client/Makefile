@@ -73,10 +73,10 @@ HansoftSVNPusher: HPMSdkCpp.o HansoftSVNPusher.o
 HPMSdkCpp.o: $(SDKROOT)/HPMSdkCpp.cpp
 	$(CC) $(CFLAGS) -c -fPIC -o $@ $<
 
-HansoftSVNPlugin.o: src/HansoftSVNPlugin.cpp
+HansoftSVNPlugin.o: src/HansoftSVNPlugin.cpp src/HansoftSVNPlugin.h src/HansoftSVNCommon.h
 	$(CC) $(CFLAGS) $(INC) -c -fPIC -o $@ $<
 
-HansoftSVNPusher.o: src/HansoftSVNPusher.cpp
+HansoftSVNPusher.o: src/HansoftSVNPusher.cpp src/HansoftSVNPusher.h src/HansoftSVNCommon.h
 	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 	
 PropertiesUtil.o:	src/PropertiesUtil.cpp

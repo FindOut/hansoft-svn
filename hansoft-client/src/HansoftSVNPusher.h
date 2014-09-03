@@ -9,7 +9,7 @@
 #include <HPMSdkCpp.h>
 class HansoftSVNPusher : public HPMSdk::HPMSdkCallbacks {
 public:
-    STD_STRING server;
+    const HS_CHAR *server;
     const HS_CHAR *database;
     int port;
     const HS_CHAR *sdkuser;
