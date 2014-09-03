@@ -117,10 +117,10 @@ STD_STRING GetProgramDirectory()
     return Ret;
 }
 #elif __GNUC__
-std::string GetProgramDirectory()
+STD_STRING GetProgramDirectory()
 {
     char TmpBuf[PATH_MAX];
-    std::string CurrentDirectory = std::string(getcwd(TmpBuf, sizeof(TmpBuf)));
+    STD_STRING CurrentDirectory = STD_STRING(getcwd(TmpBuf, sizeof(TmpBuf)));
     return CurrentDirectory;
 }
 #endif
@@ -139,11 +139,11 @@ bool HansoftSVNPusher::InitConnection() {
     try
     {
         m_pSession = HPMSdkSession::SessionOpen(
-                hpm_str(server),
+                server,
                 port,
-                hpm_str(database),
-                hpm_str(sdkuser),
-                hpm_str(sdkpassword),
+                database,
+                sdkuser,
+                sdkpassword,
                 this,
                 NULL,
                 true,
@@ -333,7 +333,7 @@ class Convert
 {
 public:
     template <typename T>
-    static std::string T_to_string(T const &val)
+    static STD_STRING T_to_string(T const &val)
     {
         STD_STRINGSTREAM ostr;
         ostr << val;
@@ -342,38 +342,47 @@ public:
     }
 
     template <typename T>
-    static T string_to_T(std::string const &val)
+    static T string_to_T(STD_STRING const &val)
     {
         std::istringstream istr(val);
         T returnVal;
         if (!(istr >> returnVal))
-            exitWithError("CFG: Not a valid " + (std::string)typeid(T).name() + " received!\n");
+            exitWithError("CFG: Not a valid " + (STD_STRING)typeid(T).name() + " received!\n");
 
         return returnVal;
     }
 
 };
 
+#ifdef _MSC_VER
+    const wchar_t* bst = L"\t";
+    const wchar_t* bsn = L"\n";
+#else
+    const char* bst = "\t";
+    const char* bsn = "\n";
+#endif
+
+
 class ConfigFile
 {
 private:
-    std::map<std::string, std::string> contents;
-    std::string fName;
+    std::map<STD_STRING, STD_STRING> contents;
+    STD_STRING fName;
 
-    void removeComment(std::string &line) const
+    void removeComment(STD_STRING &line) const
     {
 
         if (line.find('#') != line.npos)
             line.erase(line.find('#'));
     }
 
-    bool onlyWhitespace(const std::string &line) const
+    bool onlyWhitespace(const STD_STRING &line) const
     {
         return (line.find_first_not_of(' ') == line.npos);
     }
-    bool validLine(const std::string &line) const
+    bool validLine(const STD_STRING &line) const
     {
-        std::string temp = line;
+        STD_STRING temp = line;
         temp.erase(0, temp.find_first_not_of("\t "));
         if (temp[0] == '=')
             return false;
@@ -385,43 +394,53 @@ private:
         return false;
     }
 
-    void extractKey(std::string &key, size_t const &sepPos, const std::string &line) const
+    void extractKey(STD_STRING &key, size_t const &sepPos, const STD_STRING &line) const
     {
         key = line.substr(0, sepPos);
         if (key.find('\t') != line.npos || key.find(' ') != line.npos)
             key.erase(key.find_first_of("\t "));
-    }
-    void extractValue(std::string &value, size_t const &sepPos, const std::string &line) const
+        }
+    void extractValue(STD_STRING &value, size_t const &sepPos, const STD_STRING &line) const
     {
         value = line.substr(sepPos + 1);
         value.erase(0, value.find_first_not_of("\t "));
         value.erase(value.find_last_not_of("\t ") + 1);
     }
 
-    void extractContents(const std::string &line)
+    void extractContents(const STD_STRING &line)
     {
-        std::string temp = line;
+        STD_STRING temp = line;
         temp.erase(0, temp.find_first_not_of("\t "));
         size_t sepPos = temp.find('=');
 
-        std::string key, value;
+        STD_STRING key, value;
         extractKey(key, sepPos, temp);
         extractValue(value, sepPos, temp);
 
         if (!keyExists(key))
-            contents.insert(std::pair<std::string, std::string>(key, value));
+            contents.insert(std::pair<STD_STRING, STD_STRING>(key, value));
         else
-            exitWithError("CFG: Can only have unique key names!\n");
-    }
+#ifdef _MSC_VER
+			exitWithError(L"CFG: Can only have unique key names!\n");
+#else
+			exitWithError("CFG: Can only have unique key names!\n");
+#endif
+	}
 
-    void parseLine(const std::string &line, size_t const lineNo)
+    void parseLine(const STD_STRING &line, size_t const lineNo)
     {
         if (line.find('=') == line.npos)
-            exitWithError("CFG: Couldn't find separator on line: " + Convert::T_to_string(lineNo) + "\n");
-
+#ifdef _MSC_VER
+            exitWithError(L"CFG: Couldn't find separator on line: " + Convert::T_to_string(lineNo) + '\n');
+#else
+        exitWithError("CFG: Couldn't find separator on line: " + Convert::T_to_string(lineNo) + '\n');
+#endif
         if (!validLine(line))
-            exitWithError("CFG: Bad format for line: " + Convert::T_to_string(lineNo) + "\n");
-
+#ifdef _MSC_VER
+			exitWithError(L"CFG: Bad format for line: " + Convert::T_to_string(lineNo) + '\n');
+#else
+            exitWithError("CFG: Bad format for line: " + Convert::T_to_string(lineNo) + '\n');
+#endif
         extractContents(line);
     }
 
@@ -430,14 +449,17 @@ private:
         std::ifstream file;
         file.open(fName.c_str());
         if (!file)
-            exitWithError("CFG: File " + fName + " couldn't be found!\n");
-
-        std::string line;
+#ifdef _MSC_VER
+			exitWithError(L"CFG: File " + fName + L" couldn't be found!\n");
+#else
+			exitWithError("CFG: File " + fName + " couldn't be found!\n");
+#endif
+        STD_STRING line;
         size_t lineNo = 0;
         while (std::getline(file, line))
         {
             lineNo++;
-            std::string temp = line;
+            STD_STRING temp = line;
 
             if (temp.empty())
                 continue;
@@ -453,19 +475,19 @@ private:
         file.close();
     }
 public:
-    ConfigFile(const std::string &fName)
+    ConfigFile(const STD_STRING &fName)
     {
         this->fName = fName;
         ExtractKeys();
     }
 
-    bool keyExists(const std::string &key) const
+    bool keyExists(const STD_STRING &key) const
     {
         return contents.find(key) != contents.end();
     }
 
     template <typename ValueType>
-    ValueType getValueOfKey(const std::string &key, ValueType const &defaultValue = ValueType()) const
+    ValueType getValueOfKey(const STD_STRING &key, ValueType const &defaultValue = ValueType()) const
     {
         if (!keyExists(key))
             return defaultValue;
@@ -474,11 +496,11 @@ public:
     }
 };
 
-void replaceAll(std::string& str, const std::string& from, const std::string& to) {
+void replaceAll(STD_STRING& str, const STD_STRING& from, const STD_STRING& to) {
     if(from.empty())
         return;
     size_t start_pos = 0;
-    while((start_pos = str.find(from, start_pos)) != std::string::npos) {
+    while((start_pos = str.find(from, start_pos)) != STD_STRING::npos) {
         str.replace(start_pos, from.length(), to);
         start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
     }
@@ -490,16 +512,17 @@ int _tmain(int argc, _TCHAR* argv[])
 int main(int argc, const char * argv[])
 #endif
 {
+    int c = getchar();
 	HansoftSVNPusher pusher;
 
 	bool updateAll = false;
 	bool onlyDelete = false;
 	if (argc > 1) {
-		std::vector<std::string> params(argv, argv + argc);
+		std::vector<STD_STRING> params(argv, argv + argc);
 	    // parse command line arguments
 	    for (int i = 1; i < argc; i++) {
-	        std::string flagprefix = "-";
-			std::string arg = params.at(i);
+	        STD_STRING flagprefix = "-";
+			STD_STRING arg = params.at(i);
             if (arg.compare(0, flagprefix.length(), flagprefix) == 0) {
                 // parse flags
                 if(arg.compare(flagprefix.length(), flagprefix.length() + 1, "a") == 0) {
@@ -517,17 +540,17 @@ int main(int argc, const char * argv[])
     if (ifile) {
         // exists
         ConfigFile cfg("plugin.properties");
-        std::string serverValue =
-                cfg.getValueOfKey<std::string>("server", "localhost");
+        STD_STRING serverValue =
+                cfg.getValueOfKey<STD_STRING>("server", "localhost");
         int portValue =
                 cfg.getValueOfKey<int>("port", 50256);
-        std::string databaseValue =
-                cfg.getValueOfKey<std::string>("database", "Company projects");
+        STD_STRING databaseValue =
+                cfg.getValueOfKey<STD_STRING>("database", "Company projects");
         replaceAll(databaseValue, "%20", " ");
-        std::string sdkUsernameValue =
-                cfg.getValueOfKey<std::string>("sdkuser", "SDK");
-        std::string sdkPasswordValue =
-                cfg.getValueOfKey<std::string>("sdkpassword", "SDK");
+        STD_STRING sdkUsernameValue =
+                cfg.getValueOfKey<STD_STRING>("sdkuser", "SDK");
+        STD_STRING sdkPasswordValue =
+                cfg.getValueOfKey<STD_STRING>("sdkpassword", "SDK");
         pusher.server = (const HS_CHAR *) serverValue.c_str();;
         pusher.port = portValue;
 		pusher.database = (const HS_CHAR *)databaseValue.c_str();
