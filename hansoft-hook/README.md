@@ -26,3 +26,9 @@ Call the hansoft-hook client from within the script file like this:
 ```  
 
 The server is started as a normal python program. The server is terminated by keyboard interrupt (ctrl + c).
+Edit the run_hansoftserver.{sh|bat} script to reflect your environment and launch with:
+
+```shell
+  ./run_hansoftserver.sh
+```  
+

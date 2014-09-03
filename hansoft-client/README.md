@@ -17,3 +17,8 @@ The program is built with the command
 ```shell
   make clean all
 ```
+Next, edit the file plugin.properties to reflect your environment.
+Then upload the client plug-in with
+```shell
+  ./HansoftSVNPusher
+```

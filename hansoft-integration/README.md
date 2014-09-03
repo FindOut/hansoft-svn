@@ -44,3 +44,7 @@ mvn install::install-file -Dpackaging=jar -DgroupId=com.hansoft.sdk.lib -Dversio
 cd path/to/hansoft-integration
 mvn install
 ```
+
+# Running the Hansoft SVN Integration server:
+See the file README.create_product.md for steps on how to deploy and run the
+integration server.
