@@ -3,6 +3,8 @@
 *
 */
 
+#include "HansoftSVNPusher.h"
+
 #ifdef _MSC_VER
 #include <tchar.h>
 #include <conio.h>
@@ -23,263 +25,248 @@
 
 #include <HPMSdkCpp.h>
 
-//#include "PropertiesUtil.h"
-
 using namespace HPMSdk;
 
-
-class HansoftSVNPusher : public HPMSdkCallbacks
+void HansoftSVNPusher::On_ProcessError(EHPMError _Error)
 {
-public:
-	HPMSdkSession *m_pSession;
-#ifdef _MSC_VER
-#define HS_CHAR wchar_t
-#else
-#define HS_CHAR char
-#endif
-	const HS_CHAR *server;
-	const HS_CHAR *database;
-	int port;
-	const HS_CHAR *sdkuser;
-	const HS_CHAR *sdkpassword;
+    HPMString SdkError = HPMSdkSession::ErrorToStr(_Error);
+    STD_STRING Error(SdkError.begin(), SdkError.end());
 
-	virtual void On_ProcessError(EHPMError _Error)
-	{
-		HPMString SdkError = HPMSdkSession::ErrorToStr(_Error);
-		std::wstring Error(SdkError.begin(), SdkError.end());
+    STD_COUT << "On_ProcessError: " << Error << "\r\n";
 
-		std::wcout << "On_ProcessError: " << Error << "\r\n";
+}
 
-	}
+HansoftSVNPusher::HansoftSVNPusher() {
+    m_pSession = NULL;
+}
 
-	HansoftSVNPusher()
-	{
-		m_pSession = NULL;
-	}
-
-	~HansoftSVNPusher()
-	{
-		if (m_pSession)
-		{
-			DestroyConnection();
-		}
-	}
+HansoftSVNPusher::~HansoftSVNPusher() {
+    if (m_pSession) {
+        DestroyConnection();
+    }
+}
 
 #ifdef _MSC_VER
-	template <typename t_CData1, typename t_CData2, typename t_CData3>
-	t_CData1 *StrReplaceChar(t_CData1 *_pStr1, t_CData2 _CharFind, t_CData3 _CharReplace)
-	{
-		t_CData1 *pStr1 = _pStr1;
+template <typename t_CData1, typename t_CData2, typename t_CData3>
+t_CData1 *StrReplaceChar(t_CData1 *_pStr1, t_CData2 _CharFind, t_CData3 _CharReplace)
+{
+    t_CData1 *pStr1 = _pStr1;
 
-		while (*pStr1)
-		{
-			if (sizeof(t_CData1) > sizeof(t_CData2))
-			{
-				if (*pStr1 - _CharFind == 0)
-					*pStr1 = _CharReplace;
-			}
-			else
-			{
-				if (_CharFind - *pStr1 == 0)
-					*pStr1 = _CharReplace;
-			}
-
-			++pStr1;
-		}
-		return _pStr1;
-	}
-
-
-	std::wstring GetProgramPath()
-	{
-		std::wstring CommandLine;
-
-		int nArgs = 0;
-
-		LPWSTR* pArgs = CommandLineToArgvW(GetCommandLineW(), &nArgs);
-		if (pArgs)
-		{
-			CommandLine = *pArgs;
-			GlobalFree(pArgs);
-
-			std::wstring FullFileName;
-			wchar_t *pFileName;
-			wchar_t Temp;
-			unsigned int nNeeded = GetFullPathNameW(CommandLine.c_str(), 0, &Temp, &pFileName);
-
-			if (nNeeded == 0)
-				throw HPMSdkCppException("Windows returned an error from GetFullPathName");
-
-			wchar_t *pTemp = new wchar_t[nNeeded + 1];
-			if (!GetFullPathNameW(CommandLine.c_str(), nNeeded,  pTemp, &pFileName))
-				throw HPMSdkCppException("Windows returned an error from GetFullPathName");
-			StrReplaceChar(pTemp, '\\', '/');
-			FullFileName = pTemp;
-			delete [] pTemp;
-
-			CommandLine = FullFileName;
-		}
-
-		return CommandLine;
-	}
-
-	std::wstring GetProgramDirectory()
-	{
-		std::wstring Ret;
-		Ret = GetProgramPath();
-		size_t iFind = Ret.find_last_of('/');
-
-		if (iFind >= 0)
-		{
-			Ret.erase(iFind);
-		}
-		return Ret;
-	}
-#elif __GNUC__
-	std::string GetProgramDirectory()
-	{
-		char TmpBuf[PATH_MAX];
-		std::string CurrentDirectory = std::string(getcwd(TmpBuf, sizeof(TmpBuf)));
-		return CurrentDirectory;
-	}
-#endif
-
-
-	bool InitConnection()
-	{
-		if (m_pSession)
-			return true;
-
-		EHPMSdkDebugMode DebugMode = EHPMSdkDebugMode_Debug;
-#ifdef _DEBUG
-		DebugMode = EHPMSdkDebugMode_Debug; // Set debug flag so we will get memory leak info.
-#endif
-
-		try
-		{
-			m_pSession = HPMSdkSession::SessionOpen(
-			        hpm_str(server),
-					port,
-			        hpm_str(database),
-			        hpm_str(sdkuser),
-			        hpm_str(sdkpassword),
-			        this,
-			        NULL,
-			        true,
-			        DebugMode,
-			        NULL,
-			        0,
-			        hpm_str(""),
-			        HPMSystemString(),
-			        NULL); //&m_ProcessCallbackInfo
-		}
-		catch (const HPMSdkException &_Error)
-		{
-			HPMString SdkError = _Error.GetAsString();
-			std::wstring Error(SdkError.begin(), SdkError.end());
-			std::wcout << hpm_str("SessionOpen failed with error:") << Error << hpm_str("\r\n");
-			return false;
-
-		}
-		catch (const HPMSdkCppException &_Error)
-		{
-			std::wcout << hpm_str("SessionOpen failed with error:") << _Error.what() << "\r\n";
-			return false;
-		}
-
-		std::wcout << "Successfully opened session.\r\n";
-
-		m_pSession->VersionControlInit(hpm_str("./LocalFiles"));
-
-		return true;
-	}
-
-	void DestroyConnection()
-	{
-		if (m_pSession)
-		{
-			HPMSdkSession::SessionDestroy(m_pSession);
-			m_pSession = NULL;
-		}
-	}
-
-	void DeleteVersionControlFile(HPMString _File)
-	{
-		HPMVersionControlDeleteFiles ToDelete;
-		HPMVersionControlFileSpec Spec;
-		Spec.m_Path = _File;
-		ToDelete.m_Files.push_back(Spec);
-		ToDelete.m_bDeleteLocally = false;
-		ToDelete.m_bPermanent = true;
-		ToDelete.m_Comment = hpm_str("Client SVN plugin automatic deletion");
-		HPMChangeCallbackData_VersionControlDeleteFilesResponse Response = m_pSession->VersionControlDeleteFilesBlock(ToDelete);
-		if (Response.m_Errors.size())
-		{
-			std::wcout << "Attempt to delete previous plugin: '" <<
-				Response.m_Errors[0].m_File.c_str() << "' : '" <<
-				m_pSession->VersionControlErrorToStr(Response.m_Errors[0].m_Error).c_str() << 
-				"'\r\n";
-		} else {
-            std::wcout << "Successfully deleted previous Hansoft/SVN plugin version" << std::endl;
+    while (*pStr1)
+    {
+        if (sizeof(t_CData1) > sizeof(t_CData2))
+        {
+            if (*pStr1 - _CharFind == 0)
+                *pStr1 = _CharReplace;
         }
-	}
+        else
+        {
+            if (_CharFind - *pStr1 == 0)
+                *pStr1 = _CharReplace;
+        }
 
-	void AddVersionControlFile(HPMString _File, HPMString _FileLocal)
-	{
-		HPMVersionControlAddFiles ToAdd;
+        ++pStr1;
+    }
+    return _pStr1;
+}
 
-		HPMVersionControlLocalFilePair File;
-		File.m_LocalPath = _FileLocal;
-		File.m_FileSpec.m_Path = _File;
-		ToAdd.m_FilesToAdd.push_back(File);
-		ToAdd.m_Comment = hpm_str("Client SVN plugin automatic add");
-		ToAdd.m_bDeleteSourceFiles = false;
 
-		HPMChangeCallbackData_VersionControlAddFilesResponse Response = m_pSession->VersionControlAddFilesBlock(ToAdd);
-		if (Response.m_Errors.size())
-		{
-			std::wcout << "Error adding version control file: '" << Response.m_Errors[0].m_File.c_str() << "' Error: '" << m_pSession->VersionControlErrorToStr(Response.m_Errors[0].m_Error).c_str() << "'\r\n";
-		} else {
-		    std::wcout << "Successfully uploaded the Hansoft/SVN plugin" << std::endl;
-		}
-	}
+STD_STRING GetProgramPath()
+{
+    STD_STRING CommandLine;
 
-	void UpdateServer(bool updateAllPlatforms, bool onlyDelete)
-	{
-		// Delete old files
-		DeleteVersionControlFile(hpm_str("SDK/Plugins/se.findout.hansoft.svn.clientplugin"));
+    int nArgs = 0;
 
-		if (onlyDelete) {
-		    return;
-		}
+    LPWSTR* pArgs = CommandLineToArgvW(GetCommandLineW(), &nArgs);
+    if (pArgs)
+    {
+        CommandLine = *pArgs;
+        GlobalFree(pArgs);
 
-		// TODO:
-		// Add plugins. You need a Win32 x86 and x64, OS X 10.7 x64 and 10.5 x86
-		// and x64 and Linux x64 and x86 versions built when you run the program.
-		// Both are required. If you create your own application make sure to use
-		// a directory for a reverse domain name that you own.
-		// Remove ifdefs and comments in real deployer
-		//
-		// HansoftSVN - we will initially support:
-		// Windows x86
-		// OSX10.7 x64
-		// Linux x86
+        STD_STRING FullFileName;
+        wchar_t *pFileName;
+        wchar_t Temp;
+        unsigned int nNeeded = GetFullPathNameW(CommandLine.c_str(), 0, &Temp, &pFileName);
 
-		HPMString win32_x86_path;
-		HPMString win32_x64_path;
-		HPMString osx_x64_path;
-		HPMString linux_x64_path;
+        if (nNeeded == 0)
+            throw HPMSdkCppException("Windows returned an error from GetFullPathName");
 
-		win32_x86_path = hpm_str("SDK/Plugins/se.findout.hansoft.svn.clientplugin/Win32/x86/Plugin.dll");
-		win32_x64_path = hpm_str("SDK/Plugins/se.findout.hansoft.svn.clientplugin/Win32/x64/Plugin.dll");
-        osx_x64_path = hpm_str("SDK/Plugins/se.findout.hansoft.svn.clientplugin/OSX10.7/x64/Plugin.dylib");
-        linux_x64_path = hpm_str("SDK/Plugins/se.findout.hansoft.svn.clientplugin/Linux2.6/x64/Plugin.so");
-        if (updateAllPlatforms) {
-            DoAddVersionControlFile(win32_x86_path, hpm_str("/Plugin.dll"));
-			DoAddVersionControlFile(win32_x64_path, hpm_str("/Plugin.dll"));
-			DoAddVersionControlFile(osx_x64_path, hpm_str("/Plugin.dylib"));
-			DoAddVersionControlFile(linux_x64_path, hpm_str("/Plugin.so"));
-        } else {
+        wchar_t *pTemp = new wchar_t[nNeeded + 1];
+        if (!GetFullPathNameW(CommandLine.c_str(), nNeeded,  pTemp, &pFileName))
+            throw HPMSdkCppException("Windows returned an error from GetFullPathName");
+        StrReplaceChar(pTemp, '\\', '/');
+        FullFileName = pTemp;
+        delete [] pTemp;
+
+        CommandLine = FullFileName;
+    }
+
+    return CommandLine;
+}
+
+STD_STRING GetProgramDirectory()
+{
+    STD_STRING Ret;
+    Ret = GetProgramPath();
+    size_t iFind = Ret.find_last_of('/');
+
+    if (iFind >= 0)
+    {
+        Ret.erase(iFind);
+    }
+    return Ret;
+}
+#elif __GNUC__
+std::string GetProgramDirectory()
+{
+    char TmpBuf[PATH_MAX];
+    std::string CurrentDirectory = std::string(getcwd(TmpBuf, sizeof(TmpBuf)));
+    return CurrentDirectory;
+}
+#endif
+
+
+bool HansoftSVNPusher::InitConnection() {
+    if (m_pSession) {
+        return true;
+    }
+
+    EHPMSdkDebugMode DebugMode = EHPMSdkDebugMode_Debug;
+#ifdef _DEBUG
+    DebugMode = EHPMSdkDebugMode_Debug; // Set debug flag so we will get memory leak info.
+#endif
+
+    try
+    {
+        m_pSession = HPMSdkSession::SessionOpen(
+                hpm_str(server),
+                port,
+                hpm_str(database),
+                hpm_str(sdkuser),
+                hpm_str(sdkpassword),
+                this,
+                NULL,
+                true,
+                DebugMode,
+                NULL,
+                0,
+                hpm_str(""),
+                HPMSystemString(),
+                NULL); //&m_ProcessCallbackInfo
+    }
+    catch (const HPMSdkException &_Error)
+    {
+        HPMString SdkError = _Error.GetAsString();
+        STD_STRING Error(SdkError.begin(), SdkError.end());
+        STD_COUT << hpm_str("SessionOpen failed with error:") << Error << hpm_str("\r\n");
+        return false;
+
+    }
+    catch (const HPMSdkCppException &_Error)
+    {
+        STD_COUT << hpm_str("SessionOpen failed with error:") << _Error.what() << "\r\n";
+        return false;
+    }
+
+    STD_COUT << "Successfully opened session.\r\n";
+
+    m_pSession->VersionControlInit(hpm_str("./LocalFiles"));
+
+    return true;
+}
+
+void HansoftSVNPusher::DestroyConnection() {
+    if (m_pSession) {
+        HPMSdkSession::SessionDestroy(m_pSession);
+        m_pSession = NULL;
+    }
+}
+
+void HansoftSVNPusher::DeleteVersionControlFile(HPMSdk::HPMString _File) {
+    HPMVersionControlDeleteFiles ToDelete;
+    HPMVersionControlFileSpec Spec;
+    Spec.m_Path = _File;
+    ToDelete.m_Files.push_back(Spec);
+    ToDelete.m_bDeleteLocally = false;
+    ToDelete.m_bPermanent = true;
+    ToDelete.m_Comment = hpm_str("Client SVN plugin automatic deletion");
+    HPMChangeCallbackData_VersionControlDeleteFilesResponse Response =
+            m_pSession->VersionControlDeleteFilesBlock(ToDelete);
+    if (Response.m_Errors.size()) {
+        STD_COUT << "Attempt to delete previous plugin: '"
+                << Response.m_Errors[0].m_File.c_str() << "' : '"
+                << m_pSession->VersionControlErrorToStr(
+                        Response.m_Errors[0].m_Error).c_str() << "'\r\n";
+    } else {
+        STD_COUT << "Successfully deleted previous Hansoft/SVN plugin version"
+                << std::endl;
+    }
+}
+
+void HansoftSVNPusher::AddVersionControlFile(HPMString _File, HPMString _FileLocal) {
+    HPMVersionControlAddFiles ToAdd;
+
+    HPMVersionControlLocalFilePair File;
+    File.m_LocalPath = _FileLocal;
+    File.m_FileSpec.m_Path = _File;
+    ToAdd.m_FilesToAdd.push_back(File);
+    ToAdd.m_Comment = hpm_str("Client SVN plugin automatic add");
+    ToAdd.m_bDeleteSourceFiles = false;
+
+    HPMChangeCallbackData_VersionControlAddFilesResponse Response =
+            m_pSession->VersionControlAddFilesBlock(ToAdd);
+    if (Response.m_Errors.size())
+    {
+        STD_COUT << "Error adding version control file: '"
+                << Response.m_Errors[0].m_File.c_str() << "' Error: '"
+                << m_pSession->VersionControlErrorToStr(
+                        Response.m_Errors[0].m_Error).c_str() << "'\r\n";
+    } else {
+        STD_COUT << "Successfully uploaded the Hansoft/SVN plugin"
+                << std::endl;
+    }
+}
+
+void HansoftSVNPusher::DoAddVersionControlFile(HPMString path, HPMString lib) {
+    AddVersionControlFile(path, GetProgramDirectory() + lib);
+}
+
+
+void HansoftSVNPusher::UpdateServer(bool updateAllPlatforms, bool onlyDelete) {
+    // Delete old files
+    DeleteVersionControlFile(hpm_str("SDK/Plugins/se.findout.hansoft.svn.clientplugin"));
+
+    if (onlyDelete) {
+        return;
+    }
+
+    // TODO:
+    // Add plugins. You need a Win32 x86 and x64, OS X 10.7 x64 and 10.5 x86
+    // and x64 and Linux x64 and x86 versions built when you run the program.
+    // Both are required. If you create your own application make sure to use
+    // a directory for a reverse domain name that you own.
+    // Remove ifdefs and comments in real deployer
+    //
+    // HansoftSVN - we will initially support:
+    // Windows x86
+    // OSX10.7 x64
+    // Linux x86
+
+    HPMString win32_x86_path;
+    HPMString win32_x64_path;
+    HPMString osx_x64_path;
+    HPMString linux_x64_path;
+
+    win32_x86_path = hpm_str("SDK/Plugins/se.findout.hansoft.svn.clientplugin/Win32/x86/Plugin.dll");
+    win32_x64_path = hpm_str("SDK/Plugins/se.findout.hansoft.svn.clientplugin/Win32/x64/Plugin.dll");
+    osx_x64_path = hpm_str("SDK/Plugins/se.findout.hansoft.svn.clientplugin/OSX10.7/x64/Plugin.dylib");
+    linux_x64_path = hpm_str("SDK/Plugins/se.findout.hansoft.svn.clientplugin/Linux2.6/x64/Plugin.so");
+    if (updateAllPlatforms) {
+        DoAddVersionControlFile(win32_x86_path, hpm_str("/Plugin.dll"));
+        DoAddVersionControlFile(win32_x64_path, hpm_str("/Plugin.dll"));
+        DoAddVersionControlFile(osx_x64_path, hpm_str("/Plugin.dylib"));
+        DoAddVersionControlFile(linux_x64_path, hpm_str("/Plugin.so"));
+    } else {
 #ifdef _MSC_VER
 			DoAddVersionControlFile(win32_x86_path, hpm_str("/Plugin.dll"));
 			DoAddVersionControlFile(win32_x64_path, hpm_str("/Plugin.dll"));
@@ -302,51 +289,42 @@ public:
 #else
 #error "Unknown platform"
 #endif
+    }
+}
+
+void HansoftSVNPusher::Update(bool updateAllPlatforms, bool onlyDelete) {
+    if (InitConnection()) {
+        try {
+            UpdateServer(updateAllPlatforms, onlyDelete);
         }
-	}
-
-	void DoAddVersionControlFile(HPMString path, HPMString lib) {
-	    AddVersionControlFile(path, GetProgramDirectory() + lib);
-	}
-
-	void Update(bool updateAllPlatforms, bool onlyDelete)
-	{
-		if (InitConnection())
-		{
-			try
-			{
-				UpdateServer(updateAllPlatforms, onlyDelete);
-			}
-			catch (HPMSdkException &_Error)
-			{
-				HPMString SdkError = _Error.GetAsString();
-				std::wstring Error(SdkError.begin(), SdkError.end());
-				std::wcout << hpm_str("Exception in processing loop: ") << Error << hpm_str("\r\n");
-			}
-			catch (HPMSdkCppException _Error)
-			{
-				std::wcout << hpm_str("Exception in processing loop: ") << _Error.what() << hpm_str("\r\n");
-			}
-		}
-	}
+        catch (HPMSdkException &_Error) {
+            HPMString SdkError = _Error.GetAsString();
+            STD_STRING Error(SdkError.begin(), SdkError.end());
+            STD_COUT << hpm_str("Exception in processing loop: ") << Error
+                    << hpm_str("\r\n");
+        }
+        catch (HPMSdkCppException _Error) {
+            STD_COUT << hpm_str("Exception in processing loop: ")
+                    << _Error.what() << hpm_str("\r\n");
+        }
+    }
+}
 
 
-	int Run(bool updateAllPlatforms, bool onlyDelete)
-	{
-		// Initialize the SDK
-		Update(updateAllPlatforms, onlyDelete);
-		DestroyConnection();
+int HansoftSVNPusher::Run(bool updateAllPlatforms, bool onlyDelete) {
+    // Initialize the SDK
+    Update(updateAllPlatforms, onlyDelete);
+    DestroyConnection();
 
-		return 0;
-	}
-};
+    return 0;
+}
 
-void exitWithError(const std::string &error)
+void exitWithError(const STD_STRING &error)
 {
-    std::cout << error;
+    STD_COUT << error;
     std::cin.ignore();
     std::cin.get();
-	std::cout << "Exiting parser with error: " << error << std::endl;
+	STD_COUT << "Exiting parser with error: " << error << std::endl;
     exit(EXIT_FAILURE);
 }
 
@@ -357,7 +335,7 @@ public:
     template <typename T>
     static std::string T_to_string(T const &val)
     {
-        std::ostringstream ostr;
+        STD_STRINGSTREAM ostr;
         ostr << val;
 
         return ostr.str();
@@ -559,10 +537,10 @@ int main(int argc, const char * argv[])
         std::cerr << "No 'plugin.properties' file - exiting" << std::endl;
         exit(1);
 	}
-	std::cout << "Server:       " << pusher.server << std::endl;
-	std::cout << "Port:         " << pusher.port << std::endl;
-	std::cout << "Database:     " << pusher.database << std::endl;
-	std::cout << "SDK Username: " << pusher.sdkuser << std::endl;
-	std::cout << "SDK Password: " << "*** ;-)" << std::endl;
+	STD_COUT << "Server:       " << pusher.server << std::endl;
+	STD_COUT << "Port:         " << pusher.port << std::endl;
+	STD_COUT << "Database:     " << pusher.database << std::endl;
+	STD_COUT << "SDK Username: " << pusher.sdkuser << std::endl;
+	STD_COUT << "SDK Password: " << "*** ;-)" << std::endl;
 	return pusher.Run(updateAll, onlyDelete);
 }

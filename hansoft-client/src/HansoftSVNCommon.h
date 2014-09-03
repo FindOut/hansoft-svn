@@ -1,3 +1,8 @@
+/**
+* Copyright (c) - placeholder
+*
+*/
+
 #ifndef HANSOFTSVN_COMMON_H_
 #define HANSOFTSVN_COMMON_H_
 #ifdef _MSC_VER
