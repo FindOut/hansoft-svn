@@ -120,7 +120,7 @@ STD_STRING GetProgramDirectory()
 STD_STRING GetProgramDirectory()
 {
     char TmpBuf[PATH_MAX];
-    STD_STRING CurrentDirectory = STD_STRING(getcwd(TmpBuf, sizeof(TmpBuf)));
+    std::string CurrentDirectory = std::string(getcwd(TmpBuf, sizeof(TmpBuf)));
     return CurrentDirectory;
 }
 #endif
@@ -344,15 +344,15 @@ public:
     template <typename T>
     static T string_to_T(STD_STRING const &val)
     {
-//        std::istringstream istr(val);
-		std::wistringstream istr(val);
+        STD_ISTRINGSTREAM istr(val);
 		T returnVal;
         if (!(istr >> returnVal))
 #ifdef _MSC_VER
 			//exitWithError(L"CFG: Not a valid " + typeid(T).name() + L" received!\n");
 			exitWithError(L"CFG: Not a valid <type name should go here> received!\n");
 #else
-			exitWithError("CFG: Not a valid " + typeid(T).name() + " received!\n");
+			//exitWithError("CFG: Not a valid " + typeid(T).name() + " received!\n");
+			exitWithError("CFG: Not a valid <type name should go here> received!\n");
 #endif
         return returnVal;
     }
@@ -550,7 +550,7 @@ int main(int argc, const char * argv[])
 #else
 			STD_STRING flagprefix = "-";
 			STD_STRING optionA = "a";
-			STD_STRING optionA = "d";
+			STD_STRING optionD = "d";
 #endif
 			STD_STRING arg = params.at(i);
             if (arg.compare(0, flagprefix.length(), flagprefix) == 0) {
@@ -564,22 +564,31 @@ int main(int argc, const char * argv[])
 	    }
 	}
 #ifdef _MSC_VER
-	STD_STRING pluginProperties = L"plugin.properties";
-	STD_STRING encodedSpace = L"%20";
-	STD_STRING space = L" ";
-	STD_STRING server = L"server";
-	STD_STRING defaultServer = L"localhost";
-	STD_STRING port = L"port";
-	STD_STRING database = L"database";
-	STD_STRING defaultDatabase = L"Company project";
-	STD_STRING sdkuser = L"sdkuser";
-	STD_STRING defaultSdkuser = L"SDK";
-	STD_STRING sdkpassword = L"sdkpassword";
-	STD_STRING defaultSdkpassword = L"SDK";
+	STD_STRING pluginPropertiesStr = L"plugin.properties";
+	STD_STRING encodedSpaceStr = L"%20";
+	STD_STRING spaceStr = L" ";
+	STD_STRING serverStr = L"server";
+	STD_STRING defaultServerStr = L"localhost";
+	STD_STRING portStr = L"port";
+	STD_STRING databaseStr = L"database";
+	STD_STRING defaultDatabaseStr = L"Company project";
+	STD_STRING sdkuserStr = L"sdkuser";
+	STD_STRING defaultSdkuserStr = L"SDK";
+	STD_STRING sdkpasswordStr = L"sdkpassword";
+	STD_STRING defaultSdkpasswordStr = L"SDK";
 #else
-	STD_STRING pluginProperties = "plugin.properties";
-	STD_STRING encodedSpace = "%20";
-	STD_STRING space = " ";
+	STD_STRING pluginPropertiesStr = "plugin.properties";
+	STD_STRING encodedSpaceStr = "%20";
+	STD_STRING spaceStr = " ";
+    STD_STRING serverStr = "server";
+    STD_STRING defaultServerStr = "localhost";
+    STD_STRING portStr = "port";
+    STD_STRING databaseStr = "database";
+    STD_STRING defaultDatabaseStr = "Company project";
+    STD_STRING sdkuserStr = "sdkuser";
+    STD_STRING defaultSdkuserStr = "SDK";
+    STD_STRING sdkpasswordStr = "sdkpassword";
+    STD_STRING defaultSdkpasswordStr = "SDK";
 #endif
 	// check if there's a properties file
 	const char *props = "plugin.properties";
@@ -587,18 +596,18 @@ int main(int argc, const char * argv[])
     ifile.open(props, std::ifstream::in);
     if (ifile) {
         // exists
-		ConfigFile cfg(pluginProperties);
+		ConfigFile cfg(pluginPropertiesStr);
         STD_STRING serverValue =
-                cfg.getValueOfKey<STD_STRING>(server, defaultServer);
+                cfg.getValueOfKey<STD_STRING>(serverStr, defaultServerStr);
         int portValue =
-                cfg.getValueOfKey<int>(port, 50256);
+                cfg.getValueOfKey<int>(portStr, 50256);
         STD_STRING databaseValue =
-                cfg.getValueOfKey<STD_STRING>(database, defaultDatabase);
-        replaceAll(databaseValue, encodedSpace, space);
+                cfg.getValueOfKey<STD_STRING>(databaseStr, defaultDatabaseStr);
+        replaceAll(databaseValue, encodedSpaceStr, spaceStr);
         STD_STRING sdkUsernameValue =
-                cfg.getValueOfKey<STD_STRING>(sdkuser, defaultSdkuser);
+                cfg.getValueOfKey<STD_STRING>(sdkuserStr, defaultSdkuserStr);
         STD_STRING sdkPasswordValue =
-                cfg.getValueOfKey<STD_STRING>(sdkpassword, defaultSdkpassword);
+                cfg.getValueOfKey<STD_STRING>(sdkpasswordStr, defaultSdkpasswordStr);
         pusher.server = (const HS_CHAR *) serverValue.c_str();;
         pusher.port = portValue;
 		pusher.database = (const HS_CHAR *)databaseValue.c_str();
