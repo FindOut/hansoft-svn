@@ -30,7 +30,7 @@ WINDOWS:
   TBD...
 
 
-# Add hansoft SDK artifacts to your local mvn repo:
+## Add hansoft SDK artifacts to your local mvn repo:
 cd <HansoftSDKroot>/<HostOSVersion>/<JavaSdkVersion>/lib>
 # 1. Add Java (for each platform: osx, win32, win64, linux32, linux64):
 mvn install::install-file -Dfile=hpmsdk.jar -DgroupId=com.hansoft.sdk.lib -DartifactId=hansoft-lib -Dversion=7.5.0.2 -Dpackaging=jar -Dclassifier=osx
@@ -45,6 +45,6 @@ cd path/to/hansoft-integration
 mvn install
 ```
 
-# Running the Hansoft SVN Integration server:
-See the file README.create_product.md for steps on how to deploy and run the
+## Running the Hansoft SVN Integration server:
+See the file [README.create_product.md](README.create_product.md) for steps on how to deploy and run the
 integration server.
