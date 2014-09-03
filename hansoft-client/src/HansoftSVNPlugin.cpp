@@ -4,6 +4,7 @@
 */
 
 #include "HansoftSVNPlugin.h"
+#include "HansoftSVNCommon.h"
 #include <HPMSdkCpp.h>
 
 #ifdef _MSC_VER
@@ -18,17 +19,10 @@
 
 #ifdef _MSC_VER
 #define mod_export __declspec(dllexport)
-#define STD_STRING std::wstring
-#define STD_STRINGSTREAM std::wstringstream
-#define STD_OSTRINGSTREAM std::wostringstream
 #elif __GNUC__
 #define mod_export __attribute__ ((__visibility__("default")))
-#define STD_STRING std::string
-#define STD_STRINGSTREAM std::stringstream
-#define STD_OSTRINGSTREAM std::ostringstream
 #endif
 
-//using namespace std;
 using namespace HPMSdk;
 
 
@@ -182,89 +176,90 @@ void HansoftSVNPlugin::On_ProcessError(EHPMError _Error) {
 
 HPMUInt64 HansoftSVNPlugin::GetIntegrationSessionID() {
 	HPMCommunicationChannelEnum Channels = this->m_pSession->CommunicationChannelEnum(hpm_str("svnChannel"));
-			//session->CommunicationChannelEnum(hpm_str("svnChannel"));
+	//session->CommunicationChannelEnum(hpm_str("svnChannel"));
 
-        HPMDatabaseGUIDs GUIDs = m_pSession->GlobalGetDatabaseGUIDs();
-        HPMUInt32 nSessions = 0;
-        HPMUInt64 Ret = 0;
-        for (std::vector<HPMCommunicationChannelProperties>::iterator Iter = Channels.m_Channels.begin(), End = Channels.m_Channels.end(); Iter != End; ++Iter) {
-            // We need to check the database GUID to make sure that this channel isn't from a share
-            if (Iter->m_DatabaseGUID == GUIDs.m_GUID) {
-                ++nSessions;
-                Ret = Iter->m_OwnerSessionID;
-            }
+	HPMDatabaseGUIDs GUIDs = m_pSession->GlobalGetDatabaseGUIDs();
+	HPMUInt32 nSessions = 0;
+	HPMUInt64 Ret = 0;
+	for (std::vector<HPMCommunicationChannelProperties>::iterator Iter = Channels.m_Channels.begin(), End = Channels.m_Channels.end(); Iter != End; ++Iter) {
+	    // We need to check the database GUID to make sure that this channel isn't from a share
+	    if (Iter->m_DatabaseGUID == GUIDs.m_GUID) {
+            ++nSessions;
+            Ret = Iter->m_OwnerSessionID;
         }
-        if (nSessions > 1) {
-            std::cerr << hpm_str("More than one integration channel session ID found.");
-        }
-
-        return Ret;
     }
+    if (nSessions > 1) {
+        std::cerr
+                << hpm_str(
+                        "More than one integration channel session ID found.");
+    }
+
+    return Ret;
+}
 
 void HansoftSVNPlugin::RegisterWithIntegration() {
-        HPMUInt64 Owner = GetIntegrationSessionID();
-        if (Owner == 0) {
-            return;
-        }
-        HPMUniqueID me = m_pSession->ResourceGetLoggedIn();
-        HPMCommunicationChannelPacket packet;
-        HPMString name = hpm_str("@Register:");
-        name.append(m_pSession->ResourceGetNameFromResource(me));
-        const HPMUInt8 *data = (const HPMUInt8 *)name.c_str();
-        copy(data, data + name.length() * sizeof(wchar_t), back_inserter(packet.m_Bytes));
-
-        m_pSession->CommunicationChannelSendPacket(hpm_str("svnChannel"), Owner, packet);
+    HPMUInt64 Owner = GetIntegrationSessionID();
+    if (Owner == 0) {
+        return;
     }
+    HPMUniqueID me = m_pSession->ResourceGetLoggedIn();
+    HPMCommunicationChannelPacket packet;
+    HPMString name = hpm_str("@Register:");
+    name.append(m_pSession->ResourceGetNameFromResource(me));
+    const HPMUInt8 *data = (const HPMUInt8 *) name.c_str();
+    copy(data, data + name.length() * sizeof(wchar_t),
+            back_inserter(packet.m_Bytes));
 
-void HansoftSVNPlugin::displayDialog(const HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data) {
-        try
-        {
+    m_pSession->CommunicationChannelSendPacket(hpm_str("svnChannel"), Owner,
+            packet);
+}
+
+void HansoftSVNPlugin::displayDialog(
+        const HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data) {
+    try {
 #ifdef _MSC_VER
-			STD_STRING toFind = L"@";
-			STD_STRING commitPrefix = L"SVN Commit - ";
+        STD_STRING toFind = L"@";
+        STD_STRING commitPrefix = L"SVN Commit - ";
 #else
-			STD_STRING toFind = "@";
-			STD_STRING commitPrefix = "SVN Commit - ";
+        STD_STRING toFind = "@";
+        STD_STRING commitPrefix = "SVN Commit - ";
 #endif
-			STD_STRING str(_Data.m_Packet.m_Bytes.begin(), _Data.m_Packet.m_Bytes.end());
-            // Format: revision@repo
-			int pos = str.find(toFind);
-            STD_STRING revision = str.substr(0, pos);
-			STD_STRING repo = str.substr(pos + 1);
-			HPMString dialogTitle = commitPrefix + repo;
-            HPMCustomTaskStatusDialogValues values;
-            values.m_Title = m_pSession->LocalizationCreateUntranslatedStringFromString(dialogTitle);
-            values.m_ButtonLabel = m_pSession->LocalizationCreateUntranslatedStringFromString(hpm_str("OK"));
-            values.m_CancelLabel = m_pSession->LocalizationCreateUntranslatedStringFromString(hpm_str("Cancel"));
-            values.m_InfoText = m_pSession->LocalizationCreateUntranslatedStringFromString(hpm_str("Select items to associate with your SVN commit"));
-            m_pSession->GlobalDisplayCustomTaskStatusDialog(
-                values,                   // dialog values
+        STD_STRING str(_Data.m_Packet.m_Bytes.begin(), _Data.m_Packet.m_Bytes.end());
+        // Format: revision@repo
+        int pos = str.find(toFind);
+        STD_STRING revision = str.substr(0, pos);
+        STD_STRING repo = str.substr(pos + 1);
+        HPMString dialogTitle = commitPrefix + repo;
+        HPMCustomTaskStatusDialogValues values;
+        values.m_Title = m_pSession->LocalizationCreateUntranslatedStringFromString(dialogTitle);
+        values.m_ButtonLabel = m_pSession->LocalizationCreateUntranslatedStringFromString(hpm_str("OK"));
+        values.m_CancelLabel = m_pSession->LocalizationCreateUntranslatedStringFromString(hpm_str("Cancel"));
+        values.m_InfoText = m_pSession->LocalizationCreateUntranslatedStringFromString(hpm_str("Select items to associate with your SVN commit"));
+        m_pSession->GlobalDisplayCustomTaskStatusDialog(values, // dialog values
                 true,                     // add TODO tasks
                 m_pSession->ProjectEnum() // list of allowed projects
                 );
-            _sessionId = _Data.m_FromSessionID;
+        _sessionId = _Data.m_FromSessionID;
 #ifdef _DEBUG
-            _debuglog << "Called from session: " << _sessionId << std::endl;
-            _debuglog.flush();
+        _debuglog << "Called from session: " << _sessionId << std::endl;
+        _debuglog.flush();
 #endif
-        }
-        catch (const HPMSdk::HPMSdkException &_Exception)
-        {
-#ifdef _DEBUG
-            _debuglog << _Exception.GetAsString().c_str() << _sessionId << std::endl;
-            _debuglog.flush();
-#endif
-            if (_Exception.GetError() == EHPMError_ConnectionLost)
-                return;
-        }
-        catch (const HPMSdk::HPMSdkCppException & _Exception)
-        {
-#ifdef _DEBUG
-            _debuglog << _Exception.what() << _sessionId << std::endl;
-            _debuglog.flush();
-#endif
-        }
     }
+    catch (const HPMSdk::HPMSdkException &_Exception) {
+#ifdef _DEBUG
+        _debuglog << _Exception.GetAsString().c_str() << _sessionId << std::endl;
+        _debuglog.flush();
+#endif
+        if (_Exception.GetError() == EHPMError_ConnectionLost)
+            return;
+    }
+    catch (const HPMSdk::HPMSdkCppException & _Exception) {
+#ifdef _DEBUG
+        _debuglog << _Exception.what() << _sessionId << std::endl;
+        _debuglog.flush();
+#endif
+    }
+}
 
 
     HPMNotificationSubscription popup;
