@@ -80,8 +80,8 @@ public class IntegrationCallback extends HPMSdkCallbacks{
     }
 
     private String getRevision(String data, String commitToken) {
-        // "@Commit:87@Items:1,2,3"
-        int itemPos = data.indexOf(ITEMS_TOKEN);
+        // "@Commit:87@svnprojectname@Items:1,2,3"
+        int itemPos = data.indexOf("@", 1);
         String revision = data.substring(COMMIT_TOKEN.length(), itemPos);
         return revision;
     }
