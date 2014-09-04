@@ -121,13 +121,9 @@ void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_CommunicationChan
         int pos = revRepoStr.find("@");
         std::string revision = revRepoStr.substr(0, pos);
 
-#ifdef _MSC_VER
         const NInternal_C::HPMCharType *pData = (const NInternal_C::HPMCharType *)&(_Data.m_Packet.m_Bytes[0]);
         HPMString commit1(pData, _Data.m_Packet.m_Bytes.size() / sizeof(NInternal_C::HPMCharType));
         commit = commit1;
-#else
-        commit = hpm_str(revision);
-#endif
     }
 
 static STD_STRING convertToString(int from) {
@@ -261,10 +257,7 @@ void HansoftSVNPlugin::displayDialog(
     }
 }
 
-
-    HPMNotificationSubscription popup;
-    HPMString commit;
-	HansoftSVNPlugin *g_pClientPlugin;
+HansoftSVNPlugin *g_pClientPlugin;
 
 extern "C" mod_export void DHPMSdkCallingConvention HPMClientSDKCreate(const void *_pClientData)
 {
