@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.glassfish.grizzly.http.util.HttpStatus;
 
+import se.findout.hansoft.integration_server.IntegrationServer;
 import se.findout.hansoft.integration_server.Utilities;
 import se.findout.hansoft.integration_server.model.Commit;
 import se.hansoft.hpmsdk.EHPMError;
@@ -166,7 +167,7 @@ public class IntegrationCallback extends HPMSdkCallbacks{
         content += "&path=" + svnProjectPath;
         
         // open connection to http server
-        String request = "http://localhost:9006";
+        String request = IntegrationServer.getProperty("ANNOTATION_SERVER_URL", "http://localhost:9006");
         Utilities.debug("Sending to : " + request);
         Utilities.debug("Content: " + content);
         URL url;
