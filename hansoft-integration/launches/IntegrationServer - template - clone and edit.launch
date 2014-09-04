@@ -6,16 +6,6 @@
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
 </listAttribute>
-<mapAttribute key="org.eclipse.debug.core.environmentVariables">
-<mapEntry key="DYLD_LIBRARY_PATH" value="&lt;REPLACE_WITH_PATH_TO_HANSOFT_SDK_ROOT&gt;/&lt;ARCHDIR eg OSX10.7&gt;/JavaSdkx64/lib"/>
-<mapEntry key="HANSOFT_DATABASE" value="Company projects"/>
-<mapEntry key="HANSOFT_SDK_PASSWORD" value="SDK"/>
-<mapEntry key="HANSOFT_SDK_PATH" value="&lt;REPLACE_WITH_PATH_TO_HANSOFT_SDK_ROOT&gt;/&lt;ARCHDIR eg OSX10.7&gt;"/>
-<mapEntry key="HANSOFT_SDK_USERNAME" value="SDK"/>
-<mapEntry key="HANSOFT_SVN_MAPPINGFILE" value="${project_loc}/HansoftSVNusers.map"/>
-<mapEntry key="HANSOFT_WORKING_DIR" value="${project_loc}"/>
-<mapEntry key="TEST_USERNAME" value="fredrik"/>
-</mapAttribute>
 <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
 <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
 <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
