@@ -5,6 +5,7 @@
 
 #include "HansoftSVNPlugin.h"
 #include "HansoftSVNCommon.h"
+#include "converter.h"
 #include <HPMSdkCpp.h>
 
 #ifdef _MSC_VER
@@ -36,7 +37,7 @@ HansoftSVNPlugin::HansoftSVNPlugin(const void *_pClientData)
 
 #ifdef _DEBUG
 #ifdef _MSC_VER
-        _debuglog.open("C:\\hssvnplugin.log");
+        _debuglog.open("C:\\tmp\\hssvnplugin.log");
 #else
         _debuglog.open("/tmp/hssvnplugin.log");
 #endif
@@ -117,14 +118,19 @@ void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_ClientSyncDone &_
 
 void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data) {
         displayDialog(_Data);
-        std::string revRepoStr(_Data.m_Packet.m_Bytes.begin(), _Data.m_Packet.m_Bytes.end());
-        int pos = revRepoStr.find("@");
-        std::string revision = revRepoStr.substr(0, pos);
+		std::string repoStr1(_Data.m_Packet.m_Bytes.begin(), _Data.m_Packet.m_Bytes.end());
+		std::wstring revRepoStr = get_wstring(repoStr1);
 
+#ifdef _MSC_VER
+        int pos = revRepoStr.find(L"@");
+#else
+		int pos = revRepoStr.find("@");
+#endif
+        STD_STRING revision = revRepoStr.substr(0, pos);
         const NInternal_C::HPMCharType *pData = (const NInternal_C::HPMCharType *)&(_Data.m_Packet.m_Bytes[0]);
-        HPMString commit1(pData, _Data.m_Packet.m_Bytes.size() / sizeof(NInternal_C::HPMCharType));
-        commit = commit1;
-    }
+		std::string commitStr(_Data.m_Packet.m_Bytes.begin(), _Data.m_Packet.m_Bytes.end());
+		commit = get_wstring(commitStr);
+}
 
 static STD_STRING convertToString(int from) {
 	STD_OSTRINGSTREAM ss;
@@ -152,8 +158,9 @@ void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_CustomTaskStatusN
             _debuglog << text.c_str() << std::endl;
             _debuglog.flush();
 #endif
-            const HPMUInt8 *data = (const HPMUInt8 *)text.c_str();
-            copy(data, data + text.length() * sizeof(wchar_t), back_inserter(packet.m_Bytes));
+			std::string textStr = get_locale_string(text);
+            const HPMUInt8 *data = (const HPMUInt8 *)textStr.c_str();
+            copy(data, data + textStr.length() * sizeof(wchar_t), back_inserter(packet.m_Bytes));
             m_pSession->CommunicationChannelSendPacket(channel, _sessionId, packet);
 #ifdef _DEBUG
             _debuglog << "Packet sent!" << std::endl;
@@ -202,9 +209,17 @@ void HansoftSVNPlugin::RegisterWithIntegration() {
     HPMCommunicationChannelPacket packet;
     HPMString name = hpm_str("@Register:");
     name.append(m_pSession->ResourceGetNameFromResource(me));
-    const HPMUInt8 *data = (const HPMUInt8 *) name.c_str();
-    copy(data, data + name.length() * sizeof(wchar_t),
+    std::string nameStr = get_locale_string(name);
+    const HPMUInt8 *data = (const HPMUInt8 *) nameStr.c_str();
+    copy(data, data + nameStr.length() * sizeof(wchar_t),
             back_inserter(packet.m_Bytes));
+	HPMString debugText = L"Sending packet over the svnChannel";
+	debugText.append(name);
+	MessageBox(
+		NULL,
+		hpm_str("sending -> svnChannel"),
+		hpm_str("Client SVN plugin"),
+		MB_OK | MB_ICONINFORMATION);
 
     m_pSession->CommunicationChannelSendPacket(hpm_str("svnChannel"), Owner,
             packet);

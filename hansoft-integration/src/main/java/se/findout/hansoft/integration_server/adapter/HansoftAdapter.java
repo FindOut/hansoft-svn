@@ -168,7 +168,7 @@ public class HansoftAdapter {
 	 */
 	public String mapSVNUserToHansoftUser(String svnUser) {
 	    String hansoftUser = userMapping.getProperty(svnUser, svnUser);
-	    Utilities.debug("DEBUG: Matched SVN user: " + svnUser + " with Hansoft user: " + hansoftUser);
+	    Utilities.debug("Matched SVN user: " + svnUser + " with Hansoft user: " + hansoftUser);
 	    return hansoftUser;
 	}
 }

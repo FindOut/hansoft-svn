@@ -80,6 +80,7 @@
     <IntDir>Pusher\$(Configuration)\$(Platform)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\dev\sdks\HansoftSDK_7_502</IncludePath>
+    <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)\$(Configuration)\$(Platform)\</OutDir>
@@ -106,6 +107,7 @@
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <AdditionalIncludeDirectories>C:\dev\sdks\HansoftSDK_7_502;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -115,9 +117,13 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y "$(ProjectDir)\..\..\Win32\HPMSdk.x86.dll" "$(OutDir)"
-mkdir "$(OutDir)Plugin\x86"
-copy /y "$(ProjectDir)\$(Configuration)\$(Platform)\HansoftSDKSample_ClientPluginCppPlugin.dll" "$(OutDir)Plugin\x86"</Command>
+      <Command>echo  mkdir  "$(ProjectDir)$(Configuration)\Plugin\x86"
+mkdir   "$(ProjectDir)$(Configuration)\Plugin\x86"
+echo copy /y "$(ProjectDir)$(Configuration)\$(Platform)\HansoftSVNClientPlugin.dll" "$(ProjectDir)$(Configuration)\Plugin.x86.dll"
+copy /y "$(ProjectDir)$(Configuration)\$(Platform)\HansoftSVNClientPlugin.dll" "$(ProjectDir)$(Configuration)\Plugin.x86.dll"
+echo copy /y "C:\dev\sdks\HansoftSDK_7_502\Win32\HPMSdk.x86.dll"  "$(ProjectDir)$(Configuration)\$(Platform)"
+copy /y "C:\dev\sdks\HansoftSDK_7_502\Win32\HPMSdk.x86.dll"  "$(ProjectDir)$(Configuration)\$(Platform)"
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -133,6 +139,7 @@ copy /y "$(ProjectDir)\$(Configuration)\$(Platform)\HansoftSDKSample_ClientPlugi
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>C:\dev\sdks\HansoftSDK_7_502;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -142,9 +149,12 @@ copy /y "$(ProjectDir)\$(Configuration)\$(Platform)\HansoftSDKSample_ClientPlugi
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y "$(ProjectDir)\..\..\Win32\HPMSdk.x64.dll" "$(OutDir)"
-mkdir "$(OutDir)..\Win32\Plugin\x64"
-copy /y "$(ProjectDir)\$(Configuration)\$(Platform)\HansoftSDKSample_ClientPluginCppPlugin.dll" "$(OutDir)..\Win32\Plugin\x64"
+      <Command>echo mkdir   "$(ProjectDir)$(Configuration)\Plugin\x64"
+mkdir   "$(ProjectDir)$(Configuration)\Plugin\x64"
+echo copy /y "$(ProjectDir)$(Configuration)\$(Platform)\HansoftSVNClientPlugin.dll" "$(ProjectDir)$(Configuration)\Plugin.x64.dll"
+copy /y "$(ProjectDir)$(Configuration)\$(Platform)\HansoftSVNClientPlugin.dll" "$(ProjectDir)$(Configuration)\Plugin.x64.dll"
+echo copy /y "C:\dev\sdks\HansoftSDK_7_502\Win32\HPMSdk.x64.dll"  "$(ProjectDir)$(Configuration)\$(Platform)"
+copy /y "C:\dev\sdks\HansoftSDK_7_502\Win32\HPMSdk.x64.dll"  "$(ProjectDir)$(Configuration)\$(Platform)"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
