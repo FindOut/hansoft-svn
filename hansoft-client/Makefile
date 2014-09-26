@@ -63,10 +63,9 @@ INC = -I$(SDKROOT)
 all: Plugin.$(_SDKEXT) HansoftSVNPusher
 	cp $(SDKROOT)/$(SDKPLATFORM)/$(SDKLIB) .
 	
-Plugin.$(_SDKEXT): HPMSdkCpp.o HansoftSVNPlugin.o
+Plugin.$(_SDKEXT): HPMSdkCpp.o HansoftSVNPlugin.o converter.o
 	$(CC) $(INC) -o $@ $^ -shared
 
-#HansoftSVNPusher: HPMSdkCpp.o HansoftSVNPusher.o PropertiesUtil.o
 HansoftSVNPusher: HPMSdkCpp.o HansoftSVNPusher.o
 	$(CC) $(INC) -o $@ $^ $(LDFLAGS)
 
@@ -79,7 +78,7 @@ HansoftSVNPlugin.o: src/HansoftSVNPlugin.cpp src/HansoftSVNPlugin.h src/HansoftS
 HansoftSVNPusher.o: src/HansoftSVNPusher.cpp src/HansoftSVNPusher.h src/HansoftSVNCommon.h
 	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 	
-PropertiesUtil.o:	src/PropertiesUtil.cpp
+converter.o:	src/converter.cpp
 	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 	
 clean:

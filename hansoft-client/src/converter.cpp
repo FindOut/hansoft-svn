@@ -13,11 +13,10 @@ std::wstring get_wstring(const std::wstring & s)
 std::wstring get_wstring(const std::string & s)
 {
 	const char * cs = s.c_str();
-#ifdef _UNIX_
+#ifdef _MSC_VER
 	const size_t wn = std::mbsrtowcs(NULL, &cs, 0, NULL);
 #else
 	const size_t wn = std::mbsrtowcs(NULL, &cs, 0, NULL);
-	//const size_t wn = mbsrtowcs(
 #endif
 
 	if (wn == size_t(-1))
