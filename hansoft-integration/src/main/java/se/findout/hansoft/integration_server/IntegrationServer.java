@@ -36,19 +36,26 @@ public class IntegrationServer {
     	IntegrationServer is = new IntegrationServer();
     	is.start();
     	System.out.println("Hansoft/Subversion Integration Server started!");
-    	waitForShutdown();
+    	while(waitForShutdown()) {
+    	    System.out.println("Restarting -> 1. Shutdown...");
+    	    is.shutdown();
+    	    System.out.println("Restarting -> 2. Restart...");
+    	    is.start();
+    	}
     	is.shutdown();
    }
 
-    private static void waitForShutdown() throws IOException {
+    private static boolean waitForShutdown() throws IOException {
         do {
             System.out
                     .println("Press any button to shut down!");
             System.in.read();
-            System.out.print("Shutdown [Y/n]? ");
+            System.out.print("Shutdown/Restart [Y/r/n]? ");
             int key = System.in.read();
             if (key == 'Y' || key == 'y') {
-                return;
+                return false;
+            } if (key == 'R' || key == 'r') {
+                return true;
             }
             System.out.println("Continuing...");
         } while (true);

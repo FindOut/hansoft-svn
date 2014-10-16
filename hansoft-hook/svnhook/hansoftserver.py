@@ -7,6 +7,7 @@ from tempfile import NamedTemporaryFile
 from os import remove
 import os
 import sys
+import urlparse
 
 # svnlook propget /home/svn/testproject/ svn:log --revprop -r 7
 def external_get_message(path, revision):
@@ -34,8 +35,18 @@ def external_change_log(path, revision, file_name):
 
 def delete_temp_file(file_name):
     remove(file_name)
+    
+def debuglog(header, message):
+    logmsg = header
+    if message != None:
+        logmsg += message
+    logmsg += "\n"
+    # TODO: Location for log file on Windows
+    with open('/tmp/hssvn_annotation_server.log', 'a') as f:
+        f.write(logmsg)
 
-class PostHandler(BaseHTTPRequestHandler):
+#class PostHandler(BaseHTTPRequestHandler):
+class RequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         self.send_response(200)
@@ -47,25 +58,88 @@ class PostHandler(BaseHTTPRequestHandler):
             environ={'REQUEST_METHOD': 'POST',
                      'CONTENT_TYPE': self.headers['Content-Type'],
                      })
+        # 
+        debuglog('Client: ', self.address_string())
+        request = form.getvalue('request')
+        url = form.getvalue('url')
+        path = form.getvalue('path')
+        rev = form.getvalue('rev')
+        debuglog('Handling POST:', None)
+        debuglog('Request: ', request)
+        debuglog('URL    : ', url)
+        debuglog('Path   : ', path)
+        debuglog('Rev    : ', rev)
+        
+        if path != None:
+            self.send_response(200)
+            self.end_headers()
+            # restore original URL - "protected" ';' etc:        
+            url = url.replace("%3B", ";")
+    
+            msg = external_get_message(path, rev)
+            msg += "\n"
+            tmp_file = create_temp_file(msg, url)
+            external_change_log(path, rev, tmp_file.name)
+            delete_temp_file(tmp_file.name)
 
-        path = form['path'].value
-        rev = form['rev'].value
-        url = form['url'].value
-
-        # restore original URL - "protected" ';' etc:        
-        url = url.replace("%3B", ";")
-
-        msg = external_get_message(path, rev)
-        msg += "\n"
-        tmp_file = create_temp_file(msg, url)
-        external_change_log(path, rev, tmp_file.name)
-        delete_temp_file(tmp_file.name)
-
+    def do_GET(self):
+        parsed_path = urlparse.urlparse(self.path)
+        message_parts = [
+                'CLIENT VALUES:',
+                'client_address=%s (%s)' % (self.client_address,
+                                            self.address_string()),
+                'command=%s' % self.command,
+                'path=%s' % self.path,
+                'real path=%s' % parsed_path.path,
+                'query=%s' % parsed_path.query,
+                'request_version=%s' % self.request_version,
+                '',
+                'SERVER VALUES:',
+                'server_version=%s' % self.server_version,
+                'sys_version=%s' % self.sys_version,
+                'protocol_version=%s' % self.protocol_version,
+                '',
+                'HEADERS RECEIVED:',
+                ]
+        for name, value in sorted(self.headers.items()):
+            message_parts.append('%s=%s' % (name, value.rstrip()))
+        message_parts.append('')
+        message = '\r\n'.join(message_parts)
+        debuglog("Message: ", message)
+        
+        if self.path == '/repositories':
+            self.send_response(200)
+            self.end_headers()
+            message = 'SVNRepositories:'
+            # TODO - implement real repo - get them from a config file
+            message += "repo1, repo2, hstestrepo"
+            message += "\n"
+            self.wfile.write(message)
+        elif self.path.startswith('/commits?'):
+            self.send_response(200)
+            self.end_headers()
+            message = 'SVNCommits:'
+            # TODO - implement getting commits for the given user for the given repo
+            message += "12, 13, 14"
+            message += '\n'
+            self.wfile.write(message)
+        return
+#     def do_GET(self):
+#         debuglog('Handling GET:')
+#         self.send_response(200)
+#         self.send_header("Content-type", "text/plain")
+#         self.end_headers()
+#         repositories = "hsproj2, hstestproject"
+#         message = '@SVNREPOSITORIES:' + repositories
+#         self.wfile.write(message)
+#         debuglog('Sent SVN Repositories: ', repositories)
+        
 
 class HansoftServer:
 
     def __init__(self):
-        self.server = HTTPServer(('0.0.0.0', 9006), PostHandler)
+        #self.server = HTTPServer(('0.0.0.0', 9006), PostHandler)
+        self.server = HTTPServer(('0.0.0.0', 9006), RequestHandler)
         #self.server = HTTPServer(('localhost', 9006), PostHandler)
 
     def start(self):

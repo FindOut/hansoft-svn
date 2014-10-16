@@ -172,7 +172,11 @@ bool HansoftSVNPusher::InitConnection() {
 
 	STD_COUT << "Successfully opened session.\r\n";
 
-	m_pSession->VersionControlInit(hpm_str("./LocalFiles"));
+#ifdef _HANSOFT_SDK_VERSION_7
+    m_pSession->VersionControlInit(hpm_str("./LocalFiles"));
+#else
+    m_pSession->VersionControlInit(hpm_str("./LocalFiles"), false);
+#endif
 
 	return true;
 }

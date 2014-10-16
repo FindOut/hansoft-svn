@@ -1,7 +1,9 @@
 package se.findout.hansoft.integration_server.adapter;
 
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -10,6 +12,8 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.glassfish.grizzly.http.util.HttpStatus;
 
@@ -30,14 +34,21 @@ import se.hansoft.hpmsdk.HPMUniqueID;
 public class IntegrationCallback extends HPMSdkCallbacks{
 	private HashMap<String, Long> sessions;
     private HPMSdkSession session;
+    private String annotationServer;
+    private static final String USER_AGENT = "Mozilla/5.0";
+
     
     private static final String REGISTER_TOKEN = "@Register:";
     private static final String COMMIT_TOKEN = "@Commit:";
     private static final String ITEMS_TOKEN = "@Items:";
+    private static final String REPOSITORIES_TOKEN = "@Repositories:";
+    private static final String REQUEST_COMMITS_TOKEN = "@RequestCommits:";
 	
 	public IntegrationCallback() {
 		sessions = new HashMap<String, Long>();
         Utilities.debug("LIBPATH: " + System.getProperty("java.library.path"));
+        annotationServer = IntegrationServer.getProperty("ANNOTATION_SERVER_URL", "http://localhost:9006");
+
 	}
 
     public void setSdk(HPMSdkSession session) {
@@ -70,10 +81,60 @@ public class IntegrationCallback extends HPMSdkCallbacks{
 		    String user = data.substring(REGISTER_TOKEN.length());
 		    Utilities.debug("Adding Hansoft user: " + user + " for session: " + sessionID);
 		    sessions.put(user, sessionID);
+		} else if (data.startsWith(REPOSITORIES_TOKEN)) {
+		    List<String> repositories = getRepositories();
+		    sendRepositories(sessionID, repositories);
+		} else if (data.startsWith(REQUEST_COMMITS_TOKEN)) {
+		    String repository = data.substring(REQUEST_COMMITS_TOKEN.length());
+		    List<String> commits = getCommits(repository, sessionID);
+		    sendCommits(sessionID, commits);
 		}
 	}
 	
-	private String getItems(String data, String itemsToken) {
+	/**
+	 * Gets a list of SVN repositories
+	 * @return
+	 */
+	private List<String> getRepositories() {
+        String request = "request=GETREPOSITORIES";
+        // TODO Request SVN repositories from the SVN annotation server
+        return getFromAnnotationServer("/repositories");
+    }
+	
+	private void sendRepositories(long sessionId, List<String> repositories) {
+	    // TODO Send the list of SVN repositories back to the Hansoft client
+	    String message = REPOSITORIES_TOKEN + repositories.toString();
+	    System.out.println("Sending repositories to Hansoft: " + message);
+	    try {
+            HansoftAdapter.getInstance().sendToHansoft(sessionId, message);
+        } catch (HansoftException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+	}
+
+	/**
+	 * Gets a list of commits for the given repository
+	 * @param repository
+	 * @return
+	 */
+	private List<String> getCommits(String repository, long sessionId) {
+	    String user = getUser(sessionId);
+	    return getFromAnnotationServer("/commits?user=" + user + "#" + repository);
+	}
+	
+	private void sendCommits(long sessionId, List<String> commits) {
+	    String message = REQUEST_COMMITS_TOKEN + commits.toString();
+	    System.out.println("Sending commits to Hansoft: " + message);
+	    try {
+	        HansoftAdapter.getInstance().sendToHansoft(sessionId, message);
+	    } catch (HansoftException e) {
+	        // TODO
+	    }
+	}
+	
+	
+    private String getItems(String data, String itemsToken) {
         // "@Commit:87@Items:1,2,3"
         String items = data.substring(data.indexOf(ITEMS_TOKEN)
                 + ITEMS_TOKEN.length());
@@ -165,14 +226,49 @@ public class IntegrationCallback extends HPMSdkCallbacks{
         content = "rev=" + commitId;
         content += "&url=" + annotation;
         content += "&path=" + svnProjectPath;
-        
+        postToAnnotationServer(content);
+//        // open connection to http server
+//        String request = IntegrationServer.getProperty("ANNOTATION_SERVER_URL", "http://localhost:9006");
+//        Utilities.debug("Sending to : " + request);
+//        Utilities.debug("Content: " + content);
+//        URL url;
+//        try {
+//            url = new URL(request);
+//            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+//            connection.setDoOutput(true);
+//            connection.setDoInput(true);
+//            connection.setRequestMethod("POST");
+//            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+//            connection.setRequestProperty("Accept:", "text/plain");
+//            DataOutputStream os = new DataOutputStream(connection.getOutputStream());
+//            os.writeBytes(content);
+//            os.flush();
+//            os.close();
+//            
+//            int responseCode = connection.getResponseCode();
+//            if (responseCode != HttpStatus.OK_200.getStatusCode()) {
+//                // not OK - log error - TODO
+//                System.err.println("Not OK when doing POST to SVN:");
+//                System.err.println("Status: " + responseCode);
+//                System.err.println("Content: " + content);
+//            }
+//        } catch (MalformedURLException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+    }
+    
+    private void postToAnnotationServer(String content) {
         // open connection to http server
-        String request = IntegrationServer.getProperty("ANNOTATION_SERVER_URL", "http://localhost:9006");
-        Utilities.debug("Sending to : " + request);
+        String serverSpec = IntegrationServer.getProperty("ANNOTATION_SERVER_URL", "http://localhost:9006");
+        Utilities.debug("Sending to : " + serverSpec);
         Utilities.debug("Content: " + content);
         URL url;
         try {
-            url = new URL(request);
+            url = new URL(serverSpec);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
             connection.setDoInput(true);
@@ -187,8 +283,9 @@ public class IntegrationCallback extends HPMSdkCallbacks{
             int responseCode = connection.getResponseCode();
             if (responseCode != HttpStatus.OK_200.getStatusCode()) {
                 // not OK - log error - TODO
-                System.err.println("Not OK when doing POST to SVN:");
-                System.err.println("Status: " + responseCode);
+                System.err.println("Not OK when doing POST to SVN annotation server:");
+                System.err.println("URL    : " + serverSpec);
+                System.err.println("Status : " + responseCode);
                 System.err.println("Content: " + content);
             }
         } catch (MalformedURLException e) {
@@ -199,6 +296,34 @@ public class IntegrationCallback extends HPMSdkCallbacks{
             e.printStackTrace();
         }
     }
+    
+    private List<String> getFromAnnotationServer(String requestPath) {
+        System.out.println("Get from annotation server: " + requestPath);
+        try {
+            URL url = new URL(annotationServer + requestPath);
+            HttpURLConnection connection = (HttpURLConnection) url
+                    .openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("User-Agent", USER_AGENT);
+            int responseCode = connection.getResponseCode();
+            BufferedReader in = new BufferedReader(new InputStreamReader(
+                    connection.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            List<String> repositories = Arrays.asList(response.substring(
+                    response.indexOf(":") + 1).split(", "));
+            return repositories;
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        return null; // TODO - return list of repo's
+    }
 
     public long getSessionID(String user) {
 		try {
@@ -208,6 +333,21 @@ public class IntegrationCallback extends HPMSdkCallbacks{
 			return 0;
 		}
 	}
+    
+    /**
+     * Gets the user for the given sessionId
+     * @param sessionId
+     * @return user or <b>null</b> if not found
+     */
+    private String getUser(long sessionId) {
+        Set<Entry<String, Long>> entries = sessions.entrySet();
+        for (Entry<String, Long> entry : entries) {
+            if (entry.getValue() == sessionId) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
 
     Map<Integer, Commit> commits = new HashMap<>();
     
