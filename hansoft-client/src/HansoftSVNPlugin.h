@@ -23,7 +23,6 @@ public:
     virtual void On_Callback(const HPMSdk::HPMChangeCallbackData_DynamicCustomSettingsNotification &_Data);
     virtual void On_Callback(const HPMSdk::HPMChangeCallbackData_DynamicCustomSettingsValueChanged &_Data);
 
-	//HPMSdk::HPMSdkSession *session;
 private:
 	void displayDialog(const HPMSdk::HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data);
     void displaySelectRepositoryDialog(const HPMSdk::HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data);
@@ -40,7 +39,6 @@ private:
 	HPMSdk::HPMCustomTaskStatusDialogValues dialogTexts;
 	HPMSdk::HPMNotificationSubscription subscription;
 
-	HPMSdk::HPMNotificationSubscription popup;
 	HPMSdk::HPMString commit;
 };
 

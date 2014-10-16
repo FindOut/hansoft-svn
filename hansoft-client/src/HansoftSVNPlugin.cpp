@@ -245,11 +245,10 @@ void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_ClientSyncDone &_
 #endif
 #endif /* _DEBUG */
     HansoftSVNPlugin::RegisterWithIntegration();
-    popup = m_pSession->GlobalRegisterForCustomTaskStatusNotifications(hpm_str("SDK/Plugins/se.findout.hansoft.svn.clientplugincpp"), new HPMUserContext());
     try {
         m_pDynamicHelper = new CDynamicHelper;
         m_pDynamicHelper->m_RightClickSubscription = m_pSession->GlobalRegisterForRightClickNotifications(NULL);
-        m_pDynamicHelper->m_DynamicUpdateSubscription = m_pSession->GlobalRegisterForDynamicCustomSettingsNotifications(hpm_str("se.findout.hansoft.svn.clientplugincpp"), m_UserContext);
+        m_pDynamicHelper->m_DynamicUpdateSubscription = m_pSession->GlobalRegisterForDynamicCustomSettingsNotifications(hpm_str("se.findout.hansoft.svn.clientplugin"), m_UserContext);
         m_pDynamicHelper->m_DialogSelection = HPMString(""); // no selection
     }
     catch (const HPMSdkException &_Exception)
@@ -371,6 +370,7 @@ void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_DynamicCustomSett
     {
         // TODO - do the stuff
         HPMString temp(m_pDynamicHelper->m_DialogSelection);
+        _debuglog << "Got: " << temp << std::endl;
         int i = 0;
         i++;
     }
