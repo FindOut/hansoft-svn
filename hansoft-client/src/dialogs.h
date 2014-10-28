@@ -14,10 +14,12 @@
 
 struct CDynamicHelper
 {
+    HPMSdk::HPMNotificationSubscription m_TaskSelectionSubscription;
     HPMSdk::HPMNotificationSubscription m_RightClickSubscription;
     HPMSdk::HPMNotificationSubscription m_DynamicUpdateSubscription;
     std::vector<HPMSdk::HPMUniqueID> m_LastSelectedTasks; //TODO: Naming?
     HPMSdk::HPMString m_DialogSelection;
+    HPMSdk::HPMString m_selectedAnnotationTasks;
 };
 
 HPMSdk::HPMUserContext m_UserContext;
@@ -25,6 +27,7 @@ HPMSdk::HPMString m_IntegrationIdentifier;
 HPMSdk::HPMDynamicCustomSettingsContext *m_pLastDynamicContext;
 CDynamicHelper *m_pDynamicHelper;
 HPMSdk::HPMString m_SVNRepository;
+HPMSdk::HPMString m_Commits;
 
 void f_InitSelectSVNRepositoryDialog(
                                      HPMSdk::HPMString &dialogSpecPart1,

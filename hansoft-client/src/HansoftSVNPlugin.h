@@ -31,6 +31,7 @@ private:
     void RequestSVNRepositories();
     void RequestSVNCommits();
 	void On_Callback(const HPMSdk::HPMChangeCallbackData_CustomTaskStatusNotification &_Data);
+    void SendToIntegrationServer(HPMSdk::HPMString message);
 	HPMSdk::HPMUInt64 GetIntegrationSessionID();
 
 	HPMSdk::HPMSdkSession *m_pSession;
