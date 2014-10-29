@@ -28,7 +28,11 @@
 using namespace HPMSdk;
 
 #ifdef _DEBUG
+#ifdef _MSC_VER
+std::wofstream _debuglog;
+#else
 std::ofstream _debuglog;
+#endif
 struct DebugHelper {
     int dummy;
 };
@@ -56,10 +60,10 @@ HPMString m_CustomDialogSpecPart2;
 HPMString m_AssociateWithCommitDialogSpecPart1;
 HPMString m_AssociateWithCommitDialogSpecPart2;
 
-HPMString REGISTER_TOKEN = "@Register:";
-HPMString REPOSITORIES_TOKEN = "@Repositories:";
-HPMString REQUEST_COMMITS_TOKEN = "@RequestCommits:";
-HPMString POST_ANNOTATE_TOKEN = "@PostAnnotate:";
+HPMString REGISTER_TOKEN = hpm_str("@Register:");
+HPMString REPOSITORIES_TOKEN = hpm_str("@Repositories:");
+HPMString REQUEST_COMMITS_TOKEN = hpm_str("@RequestCommits:");
+HPMString POST_ANNOTATE_TOKEN = hpm_str("@PostAnnotate:");
 HPMString svnRepository;
 bool isRequestingRepositories = false;
 bool isRequestingCommits = false;
@@ -71,7 +75,7 @@ HansoftSVNPlugin::HansoftSVNPlugin(const void *_pClientData) {
     
 #ifdef _DEBUG
 #ifdef _MSC_VER
-    _debuglog.open("C:\hssvnplugin.log"); //TODO: Safe place for log on windows?
+    _debuglog.open("C:\\hssvnplugin.log"); //TODO: Safe place for log on windows?
 #else
     _debuglog.open("/tmp/hssvnplugin.log");
 #endif
@@ -177,7 +181,7 @@ void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_ClientSyncDone &_
         m_pDynamicHelper->m_TaskSelectionSubscription = m_pSession->GlobalRegisterForCustomTaskStatusNotifications(hpm_str("SDK/Plugins/se.findout.hansoft.svn.clientplugincpp"), new HPMUserContext());
         m_pDynamicHelper->m_RightClickSubscription = m_pSession->GlobalRegisterForRightClickNotifications(NULL);
         m_pDynamicHelper->m_DynamicUpdateSubscription = m_pSession->GlobalRegisterForDynamicCustomSettingsNotifications(hpm_str("se.findout.hansoft.svn.clientplugin"), m_UserContext);
-        m_pDynamicHelper->m_DialogSelection = HPMString(""); // no selection
+        m_pDynamicHelper->m_DialogSelection = hpm_str(""); // no selection
     }
     catch (const HPMSdkException &_Exception)
     {
@@ -191,24 +195,24 @@ void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_ClientSyncDone &_
 }
 
 void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data) {
-    std::string repoStr1(_Data.m_Packet.m_Bytes.begin(), _Data.m_Packet.m_Bytes.end());
+    STD_STRING dataStr(_Data.m_Packet.m_Bytes.begin(), _Data.m_Packet.m_Bytes.end());
     // dispatch on content
-    if (repoStr1.find(REPOSITORIES_TOKEN) != std::string::npos) {
-        _debuglog << "Got " << REPOSITORIES_TOKEN << " - time to display repositories dialog" << std::endl; //REMOVE
+    if (dataStr.find(REPOSITORIES_TOKEN) != std::string::npos) {
+        _debuglog << hpm_str("Got ") << REPOSITORIES_TOKEN << hpm_str(" - time to display repositories dialog") << std::endl; //REMOVE
         displaySelectRepositoryDialog(_Data);
-    } else if (repoStr1.find(REQUEST_COMMITS_TOKEN) != std::string::npos) {
-        _debuglog << "Got " << REQUEST_COMMITS_TOKEN << " - time to display commits dialog" << std::endl; //REMOVE
+    } else if (dataStr.find(REQUEST_COMMITS_TOKEN) != std::string::npos) {
+        _debuglog << hpm_str("Got ") << REQUEST_COMMITS_TOKEN << hpm_str(" - time to display commits dialog") << std::endl; //REMOVE
         displayAssociateCommitDialog(_Data);
     } else {
         _debuglog << "Taking the else branch" << std::endl; //REMOVE
         displayDialog(_Data);
 #ifdef _MSC_VER
-        std::wstring revRepoStr = get_wstring(repoStr1);
+        std::wstring revRepoStr = get_wstring(dataStr);
         int pos = revRepoStr.find(L"@");
         STD_STRING revision = revRepoStr.substr(0, pos);
 #else
-        unsigned long pos = repoStr1.find("@");
-        STD_STRING revision = repoStr1.substr(0, pos);
+        unsigned long pos = dataStr.find("@");
+        STD_STRING revision = dataStr.substr(0, pos);
 #endif
         //TODO-REMOVE-UNUSED: const NInternal_C::HPMCharType *pData = (const NInternal_C::HPMCharType *)&(_Data.m_Packet.m_Bytes[0]);
         std::string commitStr(_Data.m_Packet.m_Bytes.begin(), _Data.m_Packet.m_Bytes.end());
@@ -258,7 +262,9 @@ void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_RightClickDisplay
                 m_IntegrationIdentifier + hpm_str(".taskmenu.hansoftsvnplugin.sub1"),
                 m_pSession->LocalizationCreateUntranslatedStringFromString(
                                         hpm_str("Select SVN repository")
-                                        hpm_str(" [" + m_SVNRepository + "]")),
+                                        hpm_str(" [") +
+										m_SVNRepository +
+										hpm_str("]")),
                 NULL);
             m_pSession->GlobalAddRightClickMenuItem(
                                                     _Data.m_RightClickContext,
@@ -301,7 +307,7 @@ void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_DynamicCustomSett
         // Copy the selected data:
         HPMString selectedValue(m_pDynamicHelper->m_DialogSelection);
         // Clear the cache:
-        m_pDynamicHelper->m_DialogSelection = HPMString("");
+        m_pDynamicHelper->m_DialogSelection = hpm_str("");
         _debuglog << "Got: " << selectedValue << std::endl;
         if (isRequestingRepositories) {
             m_SVNRepository = selectedValue;
@@ -316,9 +322,9 @@ void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_DynamicCustomSett
             // Send format: @PostAnnotate:item(,item)*#SVNrepoURL#commit
             HPMString postAnnotateMessage = POST_ANNOTATE_TOKEN;
             postAnnotateMessage.append(selectedTasks);
-            postAnnotateMessage.append("#");
+            postAnnotateMessage.append(hpm_str("#"));
             postAnnotateMessage.append(m_SVNRepository);
-            postAnnotateMessage.append("#");
+            postAnnotateMessage.append(hpm_str("#"));
             postAnnotateMessage.append(m_Commits);
             SendToIntegrationServer(postAnnotateMessage);
         }
@@ -467,7 +473,7 @@ void HansoftSVNPlugin::RequestSVNCommits() {
     //Request format: @RequestCommits:user#svn://path/to/repo
     HPMString name = REQUEST_COMMITS_TOKEN;
     name.append(m_SVNRepository);
-    name.append("?");
+    name.append(hpm_str("?"));
     name.append(m_pSession->ResourceGetNameFromResource(me));
     std::string nameStr = get_locale_string(name);
     const HPMUInt8 *data = (const HPMUInt8 *) nameStr.c_str();
@@ -541,13 +547,13 @@ void HansoftSVNPlugin::displaySelectRepositoryDialog(const HPMChangeCallbackData
     HPMString dialogSpec = m_CustomDialogSpecPart1;
     
     // Build the dialog options:
-    std::string repoStr(_Data.m_Packet.m_Bytes.begin(), _Data.m_Packet.m_Bytes.end());
+    STD_STRING repoStr(_Data.m_Packet.m_Bytes.begin(), _Data.m_Packet.m_Bytes.end());
     // Format: REPOSITORIES_TOKEN + "[" + repo1 + ", " + repo2 ... + "]"
-    unsigned long startPos = repoStr.find("[");
+    unsigned long startPos = repoStr.find(hpm_str("["));
     unsigned long splitPos;
     bool done = false;
     do {
-        splitPos = repoStr.find(",", startPos);
+        splitPos = repoStr.find(hpm_str(","), startPos);
         if (splitPos == std::string::npos) {
             _debuglog << "got npos" << std::endl;
             splitPos = repoStr.length() - 1;
@@ -555,10 +561,13 @@ void HansoftSVNPlugin::displaySelectRepositoryDialog(const HPMChangeCallbackData
         }
         _debuglog << "Start pos: " << startPos << std::endl;
         _debuglog << "Split pos: " << splitPos << std::endl;
-        std::string repo = repoStr.substr(startPos + 1, splitPos - startPos - 1);
+        STD_STRING repo = repoStr.substr(startPos + 1, splitPos - startPos - 1);
         startPos = splitPos + 1;
-        HPMString repoChoise = *new HPMString("					Choice \"" + repo + "\r\n");
-        HPMString test1("					Choice \"");
+        //HPMString repoChoise = *new HPMString("					Choice \"" + repo + "\r\n");
+		HPMString repoChoise = *new HPMString(hpm_str("					Choice \""));
+		repoChoise += repo;
+		repoChoise += hpm_str("\r\n");
+        HPMString test1 = hpm_str("					Choice \"");
         test1 += repo;
         test1 += hpm_str("\"\r\n");
         dialogSpec += test1;
@@ -613,13 +622,13 @@ void HansoftSVNPlugin::displayAssociateCommitDialog(const HPMChangeCallbackData_
     _debuglog << dialogSpec << std::endl;
     
     // Build the dialog options:
-    std::string commitStr(_Data.m_Packet.m_Bytes.begin(), _Data.m_Packet.m_Bytes.end());
+    STD_STRING commitStr(_Data.m_Packet.m_Bytes.begin(), _Data.m_Packet.m_Bytes.end());
     // Format: REQUEST_COMMITS_TOKEN + "[" + commit1 + ", " + commit2 ... + "]"
-    unsigned long startPos = commitStr.find("[");
+    unsigned long startPos = commitStr.find(hpm_str("["));
     unsigned long splitPos;
     bool done = false;
     do {
-        splitPos = commitStr.find(", r", startPos);
+        splitPos = commitStr.find(hpm_str(", r"), startPos);
         if (splitPos == std::string::npos) {
             _debuglog << "got npos" << std::endl;
             splitPos = commitStr.length() - 1;
@@ -627,9 +636,9 @@ void HansoftSVNPlugin::displayAssociateCommitDialog(const HPMChangeCallbackData_
         }
         _debuglog << "Start pos: " << startPos << std::endl;
         _debuglog << "Split pos: " << splitPos << std::endl;
-        std::string commit = commitStr.substr(startPos + 1, splitPos - startPos - 1);
+        STD_STRING commit = commitStr.substr(startPos + 1, splitPos - startPos - 1);
         startPos = splitPos + 1;
-        HPMString test1("					Choice \"");
+        HPMString test1 = hpm_str("					Choice \"");
         test1 += commit;
         test1 += hpm_str("\"\r\n");
         dialogSpec += test1;
