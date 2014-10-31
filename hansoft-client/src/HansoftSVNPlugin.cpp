@@ -477,7 +477,7 @@ void HansoftSVNPlugin::RequestSVNRepositories() {
                MB_OK | MB_ICONINFORMATION);
     log(hpm_str("Requesting list of SVN repositories"));
 #else
-    log(hpm_str("Requesting list of SVN repositories");
+    log(hpm_str("Requesting list of SVN repositories"));
     //_debuglog << "Requesting list of SVN repositories" << std::endl;
 #endif
 #endif /* _DEBUG */
@@ -516,7 +516,7 @@ void HansoftSVNPlugin::RequestSVNCommits() {
                MB_OK | MB_ICONINFORMATION);
     log(hpm_str("Requesting list of SVN commits"));
 #else
-    log(hpm_str("Requesting list of SVN commits");
+    log(hpm_str("Requesting list of SVN commits"));
     //_debuglog << "Requesting list of SVN commits" << std::endl;
 #endif
 #endif /* _DEBUG */
