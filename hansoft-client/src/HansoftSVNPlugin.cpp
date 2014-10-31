@@ -73,15 +73,15 @@ bool isRequestingCommits = false;
 HansoftSVNPlugin::HansoftSVNPlugin(const void *_pClientData) {
     m_pSession = NULL;
     
-#ifdef _DEBUG
-#ifdef _MSC_VER
-    _debuglog.open("C:\\hssvnplugin.log"); //TODO: Safe place for log on windows?
-#else
-    _debuglog.open("/tmp/hssvnplugin.log");
-#endif
-    _debuglog << "Starting log" << std::endl;
-    _debuglog.flush();
-#endif
+//#ifdef _DEBUG
+//#ifdef _MSC_VER
+//    _debuglog.open("C:\\hssvnplugin.log"); //TODO: Safe place for log on windows?
+//#else
+//    _debuglog.open("/tmp/hssvnplugin.log");
+//#endif
+//    _debuglog << "Starting log" << std::endl;
+//    _debuglog.flush();
+//#endif
     
     try
     {
@@ -152,12 +152,12 @@ HansoftSVNPlugin::~HansoftSVNPlugin()
         HPMSdkSession::SessionDestroy(m_pSession);
         m_pSession = NULL;
     }
-#ifdef _DEBUG
-    if (_debuglog) {
-        _debuglog << "Closing log and exiting" << std::endl;
-        _debuglog.close();
-    }
-#endif
+//#ifdef _DEBUG
+//    if (_debuglog) {
+//        _debuglog << "Closing log and exiting" << std::endl;
+//        _debuglog.close();
+//    }
+//#endif
 }
 
 
@@ -198,13 +198,16 @@ void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_CommunicationChan
     STD_STRING dataStr(_Data.m_Packet.m_Bytes.begin(), _Data.m_Packet.m_Bytes.end());
     // dispatch on content
     if (dataStr.find(REPOSITORIES_TOKEN) != std::string::npos) {
-        _debuglog << hpm_str("Got ") << REPOSITORIES_TOKEN << hpm_str(" - time to display repositories dialog") << std::endl; //REMOVE
+        //_debuglog << hpm_str("Got ") << REPOSITORIES_TOKEN << hpm_str(" - time to display repositories dialog") << std::endl; //REMOVE
+        log(hpm_str("Got ") + REPOSITORIES_TOKEN + hpm_str(" - time to display repositories dialog"));
         displaySelectRepositoryDialog(_Data);
     } else if (dataStr.find(REQUEST_COMMITS_TOKEN) != std::string::npos) {
-        _debuglog << hpm_str("Got ") << REQUEST_COMMITS_TOKEN << hpm_str(" - time to display commits dialog") << std::endl; //REMOVE
+        //_debuglog << hpm_str("Got ") << REQUEST_COMMITS_TOKEN << hpm_str(" - time to display commits dialog") << std::endl; //REMOVE
+        log(hpm_str("Got ") + REQUEST_COMMITS_TOKEN + hpm_str(" - time to display commits dialog"));
         displayAssociateCommitDialog(_Data);
     } else {
-        _debuglog << "Taking the else branch" << std::endl; //REMOVE
+        //_debuglog << "Taking the else branch" << std::endl; //REMOVE
+        log(hpm_str("Associate commit with item - UC1"));
         displayDialog(_Data);
 #ifdef _MSC_VER
         std::wstring revRepoStr = get_wstring(dataStr);
@@ -231,7 +234,8 @@ static STD_STRING convertToString(int from) {
 }
 
 void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_CustomTaskStatusNotification &_Data) {
-    _debuglog << "On_Callback HPMChangeCallbackData_CustomTaskStatusNotification" << std::endl;
+    //_debuglog << "On_Callback HPMChangeCallbackData_CustomTaskStatusNotification" << std::endl;
+    log(hpm_str("On_Callback HPMChangeCallbackData_CustomTaskStatusNotification"));
     if (_Data.m_Notification == EHPMCustomTaskStatusNotification_DialogEndedOk) {
         HPMString channel = hpm_str("svnChannel");
         HPMCommunicationChannelPacket packet;
@@ -252,7 +256,8 @@ void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_CustomTaskStatusN
 
 void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_RightClickDisplayTaskMenu &_Data)
 {
-    _debuglog << "On_Callback HPMChangeCallbackData_RightClickDisplayTaskMenu" << std::endl;
+    //_debuglog << "On_Callback HPMChangeCallbackData_RightClickDisplayTaskMenu" << std::endl;
+    log(hpm_str("On_Callback HPMChangeCallbackData_RightClickDisplayTaskMenu"));
     try {
         if (_Data.m_SelectedTasks.size() > 0) {
             m_pDynamicHelper->m_LastSelectedTasks = _Data.m_SelectedTasks;
@@ -284,7 +289,8 @@ void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_RightClickDisplay
 
 void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_RightClickMenuItemSelected &_Data)
 {
-    _debuglog << "On_Callback HPMChangeCallbackData_RightClickMenuItemSelected" << std::endl;
+    //_debuglog << "On_Callback HPMChangeCallbackData_RightClickMenuItemSelected" << std::endl;
+    log(hpm_str("On_Callback HPMChangeCallbackData_RightClickMenuItemSelected"));
     if (_Data.m_UniqueName == m_IntegrationIdentifier +
         hpm_str(".taskmenu.hansoftsvnplugin.sub1"))
     {
@@ -296,7 +302,8 @@ void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_RightClickMenuIte
 }
 
 void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_DynamicCustomSettingsNotification &_Data) {
-    _debuglog << "On_Callback HPMChangeCallbackData_DynamicCustomSettingsNotification" << std::endl;
+    //_debuglog << "On_Callback HPMChangeCallbackData_DynamicCustomSettingsNotification" << std::endl;
+    log(hpm_str("On_Callback HPMChangeCallbackData_DynamicCustomSettingsNotification"));
     if (_Data.m_Notification == EHPMDynamicCustomSettingsNotification_DialogBegin)
     {
         m_pLastDynamicContext = new HPMDynamicCustomSettingsContext;
@@ -308,7 +315,7 @@ void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_DynamicCustomSett
         HPMString selectedValue(m_pDynamicHelper->m_DialogSelection);
         // Clear the cache:
         m_pDynamicHelper->m_DialogSelection = hpm_str("");
-        _debuglog << "Got: " << selectedValue << std::endl;
+		log(hpm_str("Got: ") + selectedValue);
         if (isRequestingRepositories) {
             m_SVNRepository = selectedValue;
             isRequestingRepositories = false;
@@ -337,7 +344,7 @@ void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_DynamicCustomSett
 }
 
 void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_DynamicCustomSettingsValueChanged &_Data) {
-    _debuglog << "On_Callback HPMChangeCallbackData_DynamicCustomSettingsValueChanged" << std::endl;
+    log(hpm_str("On_Callback HPMChangeCallbackData_DynamicCustomSettingsValueChanged"));
     if (_Data.m_UserContext != m_UserContext) {
         return;
     }
@@ -371,6 +378,27 @@ HPMUInt64 HansoftSVNPlugin::GetIntegrationSessionID() {
     }
 
     return Ret;
+}
+
+/**
+ * Logs message to file, if plug-in built with _DEBUG
+ * Opens, appends and closes the file.
+ */
+void HansoftSVNPlugin::log(HPMSdk::HPMString message) {
+#ifdef _DEBUG
+#ifdef _MSC_VER
+	//_debuglog.open("C:\\hssvnplugin.log", std::wofstream::out | std::wofstream::app); //TODO: Safe place for log on windows?
+	_debuglog.open("C:\\tmp\\hssvnplugin.log", std::wofstream::out | std::wofstream::app); //TODO: Safe place for log on windows?
+	//TODO/FIXME - will not create file - this only works if file already exists!?
+#else
+	_debuglog.open("/tmp/hssvnplugin.log", std::ofstream::out | std::ofstream::app);
+#endif
+	_debuglog << "Starting log" << std::endl;
+	_debuglog.flush();
+#endif
+	_debuglog << message << std::endl;
+	_debuglog.flush();
+	_debuglog.close();
 }
 
 void HansoftSVNPlugin::RegisterWithIntegration() {
@@ -416,11 +444,7 @@ void HansoftSVNPlugin::SendToIntegrationServer(HPMString message) {
     copy(data, data + message.length() * sizeof(wchar_t),
          back_inserter(packet.m_Bytes));
 #ifdef _DEBUG
-#ifdef _MSC_VER
-    _debuglog << L"Sending data to the Integration server" << std::endl;
-#else
-    _debuglog << "Sending data to the Integration server" << std::endl;
-#endif
+    log(hpm_str("Sending data to the Integration server"));
 #endif /* _DEBUG */
     m_pSession->CommunicationChannelSendPacket(hpm_str("svnChannel"), owner,
                                                packet);
@@ -451,8 +475,10 @@ void HansoftSVNPlugin::RequestSVNRepositories() {
                hpm_str("sending -> svnChannel"),
                hpm_str("Client SVN plugin"),
                MB_OK | MB_ICONINFORMATION);
+    log(hpm_str("Requesting list of SVN repositories"));
 #else
-    _debuglog << "Requesting list of SVN repositories" << std::endl;
+    log(hpm_str("Requesting list of SVN repositories");
+    //_debuglog << "Requesting list of SVN repositories" << std::endl;
 #endif
 #endif /* _DEBUG */
     m_pSession->CommunicationChannelSendPacket(hpm_str("svnChannel"), owner,
@@ -488,8 +514,10 @@ void HansoftSVNPlugin::RequestSVNCommits() {
                hpm_str("sending -> svnChannel"),
                hpm_str("Client SVN plugin"),
                MB_OK | MB_ICONINFORMATION);
+    log(hpm_str("Requesting list of SVN commits"));
 #else
-    _debuglog << "Requesting list of SVN commits" << std::endl;
+    log(hpm_str("Requesting list of SVN commits");
+    //_debuglog << "Requesting list of SVN commits" << std::endl;
 #endif
 #endif /* _DEBUG */
     m_pSession->CommunicationChannelSendPacket(hpm_str("svnChannel"), owner,
@@ -542,48 +570,28 @@ void HansoftSVNPlugin::displayDialog(
  */
 void HansoftSVNPlugin::displaySelectRepositoryDialog(const HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data) {
     
-    _debuglog << "Invoked displayAssociateDialog" << std::endl; //REMOVE
+    //_debuglog << "Invoked displayAssociateDialog" << std::endl; //REMOVE
+    log(hpm_str("Invoked displayAssociateDialog"));
 
     HPMString dialogSpec = m_CustomDialogSpecPart1;
     
     // Build the dialog options:
     STD_STRING repoStr(_Data.m_Packet.m_Bytes.begin(), _Data.m_Packet.m_Bytes.end());
     // Format: REPOSITORIES_TOKEN + "[" + repo1 + ", " + repo2 ... + "]"
-    unsigned long startPos = repoStr.find(hpm_str("["));
-    unsigned long splitPos;
-    bool done = false;
-    do {
-        splitPos = repoStr.find(hpm_str(","), startPos);
-        if (splitPos == std::string::npos) {
-            _debuglog << "got npos" << std::endl;
-            splitPos = repoStr.length() - 1;
-            done = true;
-        }
-        _debuglog << "Start pos: " << startPos << std::endl;
-        _debuglog << "Split pos: " << splitPos << std::endl;
-        STD_STRING repo = repoStr.substr(startPos + 1, splitPos - startPos - 1);
-        startPos = splitPos + 1;
-        //HPMString repoChoise = *new HPMString("					Choice \"" + repo + "\r\n");
-		HPMString repoChoise = *new HPMString(hpm_str("					Choice \""));
-		repoChoise += repo;
-		repoChoise += hpm_str("\r\n");
-        HPMString test1 = hpm_str("					Choice \"");
-        test1 += repo;
-        test1 += hpm_str("\"\r\n");
-        dialogSpec += test1;
-        _debuglog << "Repo: " << repo << std::endl; // REMOVE
-    } while (!done);
+	size_t startPos = repoStr.find(hpm_str("[")); // start after leading "["
+	size_t endPos = repoStr.find_last_of(hpm_str("]"));
+	repoStr = repoStr.substr(startPos + 1, endPos - startPos - 1);
+	std::vector<STD_STRING> repoTokens;
+	split(repoTokens, repoStr, hpm_str(","));
+	for (unsigned int i = 0; i < repoTokens.size(); i++) {
+		STD_STRING repo = repoTokens[i];
+		// Build dialog options:
+		HPMString repoChoice = hpm_str("					Choice \"");
+		repoChoice += repo;
+		repoChoice += hpm_str("\"\r\n");
+		dialogSpec += repoChoice;
+	}
     dialogSpec += m_CustomDialogSpecPart2;
-    _debuglog << std::endl;
-    _debuglog << "m_CustomDialogSpec: " << std::endl;
-    _debuglog << std::endl;
-    _debuglog << std::endl;
-    _debuglog << "Composed dialog: " << std::endl;
-    _debuglog << dialogSpec;
-    _debuglog << std::endl;
-    _debuglog << std::endl;
-
-//
     HPMString selectedTasks;
     for (std::vector<HPMUniqueID>::iterator iter = m_pDynamicHelper->m_LastSelectedTasks.begin();
          iter != m_pDynamicHelper->m_LastSelectedTasks.end(); iter++) {
@@ -601,54 +609,40 @@ void HansoftSVNPlugin::displaySelectRepositoryDialog(const HPMChangeCallbackData
     hpm_str("")
     hpm_str("}");
     
-    _debuglog << "INITIAL VALUES:" << std::endl;
-    _debuglog << initialValues << std::endl;
-//    _debuglog << "---------------" << std::endl;
-    
     m_pSession->GlobalDisplayCustomSettingsDialog(
                       HPMUniqueID(),        // Can be set to specific project
                       HPMUniqueID(),        // Can be set to specific resource
-                      //m_CustomDialogSpec,   //
                       dialogSpec,
                       initialValues);       //
-    
-
 }
         
 void HansoftSVNPlugin::displayAssociateCommitDialog(const HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data) {
-    _debuglog << "Display associate with commit dialog" << std::endl; //REMOVE
+    log(hpm_str("Display associate with commit dialog"));
     HPMString dialogSpec = m_AssociateWithCommitDialogSpecPart1;
-    _debuglog << "DialogSpec 1:" << std::endl;
-    _debuglog << dialogSpec << std::endl;
+    //log(hpm_str("DialogSpec 1:"));
+    //log(dialogSpec);
     
     // Build the dialog options:
     STD_STRING commitStr(_Data.m_Packet.m_Bytes.begin(), _Data.m_Packet.m_Bytes.end());
     // Format: REQUEST_COMMITS_TOKEN + "[" + commit1 + ", " + commit2 ... + "]"
-    unsigned long startPos = commitStr.find(hpm_str("["));
-    unsigned long splitPos;
-    bool done = false;
-    do {
-        splitPos = commitStr.find(hpm_str(", r"), startPos);
-        if (splitPos == std::string::npos) {
-            _debuglog << "got npos" << std::endl;
-            splitPos = commitStr.length() - 1;
-            done = true;
-        }
-        _debuglog << "Start pos: " << startPos << std::endl;
-        _debuglog << "Split pos: " << splitPos << std::endl;
-        STD_STRING commit = commitStr.substr(startPos + 1, splitPos - startPos - 1);
-        startPos = splitPos + 1;
-        HPMString test1 = hpm_str("					Choice \"");
-        test1 += commit;
-        test1 += hpm_str("\"\r\n");
-        dialogSpec += test1;
-        _debuglog << "Commit: " << commit << std::endl; // REMOVE
-    } while (!done);
-    dialogSpec += m_AssociateWithCommitDialogSpecPart2;
+    size_t startPos = commitStr.find(hpm_str("[")); // start after leading "["
+    size_t endPos = commitStr.find_last_of(hpm_str("]"));
+    commitStr = commitStr.substr(startPos + 1, endPos - startPos - 1);
+    std::vector<STD_STRING> commitTokens;
+	split(commitTokens, commitStr, hpm_str(", r"));
+	for (unsigned int i = 0; i < commitTokens.size(); i++) {
+        STD_STRING commit = commitTokens[i];
+        HPMString commitChoice = hpm_str("                 Choice \"");
+        commitChoice += commit;
+        commitChoice += hpm_str("\"\r\n");
+        dialogSpec += commitChoice;
+    }
+	dialogSpec += m_AssociateWithCommitDialogSpecPart2;
     
-    _debuglog << "DialogSpec 2:" << std::endl;
-    _debuglog << dialogSpec << std::endl;
-    _debuglog << "===" << std::endl;
+    log(hpm_str("DialogSpec for associate with commit:"));
+	log(hpm_str("==="));
+    log(dialogSpec);
+    log(hpm_str("==="));
     
     //
     HPMString selectedTasks = HPMString();
@@ -660,9 +654,8 @@ void HansoftSVNPlugin::displayAssociateCommitDialog(const HPMChangeCallbackData_
         //HPMUInt32 id = m_pSession->TaskGetID(m_pSession->TaskRefGetTask(*iter));
         HPMUInt32 id = iter->m_ID - 1; // m_ID is "Database ID" + 1 - we need "Database ID"
         selectedTasks += convertToString(id);
-        _debuglog << "Task selection: " << id << std::endl;
-        _debuglog << "Selected Tasks: " << selectedTasks << std::endl;
-        _debuglog.flush();
+		log(hpm_str("Task selection: ") + id);
+		log(hpm_str("Selected Tasks: ") + selectedTasks);
     }
     m_pDynamicHelper->m_selectedAnnotationTasks = selectedTasks;
     
@@ -674,11 +667,11 @@ void HansoftSVNPlugin::displayAssociateCommitDialog(const HPMChangeCallbackData_
     hpm_str("Commit-1\\r\\n")
     hpm_str("Commit-2\\r\\n")
     hpm_str("}");
-    _debuglog << "INITIAL VALUES:" << std::endl;
-    _debuglog << initialValues << std::endl;
-    _debuglog << "---------------" << std::endl;
+	log(hpm_str("INITIAL VALUES:"));
+    log(initialValues);
+	log(hpm_str("---------------"));
     
-    _debuglog << "About to open commit selection dialog" << std::endl;
+	log(hpm_str("About to open commit selection dialog"));
     m_pSession->GlobalDisplayCustomSettingsDialog(
                     HPMUniqueID(),        // Can be set to specific project
                     HPMUniqueID(),        // Can be set to specific resource

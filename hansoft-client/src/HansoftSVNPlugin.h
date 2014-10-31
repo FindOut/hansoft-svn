@@ -33,7 +33,7 @@ private:
 	void On_Callback(const HPMSdk::HPMChangeCallbackData_CustomTaskStatusNotification &_Data);
     void SendToIntegrationServer(HPMSdk::HPMString message);
 	HPMSdk::HPMUInt64 GetIntegrationSessionID();
-
+	void log(HPMSdk::HPMString message);
 	HPMSdk::HPMSdkSession *m_pSession;
 	HPMSdk::HPMUInt64 _sessionId;
 
