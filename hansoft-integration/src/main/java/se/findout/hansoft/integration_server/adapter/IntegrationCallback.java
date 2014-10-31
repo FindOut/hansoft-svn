@@ -140,7 +140,7 @@ public class IntegrationCallback extends HPMSdkCallbacks{
 	    //TODO: do we need to translate hansoft user -> svn user
 	    //TODO: or is sessionId enough?
 	    String user = getUser(sessionId); 
-	    commitList.clear();
+	    commitList = new ArrayList<String>();
 	    commitList = getFromAnnotationServer("/commits?" + repositoryAndUser);
 	    return commitList;
 	}
