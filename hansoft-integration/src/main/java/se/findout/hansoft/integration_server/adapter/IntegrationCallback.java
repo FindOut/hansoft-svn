@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.glassfish.grizzly.http.util.HttpStatus;
 
@@ -45,8 +47,8 @@ public class IntegrationCallback extends HPMSdkCallbacks{
     private static final String REPOSITORIES_TOKEN = "@Repositories:";
     private static final String REQUEST_COMMITS_TOKEN = "@RequestCommits:";
     private static final String POST_ANNOTATE_TOKEN = "@PostAnnotate:";
-	
-	public IntegrationCallback() {
+    
+    public IntegrationCallback() {
 		sessions = new HashMap<String, Long>();
         Utilities.debug("LIBPATH: " + System.getProperty("java.library.path"));
         annotationServer = IntegrationServer.getProperty("ANNOTATION_SERVER_URL", "http://localhost:9006");
@@ -140,9 +142,8 @@ public class IntegrationCallback extends HPMSdkCallbacks{
 	    //TODO: do we need to translate hansoft user -> svn user
 	    //TODO: or is sessionId enough?
 	    String user = getUser(sessionId); 
-	    commitList = new ArrayList<String>();
-	    commitList = getFromAnnotationServer("/commits?" + repositoryAndUser);
-	    return commitList;
+	    List<String> listOfCommits = getFromAnnotationServer("/commits?" + repositoryAndUser);
+	    return listOfCommits;
 	}
 	
 	private void sendCommits(long sessionId, List<String> commits) {
@@ -207,7 +208,7 @@ public class IntegrationCallback extends HPMSdkCallbacks{
                 // get the user from the SVN revision
                 Commit commit = getCommit(svnRevision);
                 //String svnUser = commit.getAuthor();
-                String message = commit.getMessage();
+                String message = commit.getMessage(true);
                 //String hansoftUser = HansoftAdapter.getInstance().mapSVNUserToHansoftUser(svnUser);
                 // TODO - impersonate to "do as actual user"
                 HPMTaskComment taskComment = new HPMTaskComment();
@@ -222,6 +223,18 @@ public class IntegrationCallback extends HPMSdkCallbacks{
             }
         } 
         
+    }
+    
+    private int getRevisionFromString(String commitId) {
+        //svn://localhost/hstestproject#r480 | fredrik | 2014-10-28 12:57:09 +0100 (Tue, 28 Oct 2014) | x lines
+        if (commitId.startsWith("svn://")) {
+            commitId = commitId.substring(commitId.indexOf("#") + 1);
+        }
+        if (commitId.startsWith("r")) {
+            // post annotation - commitId format: r123 | username...
+            commitId = commitId.substring(1, commitId.indexOf(" |"));
+        }
+        return Integer.parseInt(commitId);
     }
 
     private void updateSVNcommit(String commitId, String selectedTasks) {
@@ -253,7 +266,7 @@ public class IntegrationCallback extends HPMSdkCallbacks{
             try {
                 String itemUrl = session.UtilGetHansoftURL(item);
                 // ';' breaks to URL when sent to hansoftserver.py, so encode:
-                String prefix = "Hansoft-URL: " + itemUrl.replaceAll(";", "%3B");
+                String prefix = Commit.HANSOFT_URL_PREFIX + itemUrl.replaceAll(";", "%3B");
                 //HPMUniqueID id = new HPMUniqueID(Integer.parseInt(item.trim()));
                 //String description = session.TaskGetDescription(id);
                 annotation += prefix; // + "[" + description.replaceAll(" ", "%20") + "]";
@@ -345,7 +358,7 @@ public class IntegrationCallback extends HPMSdkCallbacks{
     }
     
     private List<String> getFromAnnotationServer(String requestPath) {
-        System.out.println("Get from annotation server: " + requestPath);
+        Utilities.debug("Get commits from annotation server: " + requestPath);
         String user = requestPath.split("\\?")[2]; //TODO: map Hansoft user to SVN user
         try {
             URL url = new URL(annotationServer + requestPath);
@@ -354,49 +367,64 @@ public class IntegrationCallback extends HPMSdkCallbacks{
             connection.setRequestMethod("GET");
             connection.setRequestProperty("User-Agent", USER_AGENT);
             int responseCode = connection.getResponseCode();
+            if (responseCode != HttpStatus.OK_200.getStatusCode()) {
+                //Fail
+                Utilities.debug("Got response code: " + responseCode);
+                Utilities.debug("When requesting commits with path: " + requestPath);
+                return null;
+            }
             BufferedReader in = new BufferedReader(new InputStreamReader(
                     connection.getInputStream()));
             String inputLine;
-            //StringBuffer response = new StringBuffer();
-            List<String> commits = new ArrayList<String>();
             boolean matchedUser = false;
-            String commit = "";
-            int limit = 10; //TODO - configurable commit limit
+            Commit commit = null;
+            int linesInCommit = -1;
             while ((inputLine = in.readLine()) != null) {
-                System.out.println("INPUT: " + inputLine);
+                Utilities.debug("INPUT: " + inputLine);
                 if (inputLine.startsWith("SVNCommits:")) {
                     inputLine = inputLine.split(":")[1];
                 }
                 if (inputLine.startsWith("----------")) {
                     // Line with ------ marks first line of commit 
-                    if (!matchedUser) {
+                    if (matchedUser) {
+                        commit.setLines(linesInCommit);
+                        linesInCommit = -1;
                         matchedUser = false;
+                        commits.put(commit.getRevision(), commit);
                     }
                 } else if (inputLine.startsWith("r")) {
                     // Commit line
                     if (inputLine.contains(" | " + user + " | ")) {
                         matchedUser = true;
-                        commit += inputLine;
-                        commits.add(inputLine);
-                        if (commits.size() > limit) {
-                            // don't add more than limit commits
-                            break;
-                        }
+                        commit = new Commit(inputLine);
                     }
+                } else {
+                    // other commit line - message!
+                    linesInCommit++;
+                    commit.setMessage(commit.getMessage() + "\n" + inputLine);
                 }
-                //response.append(inputLine);
             }
             in.close();
-//            List<String> commits = Arrays.asList(response.substring(
-//                    response.indexOf(":") + 1).split(", "));
-            return commits;
+            Set<Integer> keySet = commits.keySet();
+            List<String> listOfCommits = new ArrayList<>();
+            
+            // build the answer in descending revision order:
+            ArrayList<Integer> keys = new ArrayList<Integer>(commits.keySet());
+            for (int i = keySet.size() - 1; i >= 0; i--) {
+                Commit c = commits.get(keys.get(i));
+                String line = "r" + c.getRevision()
+                        + Commit.COMMIT_FIELD_SEPARATOR + c.getAuthor()
+                        + Commit.COMMIT_FIELD_SEPARATOR + c.getTimestamp()
+                        + Commit.COMMIT_FIELD_SEPARATOR + c.getLines() + " lines";
+                listOfCommits.add(line); 
+            }
+            return listOfCommits;
 
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
-        return null; // TODO - return list of repo's
+        return null;
     }
 
     public long getSessionID(String user) {
@@ -423,7 +451,7 @@ public class IntegrationCallback extends HPMSdkCallbacks{
         return null;
     }
 
-    Map<Integer, Commit> commits = new HashMap<>();
+    SortedMap<Integer, Commit> commits = new TreeMap<Integer, Commit>();
     List<String> commitList = new ArrayList<String>();
     
     public void addCommit(Commit commit) {
@@ -443,13 +471,25 @@ public class IntegrationCallback extends HPMSdkCallbacks{
                 }
             }
             if (commitLine != null) {
-                // r492 | fredrik | 2014-10-28 14:22:07 +0100 (Tue, 28 Oct 2014) | Message goes here
-                String separator = " | ";
-                int authorStart = commitLine.indexOf(separator);
-                String author = commitLine.substring(authorStart + separator.length(), commitLine.indexOf(separator, authorStart + separator.length()));
-                String message = "TODO: " + commitLine;
+                int firstSeparator = commitLine.indexOf(Commit.COMMIT_FIELD_SEPARATOR);
+                String author = commitLine.substring(
+                        firstSeparator + Commit.COMMIT_FIELD_SEPARATOR.length(),
+                        commitLine.indexOf(Commit.COMMIT_FIELD_SEPARATOR, 
+                        firstSeparator + Commit.COMMIT_FIELD_SEPARATOR.length()));
+                int secondSeparator = commitLine.indexOf(Commit.COMMIT_FIELD_SEPARATOR, firstSeparator);
+                String timestamp = commitLine.substring(
+                        secondSeparator + Commit.COMMIT_FIELD_SEPARATOR.length(),
+                        commitLine.indexOf(Commit.COMMIT_FIELD_SEPARATOR, 
+                        firstSeparator + Commit.COMMIT_FIELD_SEPARATOR.length()));
+                // message starts after 3d " | ":
+                int thirdSeparator = commitLine.indexOf(" | ");
+                for (int i = 0; i < 2; i++) {
+                    thirdSeparator = commitLine.indexOf(" | ", thirdSeparator + 1);
+                }
+                String message = commitLine.substring(thirdSeparator + 3);
                 String path = "N/A";
-                commit = new Commit(author, rev, path, message);
+                commit = new Commit(author, rev, path, timestamp, message);
+                commits.put(rev, commit);
             }
         }
         return commit;
@@ -461,6 +501,7 @@ public class IntegrationCallback extends HPMSdkCallbacks{
     }
     
     public void doneWithCommit(String revision) {
-        commits.remove(revision);
+        int rev = getRevisionFromString(revision);
+        commits.remove(rev);
     }
 }

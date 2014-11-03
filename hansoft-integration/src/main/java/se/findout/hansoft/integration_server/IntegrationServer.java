@@ -61,7 +61,7 @@ public class IntegrationServer {
         } while (true);
     }
 
-    private static void loadProperties(String propertyFile) {
+    public static void loadProperties(String propertyFile) {
 	     try {
 	            File mapFile = new File(propertyFile);
 	            FileInputStream fileInput = new FileInputStream(mapFile);
