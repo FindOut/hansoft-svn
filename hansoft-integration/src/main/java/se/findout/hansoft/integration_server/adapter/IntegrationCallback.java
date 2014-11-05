@@ -285,38 +285,6 @@ public class IntegrationCallback extends HPMSdkCallbacks{
             content += "&path=" + svnProjectPath;
         }
         postToAnnotationServer(content);
-//        // open connection to http server
-//        String request = IntegrationServer.getProperty("ANNOTATION_SERVER_URL", "http://localhost:9006");
-//        Utilities.debug("Sending to : " + request);
-//        Utilities.debug("Content: " + content);
-//        URL url;
-//        try {
-//            url = new URL(request);
-//            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-//            connection.setDoOutput(true);
-//            connection.setDoInput(true);
-//            connection.setRequestMethod("POST");
-//            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-//            connection.setRequestProperty("Accept:", "text/plain");
-//            DataOutputStream os = new DataOutputStream(connection.getOutputStream());
-//            os.writeBytes(content);
-//            os.flush();
-//            os.close();
-//            
-//            int responseCode = connection.getResponseCode();
-//            if (responseCode != HttpStatus.OK_200.getStatusCode()) {
-//                // not OK - log error - TODO
-//                System.err.println("Not OK when doing POST to SVN:");
-//                System.err.println("Status: " + responseCode);
-//                System.err.println("Content: " + content);
-//            }
-//        } catch (MalformedURLException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        }
     }
     
     private void postToAnnotationServer(String content) {
@@ -357,6 +325,7 @@ public class IntegrationCallback extends HPMSdkCallbacks{
     
     private List<String> getFromAnnotationServer(String requestPath) {
         Utilities.debug("Get commits from annotation server: " + requestPath);
+        commits.clear(); // remove any old commits
         String user = requestPath.split("\\?")[2]; //TODO: map Hansoft user to SVN user
         try {
             URL url = new URL(annotationServer + requestPath);
