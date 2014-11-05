@@ -124,7 +124,6 @@ public class IntegrationCallback extends HPMSdkCallbacks{
 	    } else {
 	        message = REPOSITORIES_TOKEN + repositories.toString();
 	    }
-	    System.out.println("Sending repositories to Hansoft: " + message);
 	    try {
             HansoftAdapter.getInstance().sendToHansoft(sessionId, message);
         } catch (HansoftException e) {
@@ -148,7 +147,6 @@ public class IntegrationCallback extends HPMSdkCallbacks{
 	
 	private void sendCommits(long sessionId, List<String> commits) {
 	    String message = REQUEST_COMMITS_TOKEN + commits.toString();
-	    System.out.println("Sending commits to Hansoft: " + message);
 	    try {
 	        HansoftAdapter.getInstance().sendToHansoft(sessionId, message);
 	    } catch (HansoftException e) {
@@ -398,11 +396,11 @@ public class IntegrationCallback extends HPMSdkCallbacks{
                         matchedUser = true;
                         commit = new Commit(inputLine);
                     }
-                } else {
+                } else if (matchedUser) {
                     // other commit line - message!
                     linesInCommit++;
                     commit.setMessage(commit.getMessage() + "\n" + inputLine);
-                }
+                } // else just skip
             }
             in.close();
             Set<Integer> keySet = commits.keySet();
