@@ -14,13 +14,13 @@ import org.glassfish.jersey.server.ResourceConfig;
 import se.findout.hansoft.integration_server.adapter.AdapterBinder;
 
 public class IntegrationServer {
-    
+
     static Properties properties = new Properties();
     public static boolean debug = false;
 
     public static void main(String[] args) throws IOException {
-        String propertyFile = System.getProperty("user.dir")
-                + File.separator + "server.properties";
+        String propertyFile = System.getProperty("user.dir") + File.separator
+                + "server.properties";
         for (int i = 0; i < args.length; i++) {
             if (!args[i].startsWith("-")) {
                 // no flag - assume property-file
@@ -33,17 +33,17 @@ public class IntegrationServer {
         }
         loadProperties(propertyFile);
 
-    	IntegrationServer is = new IntegrationServer();
-    	is.start();
-    	System.out.println("Hansoft/Subversion Integration Server started!");
-    	while(waitForShutdown()) {
-    	    System.out.println("Restarting -> 1. Shutdown...");
-    	    is.shutdown();
-    	    System.out.println("Restarting -> 2. Restart...");
-    	    is.start();
-    	}
-    	is.shutdown();
-   }
+        IntegrationServer is = new IntegrationServer();
+        is.start();
+        System.out.println("Hansoft/Subversion Integration Server started!");
+        while (waitForShutdown()) {
+            System.out.println("Restarting -> 1. Shutdown...");
+            is.shutdown();
+            System.out.println("Restarting -> 2. Restart...");
+            is.start();
+        }
+        is.shutdown();
+    }
 
     private static boolean waitForShutdown() throws IOException {
         do {
