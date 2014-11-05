@@ -3,6 +3,7 @@
 #include <vector>
 #include <cassert>
 #include <HPMSdkCpp.h>
+#include <errno.h>
 
 // Dummy overload
 std::wstring get_wstring(const std::wstring & s)

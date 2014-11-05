@@ -25,7 +25,7 @@ ifeq ($(OS),Windows_NT)
 else
     UNAME_S := $(shell uname -s)
     ifeq ($(UNAME_S),Linux)
-        _CCFLAGS += -D LINUX
+        _CCFLAGS += -D LINUX -fPIC
         _LDFLAGS += -pthread
         _SDKPLATFORM = Linux2.6
         _SDKEXT = so
