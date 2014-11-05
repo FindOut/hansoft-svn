@@ -4,6 +4,11 @@
 ### Makefile for building hansoft-client
 #
 
+#
+# Hansoft SDK Version
+SDK_VERSION=HansoftSDK_7_502
+#SDK_VERSION=HansoftSDK_8_101
+
 # Platform specific settings
 ifeq ($(OS),Windows_NT)
     _CCFLAGS += -D WIN32
@@ -20,14 +25,21 @@ ifeq ($(OS),Windows_NT)
 else
     UNAME_S := $(shell uname -s)
     ifeq ($(UNAME_S),Linux)
-        _CCFLAGS += -D LINUX
+        _CCFLAGS += -D LINUX -fPIC
         _LDFLAGS += -pthread
         _SDKPLATFORM = Linux2.6
         _SDKEXT = so
     endif
     ifeq ($(UNAME_S),Darwin)
         _CCFLAGS += -D OSX
-        _SDKPLATFORM = OSX10.7
+        # SDK version specific defines
+        ifeq ($(SDK_VERSION),HansoftSDK_7_502)
+        		#Hansoft SDK 7
+                _SDKPLATFORM = OSX10.7
+        else
+                #Hansoft SDK 8
+                _SDKPLATFORM = OSX10.6 
+        endif
         _SDKEXT = dylib
     endif
     UNAME_M := $(shell uname -m)
@@ -46,6 +58,13 @@ else
     endif
 endif
 
+# SDK version specific defines
+ifeq ($(SDK_VERSION),HansoftSDK_7_502)
+	_CCFLAGS += -D_HANSOFT_SDK_VERSION_7
+else
+	_CCFLAGS += -D_HANSOFT_SDK_VERSION_8
+endif
+
 # User specific settings
 -include UserSettings.mak
 
@@ -54,7 +73,7 @@ CC	= g++
 #CFLAGS	= $(_CCFLAGS)
 CFLAGS	= -g -D_DEBUG=true  $(_CCFLAGS)
 LDFLAGS = -ldl $(_LDFLAGS)
-SDKROOT = $(USER_SDKROOT)
+SDKROOT = $(USER_SDKROOT)/$(SDK_VERSION)
 SDKPLATFORM = $(_SDKPLATFORM)
 SDKLIB = HPMSdk.$(_BITARCH).$(_SDKEXT)
 

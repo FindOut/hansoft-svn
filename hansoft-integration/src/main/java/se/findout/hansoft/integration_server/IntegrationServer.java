@@ -14,13 +14,13 @@ import org.glassfish.jersey.server.ResourceConfig;
 import se.findout.hansoft.integration_server.adapter.AdapterBinder;
 
 public class IntegrationServer {
-    
+
     static Properties properties = new Properties();
     public static boolean debug = false;
 
     public static void main(String[] args) throws IOException {
-        String propertyFile = System.getProperty("user.dir")
-                + File.separator + "server.properties";
+        String propertyFile = System.getProperty("user.dir") + File.separator
+                + "server.properties";
         for (int i = 0; i < args.length; i++) {
             if (!args[i].startsWith("-")) {
                 // no flag - assume property-file
@@ -33,28 +33,35 @@ public class IntegrationServer {
         }
         loadProperties(propertyFile);
 
-    	IntegrationServer is = new IntegrationServer();
-    	is.start();
-    	System.out.println("Hansoft/Subversion Integration Server started!");
-    	waitForShutdown();
-    	is.shutdown();
-   }
+        IntegrationServer is = new IntegrationServer();
+        is.start();
+        System.out.println("Hansoft/Subversion Integration Server started!");
+        while (waitForShutdown()) {
+            System.out.println("Restarting -> 1. Shutdown...");
+            is.shutdown();
+            System.out.println("Restarting -> 2. Restart...");
+            is.start();
+        }
+        is.shutdown();
+    }
 
-    private static void waitForShutdown() throws IOException {
+    private static boolean waitForShutdown() throws IOException {
         do {
             System.out
                     .println("Press any button to shut down!");
             System.in.read();
-            System.out.print("Shutdown [Y/n]? ");
+            System.out.print("Shutdown/Restart [Y/r/n]? ");
             int key = System.in.read();
             if (key == 'Y' || key == 'y') {
-                return;
+                return false;
+            } if (key == 'R' || key == 'r') {
+                return true;
             }
             System.out.println("Continuing...");
         } while (true);
     }
 
-    private static void loadProperties(String propertyFile) {
+    public static void loadProperties(String propertyFile) {
 	     try {
 	            File mapFile = new File(propertyFile);
 	            FileInputStream fileInput = new FileInputStream(mapFile);

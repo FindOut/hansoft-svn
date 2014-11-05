@@ -17,26 +17,32 @@ public:
 
 	virtual void On_ProcessError(HPMSdk::EHPMError _Error);
 	virtual void On_Callback(const HPMSdk::HPMChangeCallbackData_ClientSyncDone &_Data);
-	//virtual void On_Callback(const HPMSdk::HPMChangeCallbackData_RightClickDisplayTaskMenu &_Data);
+	virtual void On_Callback(const HPMSdk::HPMChangeCallbackData_RightClickDisplayTaskMenu &_Data);
+    virtual void On_Callback(const HPMSdk::HPMChangeCallbackData_RightClickMenuItemSelected &_Data);
 	virtual void On_Callback(const HPMSdk::HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data);
+    virtual void On_Callback(const HPMSdk::HPMChangeCallbackData_DynamicCustomSettingsNotification &_Data);
+    virtual void On_Callback(const HPMSdk::HPMChangeCallbackData_DynamicCustomSettingsValueChanged &_Data);
 
-	//HPMSdk::HPMSdkSession *session;
 private:
 	void displayDialog(const HPMSdk::HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data);
+    void displaySelectRepositoryDialog(const HPMSdk::HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data);
+    void displayAssociateCommitDialog(const HPMSdk::HPMChangeCallbackData_CommunicationChannelPacketReceived &_Data);
 	void RegisterWithIntegration();
+    void RequestSVNRepositories();
+    void RequestSVNCommits();
 	void On_Callback(const HPMSdk::HPMChangeCallbackData_CustomTaskStatusNotification &_Data);
+    void SendToIntegrationServer(HPMSdk::HPMString message);
 	HPMSdk::HPMUInt64 GetIntegrationSessionID();
-
+	void log(HPMSdk::HPMString message);
 	HPMSdk::HPMSdkSession *m_pSession;
 	HPMSdk::HPMUInt64 _sessionId;
 
 	HPMSdk::HPMCustomTaskStatusDialogValues dialogTexts;
 	HPMSdk::HPMNotificationSubscription subscription;
 
-	HPMSdk::HPMNotificationSubscription popup;
 	HPMSdk::HPMString commit;
 };
 
-HansoftSVNPlugin *plugin;
+//HansoftSVNPlugin *plugin;
 
 #endif /* HANSOFTSVNPLUGIN_H_ */

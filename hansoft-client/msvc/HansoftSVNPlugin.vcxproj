@@ -180,6 +180,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\sdks\HansoftSDK_7_502\HPMSdkCpp.h" />
     <ClInclude Include="..\src\converter.h" />
+    <ClInclude Include="..\src\dialogs.h" />
     <ClInclude Include="..\src\HansoftSVNCommon.h" />
     <ClInclude Include="..\src\HansoftSVNPlugin.h" />
   </ItemGroup>

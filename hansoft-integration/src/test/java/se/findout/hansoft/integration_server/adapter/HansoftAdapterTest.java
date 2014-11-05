@@ -4,6 +4,7 @@ package se.findout.hansoft.integration_server.adapter;
 import static org.junit.Assert.assertEquals;
 import static org.powermock.api.easymock.PowerMock.mockStatic;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import org.easymock.EasyMock;
@@ -14,6 +15,7 @@ import org.powermock.api.easymock.PowerMock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import se.findout.hansoft.integration_server.IntegrationServer;
 import se.findout.hansoft.integration_server.model.Commit;
 import se.hansoft.hpmsdk.EHPMSdkDebugMode;
 import se.hansoft.hpmsdk.HPMCommunicationChannelPacket;
@@ -28,6 +30,7 @@ import se.hansoft.hpmsdk.HPMUniqueID;
 @PrepareForTest( { HPMSdkSession.class })
 public class HansoftAdapterTest {
 
+    private IntegrationServer integrationServer;
     private HansoftServer server;
     private Credentials user;
     private String project;
@@ -35,13 +38,17 @@ public class HansoftAdapterTest {
 
     @Before
     public void setup() {
+        integrationServer = new IntegrationServer();
         server = new HansoftServer();
         user = new Credentials();
         user.setUsername("SDK");
         user.setPassword("SDK");
-        project = "TestDB";
+        //project = "TestDB";
+        project = "Company projects";
 
-
+        String propertyFile = System.getProperty("user.dir")
+                + File.separator + "server.properties";
+        IntegrationServer.loadProperties(propertyFile);
     }
 
 
@@ -49,8 +56,10 @@ public class HansoftAdapterTest {
         mockStatic(HPMSdkSession.class);
         sdkMock = PowerMock.createMock(HPMSdkSession.class);
         //String hansoftSDKpath = "/home/bjorn/github/hansoft-svn/HansoftSDK_7_502/Linux2.6";
-        String hansoftSDKpath = System.getenv("HANSOFT_WORKING_DIR"); //"/Users/fredrik/dev/SDKs/Hansoft/HansoftSDK_7_502/OSX10.7";
-        String hansoftWorkingDir = System.getenv("HANSOFT_SDK_PATH"); //"/Users/fredrik/git/hansoft-svn/hansoft-integration";
+        //String hansoftSDKpath = System.getenv("HANSOFT_WORKING_DIR"); //"/Users/fredrik/dev/SDKs/Hansoft/HansoftSDK_7_502/OSX10.7";
+        //String hansoftWorkingDir = System.getenv("HANSOFT_SDK_PATH"); //"/Users/fredrik/git/hansoft-svn/hansoft-integration";
+        String hansoftWorkingDir = IntegrationServer.getProperty("HANSOFT_WORKING_DIR");
+        String hansoftSDKpath = IntegrationServer.getProperty("HANSOFT_SDK_PATH");
         HPMSdkSession sessionOpen = HPMSdkSession.SessionOpen(
                 server.getURL(), 
                 server.getPort(), 
@@ -192,7 +201,7 @@ public class HansoftAdapterTest {
         // Run
         EasyMock.replay(sdkMock);
         HansoftAdapter adapter = openMockAdapter();
-        Commit commit = new Commit("author", 17, "/path/to/repo/stuff", "Another test of commit");
+        Commit commit = new Commit("author", 17, "/path/to/repo/stuff", "2014-10-29 14:56:38 +0100 (Wed, 29 Oct 2014)", "Another test of commit");
         adapter.signalCommitPerformed(42, commit);
 
         // Verify

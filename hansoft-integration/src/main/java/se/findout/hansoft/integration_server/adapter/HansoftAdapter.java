@@ -113,10 +113,26 @@ public class HansoftAdapter {
         String repoName = repoFile.getName();
         String packetStr = revision + "@" + repoName;
         callback.addCommit(commit);
+        sendToHansoft(sessionID, packetStr);
+//        HPMCommunicationChannelPacket packet = new HPMCommunicationChannelPacket();
+//        // send: revision@repo to Hansoft client plug-in:
+//        //packet.m_Bytes = revision.getBytes();
+//        packet.m_Bytes = packetStr.getBytes();
+//        packet.m_Flags = EHPMPacketFlag.toEnumSet(0);
+//        try {
+//            sdkSession.CommunicationChannelSendPacket("svnChannel", sessionID, packet);
+//        } catch (HPMSdkException e) {
+//            throw new HansoftException(e.ErrorAsStr());
+//        } catch (HPMSdkJavaException e) {
+//            throw new HansoftException(e.ErrorAsStr());
+//        }
+    }
+    
+    public void sendToHansoft(long sessionID, String message) throws HansoftException {
         HPMCommunicationChannelPacket packet = new HPMCommunicationChannelPacket();
         // send: revision@repo to Hansoft client plug-in:
         //packet.m_Bytes = revision.getBytes();
-        packet.m_Bytes = packetStr.getBytes();
+        packet.m_Bytes = message.getBytes();
         packet.m_Flags = EHPMPacketFlag.toEnumSet(0);
         try {
             sdkSession.CommunicationChannelSendPacket("svnChannel", sessionID, packet);

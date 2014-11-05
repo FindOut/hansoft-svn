@@ -11,7 +11,9 @@ from objc import nil
 
 OK_REPLY = 1
 
-
+#
+# Requires svnlook on PATH
+#
 # svnlook author -r 8 /home/svn/testproject/
 def external_get_author(path, revision):
     args = ['svnlook', 'author', '-r'+revision, path]

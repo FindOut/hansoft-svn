@@ -18,7 +18,9 @@ package se.findout.hansoft.integration_server.adapter;
 /**
 * Encapsulates a Hansoft username and password.
 *
-* @author Samuel Padgett <spadgett@us.ibm.com>
+* Original @author Samuel Padgett <spadgett@us.ibm.com>
+* Adapted for Hansoft/SVN by FindOut Technologies AB
+* 
 */
 public class Credentials {
     private String username;
