@@ -36,10 +36,13 @@ def external_change_log(path, revision, file_name):
         message = f.read()
         sys.stderr.write("New commit message: {}\n".format(message))
         f.close()
-        args = ['svn', 'propset', '-r'+revision, '--revprop', 'svn:log', message, path]
+        args = ['svn', 'propset', '--no-auth-cache', '--non-interactive', 
+                '--trust-server-cert', '-r'+revision, '--revprop', 'svn:log', 
+                message, path]
     else:
         sys.stderr.write("Using svnadmin...\n")
-        args = ['svnadmin', 'setlog', '--bypass-hooks', path, '-r'+revision, file_name]
+        args = ['svnadmin', 'setlog', '--bypass-hooks', path, '-r'+revision, 
+                file_name]
     debugmessage = ""
     for arg in args:
         debugmessage += arg + ', '
