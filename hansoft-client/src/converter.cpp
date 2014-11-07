@@ -76,6 +76,10 @@ std::string get_locale_string(const std::wstring & s)
 void split(std::vector<STD_STRING> &theStringVector, const  STD_STRING  &theString, const  STD_STRING  &theDelimiter, size_t startPos)
 {
 	size_t start = startPos, end = 0;
+    
+    if (theString.length() == 0) {
+        return;
+    }
 
 	while (end != STD_STRING::npos)
 	{

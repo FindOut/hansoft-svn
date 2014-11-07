@@ -98,6 +98,11 @@ public class IntegrationCallback extends HPMSdkCallbacks{
 		    String itemsAndCommit = data.substring(POST_ANNOTATE_TOKEN.length());
 		    int hashPos = itemsAndCommit.indexOf("#");
 		    String svnRevision = itemsAndCommit.substring(hashPos + 1);
+		    // handle case where no commit was selected
+		    if (svnRevision.endsWith("#")) {
+		        // nothing needs to be done
+		        return;
+		    }
 		    String selectedItems = itemsAndCommit.substring(0, hashPos);
 		    handleSelectedTasks(svnRevision, selectedItems);
 		}
@@ -134,13 +139,16 @@ public class IntegrationCallback extends HPMSdkCallbacks{
 
 	/**
 	 * Gets a list of commits for the given repository
-	 * @param repository
+	 * @param repositoryAndUser
+	 * @param sessionId
 	 * @return
 	 */
 	private List<String> getCommits(String repositoryAndUser, long sessionId) {
-	    //TODO: do we need to translate hansoft user -> svn user
-	    //TODO: or is sessionId enough?
-	    String user = getUser(sessionId); 
+	    // map user 
+	    String user = HansoftAdapter.getInstance().mapHansoftUserToSVNUser(getUser(sessionId));
+	    // re-bake the query
+	    int userStart = repositoryAndUser.indexOf("?") + 1;
+	    repositoryAndUser = repositoryAndUser.substring(0, userStart) + user;
 	    List<String> listOfCommits = getFromAnnotationServer("/commits?" + repositoryAndUser);
 	    return listOfCommits;
 	}
@@ -347,7 +355,6 @@ public class IntegrationCallback extends HPMSdkCallbacks{
             Commit commit = null;
             int linesInCommit = -1;
             while ((inputLine = in.readLine()) != null) {
-                Utilities.debug("INPUT: " + inputLine);
                 if (inputLine.startsWith("SVNCommits:")) {
                     inputLine = inputLine.split(":")[1];
                 }

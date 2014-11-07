@@ -187,4 +187,20 @@ public class HansoftAdapter {
 	    Utilities.debug("Matched SVN user: " + svnUser + " with Hansoft user: " + hansoftUser);
 	    return hansoftUser;
 	}
+	
+	/**
+	 * Map Hansoft user to SVN user<br>
+	 * If no mapping exists, just return the Hansoft user
+	 * @param hansoftUser
+	 * @return svnUser
+	 */
+	public String mapHansoftUserToSVNUser(String hansoftUser) {
+	    String svnUser = hansoftUser; // default if no mapping found
+	    for (Object key : userMapping.keySet()) {
+	        if (key.equals(hansoftUser)) {
+	            svnUser = (String) userMapping.get(key);
+	        }
+	    }
+	    return svnUser;
+	}
 }

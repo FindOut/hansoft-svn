@@ -38,25 +38,13 @@ struct DebugHelper {
 };
 #endif
 
-//struct CDynamicHelper
-//{
-//    HPMNotificationSubscription m_RightClickSubscription;
-//    HPMNotificationSubscription m_DynamicUpdateSubscription;
-//    std::vector<HPMUniqueID> m_LastSelectedTasks; //TODO: Naming?
-//};
-
 #ifdef _DEBUG
 DebugHelper debugHelper;
 #endif
 
 HansoftSVNPlugin *g_pClientPlugin;
-//CDynamicHelper *m_pDynamicHelper;
-//HPMUserContext m_UserContext;
-//HPMString m_IntegrationIdentifier;
-//HPMString m_CustomDialogSpec;
 HPMString m_CustomDialogSpecPart1;
 HPMString m_CustomDialogSpecPart2;
-//HPMDynamicCustomSettingsContext *m_pLastDynamicContext;
 HPMString m_AssociateWithCommitDialogSpecPart1;
 HPMString m_AssociateWithCommitDialogSpecPart2;
 
@@ -68,21 +56,8 @@ HPMString svnRepository;
 bool isRequestingRepositories = false;
 bool isRequestingCommits = false;
 
-//void f_Init();
-
 HansoftSVNPlugin::HansoftSVNPlugin(const void *_pClientData) {
     m_pSession = NULL;
-    
-//#ifdef _DEBUG
-//#ifdef _MSC_VER
-//    _debuglog.open("C:\\hssvnplugin.log"); //TODO: Safe place for log on windows?
-//#else
-//    _debuglog.open("/tmp/hssvnplugin.log");
-//#endif
-//    _debuglog << "Starting log" << std::endl;
-//    _debuglog.flush();
-//#endif
-    
     try
     {
         m_pSession = HPMSdkSession::SessionOpen(
@@ -279,8 +254,11 @@ void HansoftSVNPlugin::On_Callback(const HPMChangeCallbackData_DynamicCustomSett
         } else if (isRequestingCommits) {
             m_Commits = selectedValue;
             isRequestingCommits = false;
-            //TODO - do the association now! <<<=== send the selected commit back to the Integration server along with selected Item
-            // How determine which item is selected? Get it from the dynamicHelper:
+            if (m_Commits.length() == 0) {
+                // nothing selected
+                return;
+            }
+            // Get the selected tasks from  the dynamicHelper
             HPMString selectedTasks = m_pDynamicHelper->m_selectedAnnotationTasks;
             //
             // Send format: @PostAnnotate:item(,item)*#SVNrepoURL#commit
