@@ -547,11 +547,7 @@ void HansoftSVNPlugin::displayAssociateCommitDialog(const HPMChangeCallbackData_
     HPMString selectedTasks = HPMString();
     for (std::vector<HPMUniqueID>::iterator iter = m_pDynamicHelper->m_LastSelectedTasks.begin();
          iter != m_pDynamicHelper->m_LastSelectedTasks.end(); iter++) {
-        //selectedTasks += hpm_str("\"") + m_pSession->TaskGetDescription(
-        //    m_pSession->TaskRefGetTask(*iter)) + (((iter + 1) != m_pDynamicHelper->m_LastSelectedTasks.end())? hpm_str("ALT1") : hpm_str("ALT2"));
-        //
-        //HPMUInt32 id = m_pSession->TaskGetID(m_pSession->TaskRefGetTask(*iter));
-        HPMUInt32 id = iter->m_ID - 1; // m_ID is "Database ID" + 1 - we need "Database ID"
+        HPMUInt32 id = m_pSession->TaskRefGetTask((*iter).m_ID);
         selectedTasks += convertToString(id);
     }
     m_pDynamicHelper->m_selectedAnnotationTasks = selectedTasks;
