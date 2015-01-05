@@ -68,12 +68,14 @@ public class IntegrationCallback extends HPMSdkCallbacks{
 	public void On_CommunicationChannelPacketReceived(HPMChangeCallbackData_CommunicationChannelPacketReceived packet) {
 		long sessionID = packet.m_FromSessionID;
 		String data = "";
+		int length = packet.m_Packet.m_Bytes.length;
 		for(int i=0; i < packet.m_Packet.m_Bytes.length; ++i) {
 			if(packet.m_Packet.m_Bytes[i] == 0) {
-				data = new String(packet.m_Packet.m_Bytes, 0 , i);
+			    length = i;
 				break;
 			}
 		}
+		data = new String(packet.m_Packet.m_Bytes, 0 , length);  
 		// handle user name or selected items response
 		if (data.startsWith(COMMIT_TOKEN)) {
 		    String svnRevision = getRevision(data, COMMIT_TOKEN);
