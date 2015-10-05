@@ -31,11 +31,11 @@ WINDOWS:
 
 
 ## Add hansoft SDK artifacts to your local mvn repo:
-cd <HansoftSDKroot>/<HostOSVersion>/<JavaSdkVersion>/lib>
+cd <HansoftSDKroot>/<HostOSVersion>/JavaSdkx64/lib>
 # 1. Add Java (for each platform: osx, win32, win64, linux32, linux64):
 mvn install::install-file -Dfile=hpmsdk.jar -DgroupId=com.hansoft.sdk.lib -DartifactId=hansoft-lib -Dversion=7.5.0.2 -Dpackaging=jar -Dclassifier=osx
 # 2. Add native
-cd <SDKdir>/<platform>
+cd <HansoftSDKroot>/<platform>
 # edit to match dynlibs etc on the given platform:
 jar cvf hpmsdk-native.jar HPMSdk.x64.dylib JavaSdkx64/lib/*
 # edit -Dclassifier to match the given platform, eg {osx, win32, linux64, linux32?}:
